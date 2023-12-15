@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "105259483691",
+    "project_id": "no1payamax",
+    "storage_bucket": "no1payamax.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:105259483691:android:88aac3ee7bccb79084606e",
+        "android_client_info": {
+          "package_name": "no1.PayamaX"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwHHYYtqWozNSSBQNp_ZeSNVIu2rXxf2A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
