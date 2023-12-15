@@ -13,4 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
-*.abb
+*.aab
+*.bin

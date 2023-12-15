@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    //!removed google analytics!id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -8,7 +9,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "no1.payamax"
+        applicationId = "no1.PayamaX"
         minSdk = 24
         targetSdk = 34
         versionCode = 2
@@ -22,7 +23,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -52,6 +53,7 @@ android {
 dependencies {
     implementation("androidx.compose.foundation:foundation:1.5.4")
     implementation("com.google.accompanist:accompanist-permissions:0.33.2-alpha")
+    //!removed google analytics!implementation("com.google.firebase:firebase-analytics:17.4.1")
 
 
     //noinspection GradleDependency
