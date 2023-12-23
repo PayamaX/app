@@ -10,8 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.MutableLiveData
-import no1.payamax.contracts.UsabilityClass
-import no1.payamax.model.MessageModel
 import no1.payamax.vm.MessagesViewModel
 
 @Composable
@@ -34,38 +32,6 @@ fun MessagesComposablePreview() {
         viewModel = MessagesViewModel(
             MutableLiveData(
                 listOf(
-                    MessageModel(
-                        0L,
-                        "9123456789",
-                        "Important Message",
-                        "",
-                        "",
-                        UsabilityClass.Important
-                    ),
-                    MessageModel(
-                        0L,
-                        "9123456789",
-                        "Usable Message",
-                        "",
-                        "",
-                        UsabilityClass.Usable
-                    ),
-                    MessageModel(
-                        0L,
-                        "9123456789",
-                        "Unknown Message",
-                        "",
-                        "",
-                        UsabilityClass.Unknown
-                    ),
-                    MessageModel(
-                        0L,
-                        "9123456789",
-                        "Spam Message",
-                        "",
-                        "",
-                        UsabilityClass.Spam
-                    ),
                 )
             )
         )

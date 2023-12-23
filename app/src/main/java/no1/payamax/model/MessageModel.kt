@@ -1,12 +1,10 @@
 package no1.payamax.model
 
-import no1.payamax.contracts.UsabilityClass
+import no1.payamax.contracts.Payamak
+import no1.payamax.contracts.Usability
 
-data class MessageModel(
+data class ProcessedPayamakModel(
     val id: Long,
-    val origin: String,
-    val text: String,
-    val dest: String,
-    val type: String,
-    val usabilityClass: UsabilityClass
+    val payamak: Payamak,
+    val usability: Usability,
 )

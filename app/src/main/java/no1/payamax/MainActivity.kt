@@ -1,11 +1,18 @@
 package no1.payamax
 
+import android.content.ContentResolver
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.provider.BaseColumns
+import android.provider.ContactsContract
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -14,18 +21,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.core.database.getStringOrNull
 import androidx.lifecycle.MutableLiveData
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.shouldShowRationale
 import no1.payamax.composables.MessagesComposable
+import no1.payamax.contracts.Contact
 import no1.payamax.contracts.Origin
 import no1.payamax.contracts.Payamak
-import no1.payamax.contracts.UsabilityClass
-import no1.payamax.model.MessageModel
+import no1.payamax.model.ProcessedPayamakModel
 import no1.payamax.services.AdvertisementOriginUsabilityProcessor
+import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.ui.theme.PayamaXTheme
 import no1.payamax.vm.MessagesViewModel
@@ -36,71 +48,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PayamaXTheme {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(5.dp),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    Column {
+                        Text(text = stringResource(id = R.string.guide))
                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                             CheckPayamakPermission {
                                 val inboxUri = "content://sms/inbox"
                                 val uri = Uri.parse(inboxUri)
-                                val projection =
-                                    arrayOf("_id", "address", "person", "body", "date", "type")
-                                (contentResolver.query(
-                                    uri, projection, "", null, "date desc"
-                                ) ?: throw RuntimeException("")).use { cursor ->
-                                    val messages = mutableListOf<MessageModel>()
-                                    var index = 0
-                                    val usabilityProcessor = UsabilityProcessorEngine(
-                                        listOf(AdvertisementOriginUsabilityProcessor())
-                                    )
-                                    if (cursor.moveToFirst()) {
-                                        val idIndex = 0
-                                        val addressIndex = 1
-                                        val bodyIndex = 3
-                                        val typeIndex = 5
-                                        do {
-                                            val addressValue = cursor.getString(addressIndex)
-                                            val addressNumber = addressValue.toLongOrNull()
-                                            val addressTitle =
-                                                if (addressNumber == null) addressValue else null
-                                            val origin =
-                                                Origin(addressNumber, addressTitle, null)
-                                            val payamak = Payamak(
-                                                0L, origin, cursor.getString(bodyIndex)
-                                            )
-                                            messages.add(
-                                                MessageModel(
-                                                    cursor.getLong(idIndex),
-                                                    cursor.getString(addressIndex),
-                                                    cursor.getString(bodyIndex),
-                                                    "",
-                                                    cursor.getString(typeIndex),
-                                                    usabilityProcessor.detect(payamak)
-                                                )
-                                            )
-                                        } while (cursor.moveToNext() && index++ <= 10)
-                                    }
-                                    if (messages.isEmpty()) {
-                                        messages.add(
-                                            MessageModel(
-                                                1,
-                                                "989123456789",
-                                                "Important",
-                                                "",
-                                                "",
-                                                UsabilityClass.Important
-                                            )
-                                        )
-                                    }
-                                    MessagesComposable(
-                                        viewModel = MessagesViewModel(
-                                            MutableLiveData(
-                                                messages
-                                            )
-                                        )
-                                    )
+                                (contentResolver.query(uri, null, "", null, "date desc")
+                                    ?: throw RuntimeException("")).use { cursor ->
+                                    DetectUsability(cursor, contentResolver)
                                 }
                             }
                         }
@@ -111,31 +73,153 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
+
+    val messages = mutableListOf<ProcessedPayamakModel>()
+    var index = 0
+    val usabilityProcessor = UsabilityProcessorEngine(
+        listOf(AdvertisementOriginUsabilityProcessor())
+    )
+    if (cursor.moveToFirst()) {
+        val payamakColumns = PayamakColumns(cursor)
+        LazyColumn(modifier = Modifier.padding(5.dp)) {
+            do {
+                val addressValue = cursor.getString(payamakColumns.addressIndex)
+                val addressNumber = addressValue.toLongOrNull()
+                val addressTitle = if (addressNumber == null) addressValue else null
+                val origin = Origin(
+                    addressNumber,
+                    addressTitle,
+                    addressNumber?.let { contact(it.toString(), cr) })
+                val payamak = Payamak(0L, origin, cursor.getString(payamakColumns.bodyIndex))
+
+                messages.add(
+                    ProcessedPayamakModel(
+                        cursor.getLong(payamakColumns.idIndex),
+                        payamak,
+                        usabilityProcessor.detect(payamak)
+                    )
+                )
+            } while (cursor.moveToNext() && index++ <= 150)
+        }
+    }
+    if (messages.isEmpty()) {
+        Text(text = "Empty")
+    } else {
+        MessagesComposable(
+            viewModel = MessagesViewModel(
+                MutableLiveData(
+                    messages
+                )
+            )
+        )
+    }
+}
+
+fun contact(addressNumber: String, cr: ContentResolver): Contact? {
+    val contactsUri = Uri.withAppendedPath(
+        ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(addressNumber)
+    )
+    cr.query(
+        contactsUri,
+        arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME),
+        null,
+        null,
+        null
+    )?.use {
+        //return Contact(it.count.toLong(), it.count.toString())
+        if (it.moveToFirst()) {
+            val dump = dump(it)
+            Log.i("dump", dump)
+            return Contact(it.getLong(0), it.getString(1))
+        }
+    }
+    return null
+}
+
+fun dump(it: Cursor): String {
+    val output = StringBuffer()
+    for (col in it.columnNames.withIndex()) {
+        val index = col.index
+        val name = col.value
+        val type = it.getType(col.index)
+        val typeName = typeName(type)
+        val value = it.getStringOrNull(col.index)
+        output.append("$index\t$name\t$typeName\t$value\n")
+    }
+    return output.toString()
+}
+
+fun typeName(type: Int): String {
+    return when (type) {
+        Cursor.FIELD_TYPE_BLOB -> "BLOB"
+        Cursor.FIELD_TYPE_FLOAT -> "FLOAT"
+        Cursor.FIELD_TYPE_INTEGER -> "INT"
+        Cursor.FIELD_TYPE_NULL -> "NULL"
+        Cursor.FIELD_TYPE_STRING -> "TEXT"
+        else -> "ELSE"
+    }
+}
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CheckPayamakPermission(content: @Composable () -> Unit) {
-    val permissionState = rememberPermissionState(
-        android.Manifest.permission.READ_SMS
+    val permissionState = rememberMultiplePermissionsState(
+        listOf(android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_CONTACTS)
     )
 
-    if (permissionState.status.isGranted) {
-        content()
-    } else {
-        Column {
-            val textToShow = if (permissionState.status.shouldShowRationale) {
-                // If the user has denied the permission but the rationale can be shown,
-                // then gently explain why the app requires this permission
-                "مجوز دریافت پیامک‌ها لازم است"
-            } else {
-                // If it's the first time the user lands on this feature, or the user
-                // doesn't want to be asked again for this permission, explain that the
-                // permission is required
-                "برای بررسی و تشخیص هرزپیامک‌ها، دسترسی به پیامک‌ها لازم است. "
+    for (ps in permissionState.permissions) {
+        if (!ps.status.isGranted) {
+            when (ps.permission) {
+                android.Manifest.permission.READ_SMS -> ReadPayamakPermissionMessage(ps)
+                android.Manifest.permission.READ_CONTACTS -> ReadContactsPermissionMessage(ps)
             }
-            Text(textToShow)
-            Button(onClick = { permissionState.launchPermissionRequest() }) {
-                Text("درخواست محوز دریافت پیامک‌ها")
-            }
+            return
+        }
+    }
+    content()
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun ReadContactsPermissionMessage(ps: PermissionState) {
+    Column {
+        val textToShow = if (ps.status.shouldShowRationale) {
+            // If the user has denied the permission but the rationale can be shown,
+            // then gently explain why the app requires this permission
+            "Reading contacts permission is required"
+        } else {
+            // If it's the first time the user lands on this feature, or the user
+            // doesn't want to be asked again for this permission, explain that the
+            // permission is required
+            "Reading contacts permission is required to detect if sender already saved in your contacts or not"
+        }
+        Text(textToShow)
+        Button(onClick = { ps.launchPermissionRequest() }) {
+            Text("Request for contacts permission")
+        }
+    }
+}
+
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun ReadPayamakPermissionMessage(ps: PermissionState) {
+    Column {
+        val textToShow = if (ps.status.shouldShowRationale) {
+            // If the user has denied the permission but the rationale can be shown,
+            // then gently explain why the app requires this permission
+            "مجوز دریافت پیامک‌ها لازم است"
+        } else {
+            // If it's the first time the user lands on this feature, or the user
+            // doesn't want to be asked again for this permission, explain that the
+            // permission is required
+            "برای بررسی و تشخیص هرزپیامک‌ها، دسترسی به پیامک‌ها لازم است. "
+        }
+        Text(textToShow)
+        Button(onClick = { ps.launchPermissionRequest() }) {
+            Text("درخواست محوز دریافت پیامک‌ها")
         }
     }
 }

@@ -1,5 +1,5 @@
 package no1.payamax.contracts
 
 interface PayamakUsabilityProcessorContract {
-    fun detect(payamak: Payamak): UsabilityClass
+    fun detect(payamak: Payamak): Usability
 }
