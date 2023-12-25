@@ -1,4 +1,3 @@
 <resources>
-    <string name="app_name">PayamaX (DEBUG)</string>
-    <string name="guide">THIS IS DEMO VERSION.\nThis app does not nothing, nighter changes your SMSes nor sharing them!\nYou can just check the detection result and send feedback to me though px@no1.ir</string>
+    <string name="app_name">!PayamaX</string>
 </resources>
