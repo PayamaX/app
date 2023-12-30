@@ -32,12 +32,16 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.shouldShowRationale
 import no1.payamax.composables.MessagesComposable
+import no1.payamax.contracts.CellNumber
 import no1.payamax.contracts.Contact
 import no1.payamax.contracts.Origin
 import no1.payamax.contracts.Payamak
 import no1.payamax.model.ProcessedPayamakModel
-import no1.payamax.services.AdvertisementOriginUsabilityProcessor
+import no1.payamax.services.LandlineOriginUsabilityProcessor
 import no1.payamax.services.PayamakColumns
+import no1.payamax.services.PhonebookOriginUsabilityProcessor
+import no1.payamax.services.ThousandPrefixedOriginUsabilityProcessor
+import no1.payamax.services.TitledOriginUsabilityProcessor
 import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.ui.theme.PayamaXTheme
 import no1.payamax.vm.MessagesViewModel
@@ -79,19 +83,25 @@ fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
     val messages = mutableListOf<ProcessedPayamakModel>()
     var index = 0
     val usabilityProcessor = UsabilityProcessorEngine(
-        listOf(AdvertisementOriginUsabilityProcessor())
+        listOf(
+            LandlineOriginUsabilityProcessor(),
+            LandlineOriginUsabilityProcessor(),
+            ThousandPrefixedOriginUsabilityProcessor(),
+            PhonebookOriginUsabilityProcessor(),
+            TitledOriginUsabilityProcessor(),
+        )
     )
     if (cursor.moveToFirst()) {
         val payamakColumns = PayamakColumns(cursor)
         LazyColumn(modifier = Modifier.padding(5.dp)) {
             do {
                 val addressValue = cursor.getString(payamakColumns.addressIndex)
-                val addressNumber = addressValue.toLongOrNull()
-                val addressTitle = if (addressNumber == null) addressValue else null
+                val address = addressValue.toLongOrNull()?.let { CellNumber.parse(it) }
+                val addressTitle = if (address == null) addressValue else null
                 val origin = Origin(
-                    addressNumber,
+                    address,
                     addressTitle,
-                    addressNumber?.let { contact(it.toString(), cr) })
+                    address?.let { contact(addressValue, cr) })
                 val payamak = Payamak(0L, origin, cursor.getString(payamakColumns.bodyIndex))
 
                 messages.add(

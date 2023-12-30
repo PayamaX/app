@@ -62,7 +62,7 @@ fun MessageComposablePreview() {
     MessageComposable(
         ProcessedPayamakModel(
             0L,
-            Payamak(0L, Origin(0L, "", null), ""),
+            Payamak(0L, Origin(null, "", null), ""),
             Usability(UsabilityClass.Important, UsabilityRate(0.9))
         ),
     )
