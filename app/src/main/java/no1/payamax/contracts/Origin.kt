@@ -1,3 +1,3 @@
 package no1.payamax.contracts
 
-data class Origin(val number: Long?, val title: String?, val contact: Contact?)
+data class Origin(val number: CellNumber?, val title: String?, val contact: Contact?)

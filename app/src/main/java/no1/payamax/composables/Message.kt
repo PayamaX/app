@@ -23,30 +23,30 @@ import no1.payamax.model.ProcessedPayamakModel
 
 @Composable
 fun MessageComposable(message: ProcessedPayamakModel) {
-    Column {
+    Column(
+        modifier = Modifier.border(1.dp, color = Color.Cyan)
+    ) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(5.dp),
-                horizontalAlignment = Alignment.Start
+                    .padding(5.dp), horizontalAlignment = Alignment.Start
             ) {
                 Text(text = message.usability.clazz.name)
                 Text(text = message.usability.rate.toString())
                 Text(text = message.payamak.origin.number?.toString() ?: "(Unnumbered)")
                 Text(text = message.payamak.origin.title ?: "(Untitled)")
-                Text(text = message.payamak.origin.contact?.let { "${it.id} - ${it.name}" }
-                    ?: "(Unsaved)")
+                Text(text = message.payamak.origin.contact?.let { "${it.id} - ${it.name}" } ?: "(Unsaved)")
+                for (pr in message.usability.processResults) {
+                    Text(text = "${pr.name}:${pr.rate?.toString() ?: "(Unrated)"}")
+                }
             }
         }
         Text(
-            text = message.payamak.body,
-            modifier = Modifier
+            text = message.payamak.body, modifier = Modifier
                 .padding(5.dp)
-                .border(1.dp, color = Color.Cyan)
                 .fillMaxWidth()
-                .padding(5.dp),
-            color = when (message.usability.clazz) {
+                .padding(5.dp), color = when (message.usability.clazz) {
                 UsabilityClass.Important -> Color.Black
                 UsabilityClass.Usable -> Color.Gray
                 UsabilityClass.Unknown -> Color.Magenta
@@ -61,9 +61,7 @@ fun MessageComposable(message: ProcessedPayamakModel) {
 fun MessageComposablePreview() {
     MessageComposable(
         ProcessedPayamakModel(
-            0L,
-            Payamak(0L, Origin(0L, "", null), ""),
-            Usability(UsabilityClass.Important, UsabilityRate(0.9))
+            0L, Payamak(0L, Origin(null, "", null), ""), Usability(UsabilityClass.Important, UsabilityRate(0.9), listOf())
         ),
     )
 }
