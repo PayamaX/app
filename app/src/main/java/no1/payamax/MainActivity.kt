@@ -1,8 +1,11 @@
 package no1.payamax
 
 import android.content.ContentResolver
+import android.content.Context
+import android.content.pm.PackageInfo
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.BaseColumns
 import android.provider.ContactsContract
@@ -20,8 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.database.getStringOrNull
@@ -51,17 +54,15 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(5.dp),
-                    color = MaterialTheme.colorScheme.background
+                        .padding(5.dp), color = MaterialTheme.colorScheme.background
                 ) {
                     Column {
-                        Text(text = stringResource(id = R.string.guide))
+                        Text(text = packageInfo(LocalContext.current))
                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                             CheckPayamakPermission {
                                 val inboxUri = "content://sms/inbox"
                                 val uri = Uri.parse(inboxUri)
-                                (contentResolver.query(uri, null, "", null, "date desc")
-                                    ?: throw RuntimeException("")).use { cursor ->
+                                (contentResolver.query(uri, null, "", null, "date desc") ?: throw RuntimeException("")).use { cursor ->
                                     DetectUsability(cursor, contentResolver)
                                 }
                             }
@@ -70,6 +71,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun packageInfo(context: Context): String {
+        val pInfo: PackageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            pInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            pInfo.versionCode
+        }
+        return "${pInfo.packageName}:${versionCode}"
     }
 }
 
@@ -86,17 +98,12 @@ fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
                 val addressValue = cursor.getString(payamakColumns.addressIndex)
                 val address = addressValue.toLongOrNull()?.let { CellNumber.parse(it) }
                 val addressTitle = if (address == null) addressValue else null
-                val origin = Origin(
-                    address,
-                    addressTitle,
-                    address?.let { contact(addressValue, cr) })
+                val origin = Origin(address, addressTitle, address?.let { contact(addressValue, cr) })
                 val payamak = Payamak(0L, origin, cursor.getString(payamakColumns.bodyIndex))
 
                 messages.add(
                     ProcessedPayamakModel(
-                        cursor.getLong(payamakColumns.idIndex),
-                        payamak,
-                        UsabilityProcessorObject.detect(payamak)
+                        cursor.getLong(payamakColumns.idIndex), payamak, UsabilityProcessorObject.detect(payamak)
                     )
                 )
             } while (cursor.moveToNext() && index++ <= 150)
@@ -120,11 +127,7 @@ fun contact(addressNumber: String, cr: ContentResolver): Contact? {
         ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(addressNumber)
     )
     cr.query(
-        contactsUri,
-        arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME),
-        null,
-        null,
-        null
+        contactsUri, arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null
     )?.use {
         //return Contact(it.count.toLong(), it.count.toString())
         if (it.moveToFirst()) {
