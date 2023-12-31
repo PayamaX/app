@@ -4,18 +4,17 @@ import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
 
-class LandlineOriginUsabilityProcessor : PayamakUsabilityRuleContract {
+class PersonalOriginUsabilityProcessor : PayamakUsabilityRuleContract {
     override val name: String
-        get() = "Landline"
+        get() = "Personal"
 
     override fun guess(payamak: Payamak): UsabilityRate? {
         if (payamak.origin.number == null)
             return null
         val textual = payamak.origin.number.main.toString()
-        if (textual.startsWith("21"))
-            return UsabilityRate(0.0)
-        if (textual.startsWith("26"))
-            return UsabilityRate(0.0)
-        return null
+        val matches: Boolean = textual.matches(cellPattern)
+        return if (matches) UsabilityRate(0.8) else null
     }
 }
+
+val cellPattern = Regex("9\\d{9}")

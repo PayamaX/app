@@ -7,10 +7,10 @@ import no1.payamax.hasValue
 
 class PhonebookOriginUsabilityProcessor : PayamakUsabilityRuleContract {
     override val name: String
-        get() = "PhonebookOriginUsabilityProcessor"
+        get() = "Phonebook"
 
     override fun guess(payamak: Payamak): UsabilityRate? {
-        if(payamak.origin.contact.hasValue)
+        if (payamak.origin.contact.hasValue)
             return UsabilityRate(1.0)
         return null
     }

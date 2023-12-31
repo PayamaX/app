@@ -37,12 +37,8 @@ import no1.payamax.contracts.Contact
 import no1.payamax.contracts.Origin
 import no1.payamax.contracts.Payamak
 import no1.payamax.model.ProcessedPayamakModel
-import no1.payamax.services.LandlineOriginUsabilityProcessor
 import no1.payamax.services.PayamakColumns
-import no1.payamax.services.PhonebookOriginUsabilityProcessor
-import no1.payamax.services.ThousandPrefixedOriginUsabilityProcessor
-import no1.payamax.services.TitledOriginUsabilityProcessor
-import no1.payamax.services.UsabilityProcessorEngine
+import no1.payamax.services.UsabilityProcessorObject
 import no1.payamax.ui.theme.PayamaXTheme
 import no1.payamax.vm.MessagesViewModel
 
@@ -82,15 +78,7 @@ fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
 
     val messages = mutableListOf<ProcessedPayamakModel>()
     var index = 0
-    val usabilityProcessor = UsabilityProcessorEngine(
-        listOf(
-            LandlineOriginUsabilityProcessor(),
-            LandlineOriginUsabilityProcessor(),
-            ThousandPrefixedOriginUsabilityProcessor(),
-            PhonebookOriginUsabilityProcessor(),
-            TitledOriginUsabilityProcessor(),
-        )
-    )
+
     if (cursor.moveToFirst()) {
         val payamakColumns = PayamakColumns(cursor)
         LazyColumn(modifier = Modifier.padding(5.dp)) {
@@ -108,7 +96,7 @@ fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
                     ProcessedPayamakModel(
                         cursor.getLong(payamakColumns.idIndex),
                         payamak,
-                        usabilityProcessor.detect(payamak)
+                        UsabilityProcessorObject.detect(payamak)
                     )
                 )
             } while (cursor.moveToNext() && index++ <= 150)

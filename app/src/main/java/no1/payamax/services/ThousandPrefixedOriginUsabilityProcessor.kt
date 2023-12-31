@@ -6,7 +6,7 @@ import no1.payamax.contracts.UsabilityRate
 
 class ThousandPrefixedOriginUsabilityProcessor : PayamakUsabilityRuleContract {
     override val name: String
-        get() = "ThousandPrefixedOriginUsabilityProcessor"
+        get() = "Thousand"
 
     override fun guess(payamak: Payamak): UsabilityRate? {
         if (payamak.origin.number == null)
