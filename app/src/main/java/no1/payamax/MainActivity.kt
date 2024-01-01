@@ -50,7 +50,10 @@ import no1.payamax.vm.MessagesViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        if (BuildConfig.DEBUG) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+
         setContent {
             PayamaXTheme {
                 Surface(
