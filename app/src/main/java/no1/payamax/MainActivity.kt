@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.BaseColumns
 import android.provider.ContactsContract
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -49,6 +50,10 @@ import no1.payamax.vm.MessagesViewModel
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (BuildConfig.DEBUG) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+
         setContent {
             PayamaXTheme {
                 Surface(
