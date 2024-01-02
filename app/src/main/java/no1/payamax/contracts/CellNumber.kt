@@ -4,6 +4,13 @@ import kotlin.math.log10
 import kotlin.math.pow
 
 data class CellNumber(val prefix: Int?, val main: Long) {
+    fun dump(indent: String): String {
+        val output = StringBuffer("\n")
+        output.append("${indent}prefix: $prefix\n")
+        output.append("${indent}main: $main\n")
+        return output.toString()
+    }
+
     companion object {
         private val prefixes = listOf(98)
 
