@@ -7,6 +7,7 @@ val UsabilityProcessorObject = UsabilityProcessorEngine(
         PhonebookOriginUsabilityProcessor(),
         TitledOriginUsabilityProcessor(),
         PersonalOriginUsabilityProcessor(),
-        OperatorOriginUsabilityProcessor()
+        OperatorOriginUsabilityProcessor(),
+        EmojiUsabilityProcessor()
     )
 )
