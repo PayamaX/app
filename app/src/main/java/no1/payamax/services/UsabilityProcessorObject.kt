@@ -8,6 +8,7 @@ val UsabilityProcessorObject = UsabilityProcessorEngine(
         TitledOriginUsabilityProcessor(),
         PersonalOriginUsabilityProcessor(),
         OperatorOriginUsabilityProcessor(),
-        EmojiUsabilityProcessor()
+        EmojiUsabilityProcessor(),
+        Cancel11UsabilityProcessor(),
     )
 )
