@@ -67,7 +67,8 @@ class MainActivity : ComponentActivity() {
                             CheckPayamakPermission {
                                 val inboxUri = "content://sms/inbox"
                                 val uri = Uri.parse(inboxUri)
-                                (contentResolver.query(uri, null, "", null, "date desc") ?: throw RuntimeException("")).use { cursor ->
+                                (contentResolver.query(uri, null, "", null, "date desc")
+                                    ?: throw RuntimeException("")).use { cursor ->
                                     DetectUsability(cursor, contentResolver)
                                 }
                             }
@@ -86,7 +87,7 @@ class MainActivity : ComponentActivity() {
             @Suppress("DEPRECATION")
             pInfo.versionCode
         }
-        return "${pInfo.packageName}:${versionCode}"
+        return "${pInfo.packageName}:${versionCode}:${pInfo.versionName}"
     }
 }
 
@@ -103,12 +104,15 @@ fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
                 val addressValue = cursor.getString(payamakColumns.addressIndex)
                 val address = addressValue.toLongOrNull()?.let { CellNumber.parse(it) }
                 val addressTitle = if (address == null) addressValue else null
-                val origin = Origin(address, addressTitle, address?.let { contact(addressValue, cr) })
+                val origin =
+                    Origin(address, addressTitle, address?.let { contact(addressValue, cr) })
                 val payamak = Payamak(0L, origin, cursor.getString(payamakColumns.bodyIndex))
 
                 messages.add(
                     ProcessedPayamakModel(
-                        cursor.getLong(payamakColumns.idIndex), payamak, UsabilityProcessorObject.detect(payamak)
+                        cursor.getLong(payamakColumns.idIndex),
+                        payamak,
+                        UsabilityProcessorObject.detect(payamak)
                     )
                 )
             } while (cursor.moveToNext() && index++ <= 150)
@@ -132,7 +136,11 @@ fun contact(addressNumber: String, cr: ContentResolver): Contact? {
         ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(addressNumber)
     )
     cr.query(
-        contactsUri, arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null
+        contactsUri,
+        arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME),
+        null,
+        null,
+        null
     )?.use {
         //return Contact(it.count.toLong(), it.count.toString())
         if (it.moveToFirst()) {
