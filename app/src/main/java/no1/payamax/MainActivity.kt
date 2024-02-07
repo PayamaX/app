@@ -40,6 +40,9 @@ import no1.payamax.contracts.CellNumber
 import no1.payamax.contracts.Contact
 import no1.payamax.contracts.Origin
 import no1.payamax.contracts.Payamak
+import no1.payamax.contracts.Usability
+import no1.payamax.contracts.UsabilityClass
+import no1.payamax.contracts.UsabilityRate
 import no1.payamax.model.ProcessedPayamakModel
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorObject
@@ -59,7 +62,8 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(5.dp), color = MaterialTheme.colorScheme.background
+                        .padding(5.dp),
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     Column {
                         Text(text = packageInfo(LocalContext.current))
@@ -67,7 +71,8 @@ class MainActivity : ComponentActivity() {
                             CheckPayamakPermission {
                                 val inboxUri = "content://sms/inbox"
                                 val uri = Uri.parse(inboxUri)
-                                (contentResolver.query(uri, null, "", null, "date desc") ?: throw RuntimeException("")).use { cursor ->
+                                (contentResolver.query(uri, null, "", null, "date desc")
+                                    ?: throw RuntimeException("")).use { cursor ->
                                     DetectUsability(cursor, contentResolver)
                                 }
                             }
@@ -83,8 +88,7 @@ class MainActivity : ComponentActivity() {
         val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             pInfo.longVersionCode
         } else {
-            @Suppress("DEPRECATION")
-            pInfo.versionCode
+            @Suppress("DEPRECATION") pInfo.versionCode
         }
         return "${pInfo.packageName}:${versionCode}"
     }
@@ -103,17 +107,33 @@ fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
                 val addressValue = cursor.getString(payamakColumns.addressIndex)
                 val address = addressValue.toLongOrNull()?.let { CellNumber.parse(it) }
                 val addressTitle = if (address == null) addressValue else null
-                val origin = Origin(address, addressTitle, address?.let { contact(addressValue, cr) })
+                val origin =
+                    Origin(address, addressTitle, address?.let { contact(addressValue, cr) })
                 val payamak = Payamak(0L, origin, cursor.getString(payamakColumns.bodyIndex))
 
                 messages.add(
                     ProcessedPayamakModel(
-                        cursor.getLong(payamakColumns.idIndex), payamak, UsabilityProcessorObject.detect(payamak)
+                        cursor.getLong(payamakColumns.idIndex),
+                        payamak,
+                        UsabilityProcessorObject.detect(payamak)
                     )
                 )
-            } while (cursor.moveToNext() && index++ <= 150)
+            } while (cursor.moveToNext() && index++ < 0)
         }
     }
+    if (messages.isEmpty()) messages.add(
+        ProcessedPayamakModel(
+            0L, Payamak(
+                0L, Origin(
+                    CellNumber(
+                        98, 9123430412L
+                    ), null, null
+                ), "Sample"
+            ), Usability(
+                UsabilityClass.Usable, UsabilityRate(0.9), emptyList()
+            ), null
+        )
+    )
     if (messages.isEmpty()) {
         Text(text = "Empty")
     } else {
@@ -132,7 +152,11 @@ fun contact(addressNumber: String, cr: ContentResolver): Contact? {
         ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(addressNumber)
     )
     cr.query(
-        contactsUri, arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null
+        contactsUri,
+        arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME),
+        null,
+        null,
+        null
     )?.use {
         //return Contact(it.count.toLong(), it.count.toString())
         if (it.moveToFirst()) {
