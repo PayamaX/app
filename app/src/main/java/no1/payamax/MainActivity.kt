@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
         } else {
             @Suppress("DEPRECATION") pInfo.versionCode
         }
-        return "${pInfo.packageName}:${versionCode}"
+        return "${pInfo.packageName}:${versionCode}:${pInfo.versionName}"
     }
 }
 
