@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -34,7 +35,7 @@ fun MessagesComposable(viewModel: MessagesViewModel) {
         mutableStateOf(Stats(messages))
     }
     val selectionState = remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Column {
@@ -49,13 +50,13 @@ fun MessagesComposable(viewModel: MessagesViewModel) {
             ) {
                 items(messages) { message ->
                     MessageComposable(msgValue = message,
-                        { selected -> selectionState.value += (if (selected) 1 else -1) },
+                        { selected -> selectionState.intValue += (if (selected) 1 else -1) },
                         { statusState.value = Stats(messages) })
                     Spacer(modifier = Modifier.height(5.dp))
                 }
             }
             val ctx = LocalContext.current
-            Button(enabled = selectionState.value > 0, onClick = {
+            Button(enabled = selectionState.intValue > 0, onClick = {
                 viewModel.share(ctx)
             }) {
                 Icon(Icons.Rounded.Share, contentDescription = "share")
