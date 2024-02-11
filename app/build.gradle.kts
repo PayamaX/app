@@ -12,8 +12,8 @@ android {
         applicationId = "no1.PayamaX"
         minSdk = 24
         targetSdk = 34
-        versionCode = 10
-        versionName = "1.0.1.0-laghv"
+        versionCode = 12
+        versionName = "1.0.1.2-bulkshare"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
