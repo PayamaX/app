@@ -1,0 +1,8 @@
+<paths>
+    <files-path
+        name="export"
+        path="." />
+    <cache-path
+        name="export"
+        path="." />
+</paths>

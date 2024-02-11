@@ -4,12 +4,15 @@ import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,15 +35,19 @@ import no1.payamax.contracts.Usability
 import no1.payamax.contracts.UsabilityClass
 import no1.payamax.contracts.UsabilityRate
 import no1.payamax.model.ProcessedPayamakModel
+import no1.payamax.model.ReviewableProcessedPayamak
 
 @Composable
 fun MessageComposable(
-    msgValue: ProcessedPayamakModel,
-    onDesiredResultChanged: (message: ProcessedPayamakModel, clazz: UsabilityClass) -> Unit
+    msgValue: ReviewableProcessedPayamak,
+    onSelected: (Boolean) -> Unit,
+    onDesiredResultChanged: () -> Unit
 ) {
-    val msgState = remember { mutableStateOf(msgValue.expectedUsabilityClass) }
+    val expectedState = remember { mutableStateOf(msgValue.pp.expectedUsabilityClass) }
+    val selectedState = remember { mutableStateOf(msgValue.selected) }
     Column(
-        modifier = Modifier.border(1.dp, color = Color.Cyan)
+        modifier = Modifier
+            .border(1.dp, color = Color.Cyan)
     ) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             Column(
@@ -50,56 +57,73 @@ fun MessageComposable(
                 horizontalAlignment = Alignment.Start
             ) {
                 val ctx = LocalContext.current
-                Button(onClick = {
-                    val sendIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, msgValue.dump())
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = {
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, msgValue.pp.dump())
+                        }
+                        val shareIntent =
+                            Intent.createChooser(sendIntent, "email to px@no1.ir or t.me/DrHBN ")
+                        ctx.startActivity(shareIntent)
+                    }) {
+                        Icon(Icons.Rounded.Share, contentDescription = "share")
                     }
-                    val shareIntent =
-                        Intent.createChooser(sendIntent, "email to px@no1.ir or t.me/HBNTheGreat ")
-                    ctx.startActivity(shareIntent)
-                }) {
-                    Icon(Icons.Rounded.Share, contentDescription = "share")
+                    Checkbox(checked = selectedState.value, onCheckedChange = {
+                        selectedState.value = it
+                        msgValue.selected = it
+                        onSelected(it)
+                    })
                 }
-                Text(text = msgValue.usability.clazz.name)
+                Text(text = msgValue.pp.usability.clazz.name)
                 for (clazz in UsabilityClass.values()) UsabilityLink(
-                    msgState.value, clazz
+                    expectedState.value, clazz
                 ) { y ->
-                    msgState.value = y
+                    expectedState.value = y
+                    msgValue.pp.expectedUsabilityClass = expectedState.value
+                    onDesiredResultChanged()
                 }
 
-                Text(text = msgValue.usability.rate.toString())
-                Text(text = msgValue.payamak.origin.number?.toString() ?: "(Unnumbered)")
-                Text(text = msgValue.payamak.origin.title ?: "(Untitled)")
-                Text(text = msgValue.payamak.origin.contact?.let { "${it.id} - ${it.name}" }
+                Text(
+                    text = msgValue.pp.payamak.body,
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .fillMaxWidth()
+                        .padding(5.dp),
+                    color = when (msgValue.pp.usability.clazz) {
+                        UsabilityClass.Important -> Color.Black
+                        UsabilityClass.Usable -> Color.Gray
+                        UsabilityClass.Unknown -> Color.Magenta
+                        UsabilityClass.Spam -> Color.Red
+                    }
+                )
+
+                Text(text = msgValue.pp.usability.rate.toString())
+                Text(text = msgValue.pp.payamak.origin.number?.toString() ?: "(Unnumbered)")
+                Text(text = msgValue.pp.payamak.origin.title ?: "(Untitled)")
+                Text(text = msgValue.pp.payamak.origin.contact?.let { "${it.id} - ${it.name}" }
                     ?: "(Unsaved)")
-                for (pr in msgValue.usability.processResults) {
+                for (pr in msgValue.pp.usability.processResults) {
                     Text(text = "${pr.name}:${pr.rate?.toString() ?: "(Unrated)"}")
                 }
             }
         }
-        Text(
-            text = msgValue.payamak.body,
-            modifier = Modifier
-                .padding(5.dp)
-                .fillMaxWidth()
-                .padding(5.dp),
-            color = when (msgValue.usability.clazz) {
-                UsabilityClass.Important -> Color.Black
-                UsabilityClass.Usable -> Color.Gray
-                UsabilityClass.Unknown -> Color.Magenta
-                UsabilityClass.Spam -> Color.Red
-            }
-        )
     }
+}
+
+fun bgColor(p: ReviewableProcessedPayamak): Color {
+    val selected = Color(Color.Magenta.red, Color.Magenta.green, Color.Magenta.blue, 0.5F)
+    val unselected = Color(Color.Cyan.red, Color.Cyan.green, Color.Cyan.blue, 0.5F)
+    return if (p.selected) selected else unselected
 }
 
 @Composable
 fun UsabilityLink(
-    current: UsabilityClass?,
-    clazz: UsabilityClass,
-    onClick: (clazz: UsabilityClass) -> Unit
+    current: UsabilityClass?, clazz: UsabilityClass, onClick: (clazz: UsabilityClass) -> Unit
 ) {
     val background = expectedUsabilityBackground(current, clazz)
     return Text(text = clazz.name,
@@ -130,11 +154,15 @@ fun expectedUsabilityBackground(current: UsabilityClass?, desired: UsabilityClas
 @Composable
 fun MessageComposablePreview() {
     MessageComposable(
-        ProcessedPayamakModel(
-            0L,
-            Payamak(0L, Origin(null, "", null), ""),
-            Usability(UsabilityClass.Important, UsabilityRate(0.9), listOf()),
-            UsabilityClass.Important,
-        )
-    ) { _, _ -> }
+        ReviewableProcessedPayamak(
+            ProcessedPayamakModel(
+                0L,
+                Payamak(0L, Origin(null, "", null), ""),
+                Usability(UsabilityClass.Important, UsabilityRate(0.9), listOf()),
+                UsabilityClass.Important,
+            ), true
+        ),
+        { _ -> },
+        { -> }
+    )
 }

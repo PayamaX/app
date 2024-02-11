@@ -29,7 +29,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.database.getStringOrNull
-import androidx.lifecycle.MutableLiveData
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
@@ -43,7 +42,9 @@ import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.Usability
 import no1.payamax.contracts.UsabilityClass
 import no1.payamax.contracts.UsabilityRate
+import no1.payamax.model.ProcessResult
 import no1.payamax.model.ProcessedPayamakModel
+import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorObject
 import no1.payamax.ui.theme.PayamaXTheme
@@ -97,7 +98,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
 
-    val messages = mutableListOf<ProcessedPayamakModel>()
+    val messages = mutableListOf<ReviewableProcessedPayamak>()
     var index = 0
 
     if (cursor.moveToFirst()) {
@@ -112,36 +113,47 @@ fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
                 val payamak = Payamak(0L, origin, cursor.getString(payamakColumns.bodyIndex))
 
                 messages.add(
-                    ProcessedPayamakModel(
-                        cursor.getLong(payamakColumns.idIndex),
-                        payamak,
-                        UsabilityProcessorObject.detect(payamak)
+                    ReviewableProcessedPayamak(
+                        ProcessedPayamakModel(
+                            cursor.getLong(payamakColumns.idIndex),
+                            payamak,
+                            UsabilityProcessorObject.detect(payamak)
+                        ), false
                     )
                 )
-            } while (cursor.moveToNext() && index++ < 0)
+            } while (cursor.moveToNext() && index++ < 99)
         }
     }
-    if (messages.isEmpty()) messages.add(
-        ProcessedPayamakModel(
-            0L, Payamak(
-                0L, Origin(
-                    CellNumber(
-                        98, 9123430412L
-                    ), null, null
-                ), "Sample"
-            ), Usability(
-                UsabilityClass.Usable, UsabilityRate(0.9), emptyList()
-            ), null
+    if (BuildConfig.DEBUG && messages.isEmpty()) {
+        messages.add(
+            ReviewableProcessedPayamak(
+                ProcessedPayamakModel(
+                    0,
+                    Payamak(
+                        0, Origin(
+                            CellNumber(
+                                98, 9123456789
+                            ),
+                            null,
+                            null,
+                        ), "Sample"
+                    ),
+                    Usability(
+                        UsabilityClass.Usable,
+                        UsabilityRate(0.9),
+                        listOf(ProcessResult("Sample", false, null, ""))
+                    ),
+                    UsabilityClass.Usable,
+                ), false
+            )
         )
-    )
+    }
     if (messages.isEmpty()) {
         Text(text = "Empty")
     } else {
         MessagesComposable(
             viewModel = MessagesViewModel(
-                MutableLiveData(
-                    messages
-                )
+                messages
             )
         )
     }

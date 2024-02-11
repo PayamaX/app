@@ -82,4 +82,8 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation("com.google.code.gson:gson:2.10")
+    implementation("commons-io:commons-io:2.8.0")
+
 }
