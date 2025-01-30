@@ -153,7 +153,7 @@ fun Payamaks(cursor: Cursor, cr: ContentResolver) {
     } else {
         MessagesComposable(
             viewModel = MessagesViewModel(
-                messages.filter { it.pp.usability.clazz != UsabilityClass.Spam  }
+                messages.filter { it.pp.usability.clazz != UsabilityClass.Spam && it.pp.usability.clazz != UsabilityClass.Unknown   }
             )
         )
     }

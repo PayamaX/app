@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Share
@@ -56,7 +57,7 @@ fun MessageComposable(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = msgValue.pp.payamak.origin.number?.prefix.toString() + msgValue.pp.payamak.origin.number?.main.toString(),
+                    text = msgValue.pp.payamak.origin.displayable(),
                     modifier = Modifier
                         .padding(1.dp, 1.dp)
                         .fillMaxWidth()
@@ -84,7 +85,10 @@ fun MessageComposable(
             }
         }
     }
-    Divider(modifier = Modifier
-        .fillMaxWidth()
-        .border(1.dp, Color.Gray))
+    Divider(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(0.5.dp)
+            .background(Color.Gray)
+    )
 }
