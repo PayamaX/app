@@ -67,17 +67,17 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column {
-                        Text(text = packageInfo(LocalContext.current))
                         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                             CheckPayamakPermission {
                                 val inboxUri = "content://sms/inbox"
                                 val uri = Uri.parse(inboxUri)
                                 (contentResolver.query(uri, null, "", null, "date desc")
                                     ?: throw RuntimeException("")).use { cursor ->
-                                    DetectUsability(cursor, contentResolver)
+                                    Payamaks(cursor, contentResolver)
                                 }
                             }
                         }
+                        Text(text = packageInfo(LocalContext.current))
                     }
                 }
             }
@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
+fun Payamaks(cursor: Cursor, cr: ContentResolver) {
 
     val messages = mutableListOf<ReviewableProcessedPayamak>()
     var index = 0
@@ -153,7 +153,7 @@ fun DetectUsability(cursor: Cursor, cr: ContentResolver) {
     } else {
         MessagesComposable(
             viewModel = MessagesViewModel(
-                messages
+                messages.filter { it.pp.usability.clazz != UsabilityClass.Spam  }
             )
         )
     }

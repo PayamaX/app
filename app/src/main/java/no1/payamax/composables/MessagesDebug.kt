@@ -27,7 +27,7 @@ import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.vm.MessagesViewModel
 
 @Composable
-fun MessagesComposable(viewModel: MessagesViewModel) {
+fun MessagesDebugComposable(viewModel: MessagesViewModel) {
     val messages = remember {
         viewModel.msgs
     }
@@ -39,27 +39,51 @@ fun MessagesComposable(viewModel: MessagesViewModel) {
     }
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Column {
+            Text(text = "Applicability: ${statusState.value.applicability?.let { (it * 100).toString() + "%" } ?: "Unknown"}")
+            Text(text = "Number of correct detections: ${statusState.value.trueDetectedCount}")
+            Text(text = "Number of incorrect detections: ${statusState.value.falseDetections}")
+            Text(text = "Number of determined: ${statusState.value.undeterminedCount}")
             LazyColumn(
                 modifier = Modifier
                     .padding(5.dp)
                     .weight(1f)
             ) {
                 items(messages) { message ->
-                    MessageComposable(msgValue = message,
+                    MessageDebugComposable(msgValue = message,
                         { selected -> selectionState.intValue += (if (selected) 1 else -1) },
                         { statusState.value = Stats(messages) })
                     Spacer(modifier = Modifier.height(5.dp))
                 }
             }
+            val ctx = LocalContext.current
+            Button(enabled = selectionState.intValue > 0, onClick = {
+                viewModel.share(ctx)
+            }) {
+                Icon(Icons.Rounded.Share, contentDescription = "share")
+            }
         }
     }
+}
+
+data class Stats(val trueDetectedCount: Int, val falseDetections: Int, val undeterminedCount: Int) {
+    val applicability: Double?
+        get() {
+            if (trueDetectedCount + falseDetections == 0) return null
+            return trueDetectedCount.toDouble() / (trueDetectedCount + falseDetections)
+        }
+
+    constructor(msgs: List<ReviewableProcessedPayamak>) : this(
+        msgs.count { it.pp.expectedUsabilityClass.hasValue && it.pp.expectedUsabilityClass == it.pp.usability.clazz },
+        msgs.count { it.pp.expectedUsabilityClass.hasValue && it.pp.expectedUsabilityClass != it.pp.usability.clazz },
+        msgs.count { it.pp.expectedUsabilityClass == null },
+    )
 }
 
 
 @Preview(showBackground = true)
 @Composable
-fun MessagesComposablePreview() {
-    MessagesComposable(
+fun MessagesDebugComposablePreview() {
+    MessagesDebugComposable(
         viewModel = MessagesViewModel(
             listOf()
         )
