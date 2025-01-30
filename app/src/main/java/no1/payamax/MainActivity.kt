@@ -18,22 +18,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.database.getStringOrNull
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.shouldShowRationale
+import no1.payamax.composables.CommonMessages
 import no1.payamax.composables.MessagesComposable
 import no1.payamax.contracts.CellNumber
 import no1.payamax.contracts.Contact
@@ -66,18 +73,34 @@ class MainActivity : ComponentActivity() {
                         .padding(5.dp),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Column {
-                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                            CheckPayamakPermission {
-                                val inboxUri = "content://sms/inbox"
-                                val uri = Uri.parse(inboxUri)
-                                (contentResolver.query(uri, null, "", null, "date desc")
-                                    ?: throw RuntimeException("")).use { cursor ->
-                                    Payamaks(cursor, contentResolver)
-                                }
+                    val navController = rememberNavController()
+                    Scaffold(
+                        topBar = {
+                        },
+                        bottomBar = {
+                            BottomNavigation{
+                                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                                val currentDestination = navBackStackEntry?.destination
                             }
                         }
-                        Text(text = packageInfo(LocalContext.current))
+                    ) {innerPadding ->
+                        NavHost(navController, startDestination = "", Modifier.padding(innerPadding)) {
+                            composable<CommonMessages> { CommonMessages() }
+                        }
+
+                        /*Column {
+                            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                                CheckPayamakPermission {
+                                    val inboxUri = "content://sms/inbox"
+                                    val uri = Uri.parse(inboxUri)
+                                    (contentResolver.query(uri, null, "", null, "date desc")
+                                        ?: throw RuntimeException("")).use { cursor ->
+                                        Payamaks(cursor, contentResolver)
+                                    }
+                                }
+                            }
+                            Text(text = packageInfo(LocalContext.current))
+                        }*/
                     }
                 }
             }
@@ -153,7 +176,7 @@ fun Payamaks(cursor: Cursor, cr: ContentResolver) {
     } else {
         MessagesComposable(
             viewModel = MessagesViewModel(
-                messages.filter { it.pp.usability.clazz != UsabilityClass.Spam && it.pp.usability.clazz != UsabilityClass.Unknown   }
+                messages.filter { it.pp.usability.clazz != UsabilityClass.Spam && it.pp.usability.clazz != UsabilityClass.Unknown }
             )
         )
     }
