@@ -2,12 +2,8 @@ package no1.payamax.composables
 
 import android.content.ContentResolver
 import android.database.Cursor
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import no1.payamax.BuildConfig
 import no1.payamax.contracts.CellNumber
@@ -26,24 +22,22 @@ import no1.payamax.vm.MessagesViewModel
 
 
 @Composable
-fun FilteredPayamaksComposable(cursor: Cursor, cr: ContentResolver, navController: NavHostController, types: List<PayamakUsabilityClass>) {
+fun FilteredPayamaksComposable(cursor: Cursor, contentResolver: ContentResolver, navController: NavHostController, types: List<PayamakUsabilityClass>) {
 
     val messages = mutableListOf<ReviewableProcessedPayamak>()
     var index = 0
 
     if (cursor.moveToFirst()) {
         val payamakColumns = PayamakColumns(cursor)
-        LazyColumn(modifier = Modifier.padding(5.dp)) {
-            do {
-                messages.add(
-                    process(
-                        cursor.getLong(payamakColumns.idIndex),
-                        cursor,
-                        payamakColumns
-                    )
+        do {
+            messages.add(
+                process(
+                    cursor,
+                    contentResolver,
+                    payamakColumns
                 )
-            } while (cursor.moveToNext() && index++ < 99)
-        }
+            )
+        } while (cursor.moveToNext() && index++ < 99)
     }
     if (BuildConfig.DEBUG && messages.isEmpty()) {
         messages.add(

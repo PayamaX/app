@@ -18,12 +18,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import no1.payamax.composables.MessageScreen
 import no1.payamax.composables.MessagesScreen
-import no1.payamax.constants.Screens
+import no1.payamax.constants.Screen
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.ui.theme.PayamaXTheme
 
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                 },
                                 navigationIcon = {
-                                    IconButton(onClick = {}) {
+                                    IconButton(onClick = { navController.navigate(Screen.MessagesScreen.genUrl(PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown)) }) {
                                         Icon(
                                             imageVector = Icons.Default.Favorite,
                                             contentDescription = "Localized description"
@@ -66,20 +68,31 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
                         }
                     ) { innerPadding ->
-                        NavHost(navController, startDestination = Screens.Messages.name, Modifier.padding(innerPadding)) {
-                            composable(Screens.Messages.name) {
+                        NavHost(
+                            navController,
+                            startDestination = Screen.MessagesScreen.genUrl(PayamakUsabilityClass.Important, PayamakUsabilityClass.Usable),
+                            Modifier.padding(innerPadding)
+                        ) {
+                            composable(
+                                Screen.MessagesScreen.urlTemplate,
+                                arguments = listOf(navArgument("types") { type = NavType.StringType })
+                            ) { bse ->
+                                val types = bse.arguments?.getString("types")?.split(",")
                                 MessagesScreen(
                                     contentResolver,
                                     navController,
-                                    listOf(PayamakUsabilityClass.Important, PayamakUsabilityClass.Usable)
+                                    types?.map { PayamakUsabilityClass.valueOf(it) } ?: listOf()
                                 )
                             }
-                            composable("${Screens.Message.name}/{payamakId}") {
+                            composable(
+                                Screen.MessageScreen.urlTemplate,
+                                arguments = listOf(navArgument("payamakId") { type = NavType.LongType })
+                            ) { bse ->
                                 MessageScreen(
                                     contentResolver,
                                     navController,
-
-                                    )
+                                    bse.arguments?.getLong("payamakId") ?: throw RuntimeException("")
+                                )
                             }
                         }
                     }

@@ -71,12 +71,12 @@ fun Long.moment(instantProvider: InstantProvider): String {
     return Instant.ofEpochMilli(this).toString()
 }
 
-fun process(id: Long, cursor: Cursor, payamakColumns: PayamakColumns): ReviewableProcessedPayamak {
+fun process(cursor: Cursor, contentResolver: ContentResolver, payamakColumns: PayamakColumns): ReviewableProcessedPayamak {
     val addressValue = cursor.getString(payamakColumns.addressIndex)
     val address = addressValue.toLongOrNull()?.let { CellNumber.parse(it) }
     val addressTitle = if (address == null) addressValue else null
     val origin =
-        Origin(address, addressTitle, address?.let { contact(addressValue, cr) })
+        Origin(address, addressTitle, address?.let { contact(addressValue, contentResolver) })
     val payamak = Payamak(
         cursor.getLong(payamakColumns.idIndex),
         cursor.getLong(payamakColumns.dateIndex),

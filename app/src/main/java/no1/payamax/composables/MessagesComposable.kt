@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import no1.payamax.constants.Screen
 import no1.payamax.contracts.InstantProvider
 import no1.payamax.vm.MessagesViewModel
 
@@ -42,7 +43,7 @@ fun MessagesComposable(viewModel: MessagesViewModel, instantProvider: InstantPro
                         msgValue = message,
                         instantProvider,
                         { selected -> selectionState.intValue += (if (selected) 1 else -1) },
-                        { navController.navigate("/payamak/${message.pp.payamak.id}") },
+                        { navController.navigate(Screen.MessageScreen.genUrl(message.pp.payamak.id)) },
                         { statusState.value = Stats(messages) }
                     )
                     Spacer(modifier = Modifier.height(5.dp))

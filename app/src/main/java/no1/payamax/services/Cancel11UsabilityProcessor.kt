@@ -5,7 +5,8 @@ import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
 
 @Suppress("SpellCheckingInspection")
-val Laqv11 = listOf("لغو۱۱", "لغو11")
+val laqv = listOf("لغو", "لغو11", "لغو:۱۱", "لغو:11")
+val eleven = listOf("۱۱", "11")
 
 class Cancel11UsabilityProcessor : PayamakUsabilityRuleContract {
 
@@ -14,9 +15,9 @@ class Cancel11UsabilityProcessor : PayamakUsabilityRuleContract {
 
     override fun guess(payamak: Payamak): UsabilityRate? {
         if (payamak.body.isBlank()) return null
-        if (payamak.body.trim()
-                .let { text -> Laqv11.any { text.endsWith(it) } }
-        ) return UsabilityRate(0.1)
+        val lastLine = payamak.body.trim().split("\n").last()
+        if (laqv.any { lastLine.contains(it) } && eleven.any { lastLine.contains(it) })
+            return UsabilityRate(0.1)
         return null
     }
 }
