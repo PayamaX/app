@@ -1,6 +1,6 @@
 package no1.payamax.contracts
 
-data class Payamak(val received: Long, val origin: Origin, val body: String) {
+data class Payamak(val id: Long, val received: Long, val origin: Origin, val body: String) {
     fun dump(indent: String): String {
         val output = StringBuffer()
         output.append("${indent}received: $received\n")

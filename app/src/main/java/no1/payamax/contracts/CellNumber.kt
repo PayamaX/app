@@ -1,5 +1,6 @@
 package no1.payamax.contracts
 
+import no1.payamax.hasValue
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -9,6 +10,14 @@ data class CellNumber(val prefix: Int?, val main: Long) {
         output.append("${indent}prefix: $prefix\n")
         output.append("${indent}main: $main\n")
         return output.toString()
+    }
+
+    fun displayable(): String {
+        var output = ""
+        if (prefix.hasValue)
+            output += "+" + prefix;
+        output += main;
+        return output;
     }
 
     companion object {

@@ -27,7 +27,7 @@ import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.vm.MessagesViewModel
 
 @Composable
-fun MessagesComposable(viewModel: MessagesViewModel) {
+fun MessagesDebugComposable(viewModel: MessagesViewModel) {
     val messages = remember {
         viewModel.msgs
     }
@@ -49,7 +49,7 @@ fun MessagesComposable(viewModel: MessagesViewModel) {
                     .weight(1f)
             ) {
                 items(messages) { message ->
-                    MessageComposable(msgValue = message,
+                    MessageDebugComposable(msgValue = message,
                         { selected -> selectionState.intValue += (if (selected) 1 else -1) },
                         { statusState.value = Stats(messages) })
                     Spacer(modifier = Modifier.height(5.dp))
@@ -73,17 +73,17 @@ data class Stats(val trueDetectedCount: Int, val falseDetections: Int, val undet
         }
 
     constructor(msgs: List<ReviewableProcessedPayamak>) : this(
-        msgs.count { it.pp.expectedUsabilityClass.hasValue && it.pp.expectedUsabilityClass == it.pp.usability.clazz },
-        msgs.count { it.pp.expectedUsabilityClass.hasValue && it.pp.expectedUsabilityClass != it.pp.usability.clazz },
-        msgs.count { it.pp.expectedUsabilityClass == null },
+        msgs.count { it.pp.expectedPayamakUsabilityClass.hasValue && it.pp.expectedPayamakUsabilityClass == it.pp.usability.clazz },
+        msgs.count { it.pp.expectedPayamakUsabilityClass.hasValue && it.pp.expectedPayamakUsabilityClass != it.pp.usability.clazz },
+        msgs.count { it.pp.expectedPayamakUsabilityClass == null },
     )
 }
 
 
 @Preview(showBackground = true)
 @Composable
-fun MessagesComposablePreview() {
-    MessagesComposable(
+fun MessagesDebugComposablePreview() {
+    MessagesDebugComposable(
         viewModel = MessagesViewModel(
             listOf()
         )

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">PayamaX</string>
+    <string name="sms_permission_denied">مجوز دریافت پیامک‌ها لازم است</string>
+    <string name="sms_permission_comment">"برای بررسی و تشخیص هرزپیامک‌ها، دسترسی به پیامک‌ها لازم است. "</string>
+    <string name="sms_permission_command">درخواست مجوز دریافت پیامک‌ها</string>
+    <string name="contact_permission_denied">مجوز دسترسی به دفترتلفن لازم است</string>
+    <string name="contact_permission_comment">برای تشخیص هرز بودن یا نبودن پیامک‌ها، نیاز به دسترسی به دفترتلفن هست</string>
+    <string name="contact_permission_command">دسترسی به دفترتلفن</string>
 </resources>
