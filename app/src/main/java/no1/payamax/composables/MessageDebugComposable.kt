@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import no1.payamax.contracts.Origin
 import no1.payamax.contracts.Payamak
+import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.contracts.Usability
-import no1.payamax.contracts.UsabilityClass
 import no1.payamax.contracts.UsabilityRate
 import no1.payamax.model.ProcessedPayamakModel
 import no1.payamax.model.ReviewableProcessedPayamak
@@ -43,7 +43,7 @@ fun MessageDebugComposable(
     onSelected: (Boolean) -> Unit,
     onDesiredResultChanged: () -> Unit
 ) {
-    val expectedState = remember { mutableStateOf(msgValue.pp.expectedUsabilityClass) }
+    val expectedState = remember { mutableStateOf(msgValue.pp.expectedPayamakUsabilityClass) }
     val selectedState = remember { mutableStateOf(msgValue.selected) }
     Column(
         modifier = Modifier
@@ -80,11 +80,11 @@ fun MessageDebugComposable(
                     })
                 }
                 Text(text = msgValue.pp.usability.clazz.name)
-                for (clazz in UsabilityClass.values()) UsabilityLink(
+                for (clazz in PayamakUsabilityClass.values()) UsabilityLink(
                     expectedState.value, clazz
                 ) { y ->
                     expectedState.value = y
-                    msgValue.pp.expectedUsabilityClass = expectedState.value
+                    msgValue.pp.expectedPayamakUsabilityClass = expectedState.value
                     onDesiredResultChanged()
                 }
 
@@ -95,10 +95,10 @@ fun MessageDebugComposable(
                         .fillMaxWidth()
                         .padding(5.dp),
                     color = when (msgValue.pp.usability.clazz) {
-                        UsabilityClass.Important -> Color.Black
-                        UsabilityClass.Usable -> Color.Gray
-                        UsabilityClass.Unknown -> Color.Magenta
-                        UsabilityClass.Spam -> Color.Red
+                        PayamakUsabilityClass.Important -> Color.Black
+                        PayamakUsabilityClass.Usable -> Color.Gray
+                        PayamakUsabilityClass.Unknown -> Color.Magenta
+                        PayamakUsabilityClass.Spam -> Color.Red
                     }
                 )
 
@@ -123,7 +123,7 @@ fun bgColor(p: ReviewableProcessedPayamak): Color {
 
 @Composable
 fun UsabilityLink(
-    current: UsabilityClass?, clazz: UsabilityClass, onClick: (clazz: UsabilityClass) -> Unit
+    current: PayamakUsabilityClass?, clazz: PayamakUsabilityClass, onClick: (clazz: PayamakUsabilityClass) -> Unit
 ) {
     val background = expectedUsabilityBackground(current, clazz)
     return Text(text = clazz.name,
@@ -138,15 +138,15 @@ fun UsabilityLink(
             .clickable { onClick(clazz) })
 }
 
-fun expectedUsabilityWeight(current: UsabilityClass?, desired: UsabilityClass): FontWeight {
+fun expectedUsabilityWeight(current: PayamakUsabilityClass?, desired: PayamakUsabilityClass): FontWeight {
     return if (current == desired) FontWeight.Bold else FontWeight.Normal
 }
 
-fun expectedUsabilityStyle(current: UsabilityClass?, desired: UsabilityClass): FontStyle {
+fun expectedUsabilityStyle(current: PayamakUsabilityClass?, desired: PayamakUsabilityClass): FontStyle {
     return if (current == desired) FontStyle.Normal else FontStyle.Italic
 }
 
-fun expectedUsabilityBackground(current: UsabilityClass?, desired: UsabilityClass): Color {
+fun expectedUsabilityBackground(current: PayamakUsabilityClass?, desired: PayamakUsabilityClass): Color {
     return if (current == desired) Color.Magenta else Color.Cyan
 }
 
@@ -157,9 +157,9 @@ fun MessageComposablePreview() {
         ReviewableProcessedPayamak(
             ProcessedPayamakModel(
                 0L,
-                Payamak(0L, Origin(null, "", null), ""),
-                Usability(UsabilityClass.Important, UsabilityRate(0.9), listOf()),
-                UsabilityClass.Important,
+                Payamak(0,0L, Origin(null, "", null), ""),
+                Usability(PayamakUsabilityClass.Important, UsabilityRate(0.9), listOf()),
+                PayamakUsabilityClass.Important,
             ), true
         ),
         { _ -> },

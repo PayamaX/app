@@ -73,9 +73,9 @@ data class Stats(val trueDetectedCount: Int, val falseDetections: Int, val undet
         }
 
     constructor(msgs: List<ReviewableProcessedPayamak>) : this(
-        msgs.count { it.pp.expectedUsabilityClass.hasValue && it.pp.expectedUsabilityClass == it.pp.usability.clazz },
-        msgs.count { it.pp.expectedUsabilityClass.hasValue && it.pp.expectedUsabilityClass != it.pp.usability.clazz },
-        msgs.count { it.pp.expectedUsabilityClass == null },
+        msgs.count { it.pp.expectedPayamakUsabilityClass.hasValue && it.pp.expectedPayamakUsabilityClass == it.pp.usability.clazz },
+        msgs.count { it.pp.expectedPayamakUsabilityClass.hasValue && it.pp.expectedPayamakUsabilityClass != it.pp.usability.clazz },
+        msgs.count { it.pp.expectedPayamakUsabilityClass == null },
     )
 }
 

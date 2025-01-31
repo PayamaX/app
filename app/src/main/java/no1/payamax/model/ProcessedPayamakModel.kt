@@ -1,14 +1,14 @@
 package no1.payamax.model
 
 import no1.payamax.contracts.Payamak
+import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.contracts.Usability
-import no1.payamax.contracts.UsabilityClass
 
 data class ProcessedPayamakModel(
     val id: Long,
     val payamak: Payamak,
     val usability: Usability,
-    var expectedUsabilityClass: UsabilityClass? = null,
+    var expectedPayamakUsabilityClass: PayamakUsabilityClass? = null,
 ) {
     fun dump(): String {
         val output = StringBuffer()
@@ -17,7 +17,7 @@ data class ProcessedPayamakModel(
         output.append("\n")
         output.append(usability.dump("\t"))
         output.append("\n")
-        output.append("expectedUsabilityClass: $expectedUsabilityClass\n")
+        output.append("expectedUsabilityClass: $expectedPayamakUsabilityClass\n")
         return output.toString()
     }
 }

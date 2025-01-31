@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "no1.PayamaX"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 12
         versionName = "1.0.1.2-bulkshare"
@@ -87,7 +87,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10")
     implementation("commons-io:commons-io:2.8.0")
 
-    implementation ("androidx.navigation:navigation-compose:2.8.6")
+    implementation("androidx.navigation:navigation-compose:2.8.6")
 
 
 }
