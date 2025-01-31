@@ -6,4 +6,6 @@
     <string name="contact_permission_denied">مجوز دسترسی به دفترتلفن لازم است</string>
     <string name="contact_permission_comment">برای تشخیص هرز بودن یا نبودن پیامک‌ها، نیاز به دسترسی به دفترتلفن هست</string>
     <string name="contact_permission_command">دسترسی به دفترتلفن</string>
+    <string name="spams">هرزپیامک‌ها</string>
+    <string name="app_title">پیامکص</string>
 </resources>

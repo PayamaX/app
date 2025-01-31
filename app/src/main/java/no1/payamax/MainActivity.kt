@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -52,14 +53,14 @@ class MainActivity : ComponentActivity() {
                             CenterAlignedTopAppBar(
                                 title = {
                                     Text(
-                                        "Navigation example",
+                                        stringResource(R.string.app_title),
                                     )
                                 },
                                 navigationIcon = {
                                     IconButton(onClick = { navController.navigate(Screen.MessagesScreen.genUrl(PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown)) }) {
                                         Icon(
-                                            imageVector = Icons.Default.Favorite,
-                                            contentDescription = "Localized description"
+                                            imageVector = Icons.Default.Warning,
+                                            contentDescription = stringResource(R.string.spams)
                                         )
                                     }
                                 },
