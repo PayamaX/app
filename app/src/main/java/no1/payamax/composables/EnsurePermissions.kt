@@ -7,7 +7,7 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun CheckPayamakPermission(content: @Composable () -> Unit) {
+fun EnsurePermissions(content: @Composable () -> Unit) {
     val permissionState = rememberMultiplePermissionsState(
         listOf(android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_CONTACTS)
     )

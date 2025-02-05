@@ -9,11 +9,11 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "no1.PayamaX"
+        applicationId = "no1.payamax"
         minSdk = 26
         targetSdk = 34
-        versionCode = 12
-        versionName = "1.0.1.2-bulkshare"
+        versionCode = 13
+        versionName = "13"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -36,6 +36,10 @@ android {
         create("staging") {
             initWith(getByName("release"))
             applicationIdSuffix = ".staging"
+        }
+        create("GooglePlay") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".gp"
         }
     }
     compileOptions {

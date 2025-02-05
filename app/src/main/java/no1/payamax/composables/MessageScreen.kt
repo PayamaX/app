@@ -19,7 +19,7 @@ import no1.payamax.utils.process
 fun MessageScreen(contentResolver: ContentResolver, navController: NavHostController, payamakId: Long) {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            CheckPayamakPermission {
+            EnsurePermissions {
                 val inboxUri = "content://sms/inbox"
                 val uri = Uri.parse(inboxUri)
                 (contentResolver.query(uri, null, "_id = $payamakId", null, "date desc")

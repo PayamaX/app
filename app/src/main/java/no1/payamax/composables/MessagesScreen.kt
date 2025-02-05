@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.NavHostController
@@ -19,16 +18,17 @@ import no1.payamax.contracts.PayamakUsabilityClass
 fun MessagesScreen(contentResolver: ContentResolver, navController: NavHostController, types: List<PayamakUsabilityClass>) {
     Column {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            CheckPayamakPermission {
+            EnsurePermissions {
                 val inboxUri = "content://sms/inbox"
                 val uri = Uri.parse(inboxUri)
-                (contentResolver.query(uri, null, "", null, "date desc")
-                    ?: throw RuntimeException("")).use { cursor ->
+                val cursor = contentResolver.query(uri, null, "", null, "date desc") ?: throw RuntimeException("")
+                if (cursor.moveToFirst()) {
                     FilteredPayamaksComposable(cursor, contentResolver, navController, types)
+                } else {
+                    Text("EMPTY")
                 }
             }
         }
-        Text(text = packageInfo(LocalContext.current))
     }
 }
 
