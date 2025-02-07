@@ -8,12 +8,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,12 +27,12 @@ fun MessageComposable(
     msgValue: ReviewableProcessedPayamak,
     instantProvider: InstantProvider,
     onSelected: (Boolean) -> Unit,
-    onClicked: () -> Unit,
+    onClicked: (Long) -> Unit,
     onDesiredResultChanged: () -> Unit
 ) {
-    val expectedState = remember { mutableStateOf(msgValue.pp.expectedPayamakUsabilityClass) }
-    val selectedState = remember { mutableStateOf(msgValue.selected) }
-    Column(modifier = Modifier.clickable { onClicked() }) {
+    //val expectedState = remember { mutableStateOf(msgValue.pp.expectedPayamakUsabilityClass) }
+    //val selectedState = remember { mutableStateOf(msgValue.selected) }
+    Column(modifier = Modifier.clickable { onClicked(msgValue.pp.id) }) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             Column(
                 modifier = Modifier
@@ -71,7 +69,7 @@ fun MessageComposable(
             }
         }
     }
-    Divider(
+    HorizontalDivider(
         modifier = Modifier
             .fillMaxWidth()
             .height(0.5.dp)
