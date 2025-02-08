@@ -72,7 +72,9 @@ class MainActivity : ComponentActivity() {
                         NavHost(
                             navController,
                             startDestination = Screen.MessagesScreen.genUrl(PayamakUsabilityClass.Important, PayamakUsabilityClass.Usable),
-                            Modifier.padding(innerPadding)
+                            Modifier
+                                .padding(innerPadding)
+                                .fillMaxSize()
                         ) {
                             composable(
                                 Screen.MessagesScreen.urlTemplate,
