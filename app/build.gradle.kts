@@ -37,10 +37,6 @@ android {
             initWith(getByName("release"))
             applicationIdSuffix = ".staging"
         }
-        create("GooglePlay") {
-            initWith(getByName("release"))
-            applicationIdSuffix = ".gp"
-        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
