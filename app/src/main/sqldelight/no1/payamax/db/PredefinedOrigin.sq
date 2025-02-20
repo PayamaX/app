@@ -1,0 +1,10 @@
+CREATE TABLE PredefinedOriginEntity(
+	id INTEGER NOT NULL,
+    number INTEGER,
+    title TEXT,
+    rank REAL NOT NULL,
+    source TEXT AS no1.payamax.services.OriginRankSource NOT NULL,
+    position INTEGER NOT NULL,
+    last_synced INTEGER NOT NULL,
+    global_id INTEGER
+);

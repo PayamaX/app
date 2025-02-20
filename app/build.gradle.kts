@@ -3,7 +3,17 @@ plugins {
     //!removed google analytics!id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
+    id("app.cash.sqldelight")
 }
+
+sqldelight {
+    databases {
+        register("PayamaxDatabase") {
+            packageName.set("no1.payamax.db")
+        }
+    }
+}
+
 android {
     namespace = "no1.payamax"
     compileSdk = 34
@@ -48,7 +58,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -91,4 +100,11 @@ dependencies {
 
     // Kotlin Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+
+
+    //sqldelight
+    implementation("app.cash.sqldelight:android-driver:2.0.2")
+    implementation("app.cash.sqldelight:coroutines-extensions-jvm:2.0.2")
+    implementation("app.cash.sqldelight:android-driver:2.0.2")
+    implementation("app.cash.sqldelight:primitive-adapters:2.0.2")
 }
