@@ -2,6 +2,15 @@ plugins {
     id("com.android.application")
     //!removed google analytics!id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.android")
+    id("app.cash.sqldelight")
+}
+
+sqldelight {
+    databases {
+        register("PayamaxDatabase") {
+            packageName.set("no1.payamax.db")
+        }
+    }
 }
 
 android {
@@ -95,4 +104,10 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.6")
 
 
+
+    //sqldelight
+    implementation("app.cash.sqldelight:android-driver:2.0.2")
+    implementation("app.cash.sqldelight:coroutines-extensions-jvm:2.0.2")
+    implementation("app.cash.sqldelight:android-driver:2.0.2")
+    implementation("app.cash.sqldelight:primitive-adapters:2.0.2")
 }
