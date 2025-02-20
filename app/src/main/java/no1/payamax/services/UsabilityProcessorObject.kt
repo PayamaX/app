@@ -11,5 +11,6 @@ val UsabilityProcessorObject = UsabilityProcessorEngine(
         EmojiUsabilityProcessor(),
         Cancel11UsabilityProcessor(),
         CodeUsabilityProcessor(),
+        OriginRankProcessor(),
     )
 )
