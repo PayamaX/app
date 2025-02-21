@@ -12,6 +12,7 @@ import no1.payamax.contracts.Contact
 import no1.payamax.contracts.InstantProvider
 import no1.payamax.contracts.Origin
 import no1.payamax.contracts.Payamak
+import no1.payamax.contracts.cellNumber
 import no1.payamax.model.ProcessedPayamakModel
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
@@ -73,7 +74,7 @@ fun Long.moment(instantProvider: InstantProvider): String {
 
 fun process(cursor: Cursor, contentResolver: ContentResolver, payamakColumns: PayamakColumns): ReviewableProcessedPayamak {
     val addressValue = cursor.getString(payamakColumns.addressIndex)
-    val address = addressValue.toLongOrNull()?.let { CellNumber.parse(it) }
+    val address = addressValue.toLongOrNull()?.cellNumber()
     val addressTitle = if (address == null) addressValue else null
     val origin =
         Origin(address, addressTitle, address?.let { contact(addressValue, contentResolver) })
