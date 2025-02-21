@@ -20,7 +20,7 @@
         android:theme="@style/Theme.PayamaX"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".cleanCompose.core.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.PayamaX">
             <intent-filter>
