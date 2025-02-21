@@ -7,19 +7,20 @@ import no1.payamax.contracts.UsabilityRate
 import no1.payamax.contracts.cellNumber
 import no1.payamax.db.PredefinedOriginEntity
 import no1.payamax.hasValue
+import no1.payamax.repos.PredefinedOriginRepo
 
-class OriginRankProcessor : PayamakUsabilityRuleContract {
+class PredefinedOriginProcessor(val repo: PredefinedOriginRepo) : PayamakUsabilityRuleContract {
     override val name: String
         get() = "Origin Rank"
 
-    private val predefinedOrigins = listOf(
+    private val predefinedOrigins = mutableListOf(
         PredefinedOrigin(0, null, "IRANCELL", 0.1, OriginRankSource.PayamaX, 0),
         PredefinedOrigin(0, null, "SoratHesab", 1.0, OriginRankSource.PayamaX, 1),
     )
 
     private fun ensureOrigins(): List<PredefinedOrigin> {
-        if(predefinedOrigins.isEmpty()){
-            //
+        if (predefinedOrigins.isEmpty()) {
+            predefinedOrigins.addAll(repo.all())
         }
         return predefinedOrigins
     }
@@ -47,7 +48,7 @@ data class PredefinedOrigin(
     val position: Long
 )
 
-fun PredefinedOriginEntity.prepared(): PredefinedOrigin{
+fun PredefinedOriginEntity.prepared(): PredefinedOrigin {
     return PredefinedOrigin(
         this.id,
         this.number?.cellNumber(),

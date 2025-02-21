@@ -3,7 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("app.cash.sqldelight")
     alias(libs.plugins.compose.compiler)
-    //!removed google analytics!id("com.google.gms.google-services")
 }
 
 sqldelight {
@@ -74,8 +73,8 @@ android {
 }
 
 dependencies {
-    implementation("androidx.compose.foundation:foundation:1.7.7")
-    implementation("com.google.accompanist:accompanist-permissions:0.33.2-alpha")
+    implementation(libs.androidx.foundation)
+    implementation(libs.accompanist.permissions)
     //!removed google analytics!implementation("com.google.firebase:firebase-analytics:17.4.1")
 
 
@@ -104,10 +103,12 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)
 
-
-
     //sqldelight
     implementation(libs.sqldelight.coroutines.extensions.jvm)
     implementation(libs.sqldelight.android.driver)
     implementation(libs.sqldelight.primitive.adapters)
+
+    //koin
+    implementation(project.dependencies.platform(libs.koin.bom))
+    implementation(libs.koin.android)
 }

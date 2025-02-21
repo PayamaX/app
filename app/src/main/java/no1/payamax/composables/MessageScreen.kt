@@ -13,10 +13,15 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.NavHostController
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
+import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.utils.process
+import org.koin.java.KoinJavaComponent.inject
+import kotlin.getValue
 
 @Composable
 fun MessageScreen(contentResolver: ContentResolver, navController: NavHostController, payamakId: Long) {
+    val engine by inject<UsabilityProcessorEngine>(UsabilityProcessorEngine::class.java)
+
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
             EnsurePermissions {
@@ -25,7 +30,7 @@ fun MessageScreen(contentResolver: ContentResolver, navController: NavHostContro
                 (contentResolver.query(uri, null, "_id = $payamakId", null, "date desc")
                     ?: throw RuntimeException("")).use { cursor ->
                     if (cursor.moveToFirst()) {
-                        val payamak: ReviewableProcessedPayamak = process(cursor, contentResolver, PayamakColumns(cursor))
+                        val payamak: ReviewableProcessedPayamak = process(cursor, contentResolver, PayamakColumns(cursor), engine)
                         MessageDebugComposable(msgValue = payamak, onSelected = {}, onDesiredResultChanged = {})
                     }
                 }
