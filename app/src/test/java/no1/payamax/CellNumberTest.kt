@@ -1,6 +1,6 @@
 package no1.payamax
 
-import no1.payamax.contracts.CellNumber
+import no1.payamax.contracts.cellNumber
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -12,13 +12,13 @@ import org.junit.Test
 class CellNumberTest {
     @Test
     fun `test if parse detects iran prefix`() {
-        assertEquals(98, CellNumber.parse(989123456789).prefix)
-        assertEquals(9123456789, CellNumber.parse(989123456789).main)
+        assertEquals(98, 989123456789.cellNumber().prefix)
+        assertEquals(9123456789, 989123456789.cellNumber().main)
     }
 
     @Test
     fun `test if parse skips no-prefixed number`() {
-        assertEquals(null, CellNumber.parse(9123456789).prefix)
-        assertEquals(9123456789, CellNumber.parse(9123456789).main)
+        assertEquals(null, 9123456789.cellNumber().prefix)
+        assertEquals(9123456789, 9123456789.cellNumber().main)
     }
 }

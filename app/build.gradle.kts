@@ -4,7 +4,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     id("app.cash.sqldelight")
     alias(libs.plugins.compose.compiler)
-    //!removed google analytics!id("com.google.gms.google-services")
 }
 
 sqldelight {
@@ -73,6 +72,8 @@ android {
 dependencies {
     implementation("androidx.compose.foundation:foundation:1.7.8")
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+    implementation(libs.androidx.foundation)
+    implementation(libs.accompanist.permissions)
     //!removed google analytics!implementation("com.google.firebase:firebase-analytics:17.4.1")
 
     //noinspection GradleDependency
@@ -108,4 +109,8 @@ dependencies {
     implementation(libs.sqldelight.coroutines.extensions.jvm)
     implementation(libs.sqldelight.android.driver)
     implementation(libs.sqldelight.primitive.adapters)
+
+    //koin
+    implementation(project.dependencies.platform(libs.koin.bom))
+    implementation(libs.koin.android)
 }
