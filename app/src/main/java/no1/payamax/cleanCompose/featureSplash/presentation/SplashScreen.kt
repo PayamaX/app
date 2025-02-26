@@ -30,6 +30,7 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.helper.MessagesRoute
+import no1.payamax.contracts.PayamakUsabilityClass
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
@@ -44,7 +45,10 @@ fun SplashScreen(navController: NavHostController) {
                 easing = { OvershootInterpolator(8f).getInterpolation(it) })
         )
         delay(200L)
-        navController.navigate( MessagesRoute)
+        navController.navigate( MessagesRoute (
+            PayamakUsabilityClass.Important,
+            PayamakUsabilityClass.Unknown
+        ))
     })
 
     Column(
@@ -80,6 +84,5 @@ fun SplashScreen(navController: NavHostController) {
             }
         }
     }
-
 
 }

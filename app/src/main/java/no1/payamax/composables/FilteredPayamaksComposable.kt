@@ -17,12 +17,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import no1.payamax.R
-import no1.payamax.constants.Screen
+import no1.payamax.cleanCompose.core.presentation.helper.MessageRoute
+import no1.payamax.cleanCompose.core.presentation.helper.MessagesRoute
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
 import no1.payamax.utils.process
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +35,6 @@ fun FilteredPayamaksComposable(
 
     val messages = remember { mutableStateListOf<ReviewableProcessedPayamak>() }
     var lastIndex = 0
-
     val payamakColumns = PayamakColumns(cursor)
 
     Scaffold(
@@ -49,7 +48,7 @@ fun FilteredPayamaksComposable(
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.navigate(
-                            Screen.MessagesScreen.genUrl(
+                            MessagesRoute(
                                 PayamakUsabilityClass.Spam,
                                 PayamakUsabilityClass.Unknown
                             )
@@ -90,7 +89,11 @@ fun FilteredPayamaksComposable(
                 lastIndex = currentBatchIndex
             },
             {},
-            { id -> navController.navigate(Screen.MessageScreen.genUrl(id)) },
+            { id ->
+                navController.navigate(
+                    MessageRoute(id)
+                )
+            },
             {},
             padding
         )

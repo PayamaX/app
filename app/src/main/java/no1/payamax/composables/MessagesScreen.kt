@@ -38,7 +38,6 @@ fun MessagesScreen(
     }
 }
 
-
 private fun packageInfo(context: Context): String {
     val pInfo: PackageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
     val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
