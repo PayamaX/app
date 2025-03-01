@@ -17,6 +17,7 @@ lifecycleRuntimeKtx = "2.8.7"
 navigationCompose = "2.8.6"
 pagingCompose = "3.3.5"
 sqldelight = "2.0.2"
+xerialSqliteJdbc = "3.45.1.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -40,6 +41,7 @@ commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { module = "junit:junit", version.ref = "junit" }
+org-xerial-sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "xerialSqliteJdbc" }
 sqldelight-android-driver = {group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight"}
 sqldelight-coroutines-extensions-jvm = {group = "app.cash.sqldelight", name = "coroutines-extensions-jvm", version.ref = "sqldelight"}
 sqldelight-primitive-adapters = {group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight"}

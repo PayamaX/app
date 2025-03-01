@@ -43,10 +43,6 @@ android {
             )
             signingConfig = signingConfigs.getByName("debug")
         }
-        create("staging") {
-            initWith(getByName("release"))
-            applicationIdSuffix = ".staging"
-        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -72,6 +68,8 @@ android {
 dependencies {
     implementation("androidx.compose.foundation:foundation:1.7.8")
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+    implementation(libs.org.xerial.sqlite.jdbc) // Use the latest version
+
     implementation(libs.androidx.foundation)
     implementation(libs.accompanist.permissions)
     //!removed google analytics!implementation("com.google.firebase:firebase-analytics:17.4.1")
