@@ -11,9 +11,6 @@ sealed class AppRoute {
     @Serializable
     data class MessagesRoute(val messagesClass:List<PayamakUsabilityClass>) : AppRoute()
 
-//    @Serializable
-//    data class MessagesRoute(val types: List<PayamakUsabilityClass>) : AppRoute()
-
     @Serializable
     data class MessageRoute(val payamakId: Long) : AppRoute()
 }
