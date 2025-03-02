@@ -17,8 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import no1.payamax.R
-import no1.payamax.cleanCompose.core.presentation.helper.MessageRoute
-import no1.payamax.cleanCompose.core.presentation.helper.MessagesRoute
+import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
+import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
@@ -49,8 +49,7 @@ fun FilteredPayamaksComposable(
                     IconButton(onClick = {
                         navController.navigate(
                             MessagesRoute(
-                                PayamakUsabilityClass.Spam,
-                                PayamakUsabilityClass.Unknown
+                                listOf(PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown)
                             )
                         )
                     }) {

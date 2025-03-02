@@ -2,10 +2,8 @@ plugins {
     id("com.android.application")
     //!removed google analytics!id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.android")
-    id ("org.jetbrains.kotlin.plugin.serialization") version "1.8.0" // Add this plugin
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
 }
-
-
 android {
     namespace = "no1.payamax"
     compileSdk = 34
@@ -54,6 +52,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -70,7 +69,6 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
     //!removed google analytics!implementation("com.google.firebase:firebase-analytics:17.4.1")
 
-
     //noinspection GradleDependency
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
@@ -81,24 +79,20 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-//    implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material3:material3:1.3.1")
     implementation("androidx.compose.runtime:runtime-livedata")
     implementation("androidx.compose.ui:ui-test-android:1.7.8")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2025.02.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.0")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.01.01"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.8")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("commons-io:commons-io:2.13.0")
-
-    implementation("androidx.navigation:navigation-compose:2.8.7")
+    implementation("androidx.navigation:navigation-compose:2.8.8")
 
     // Kotlin Serialization
-    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 }
