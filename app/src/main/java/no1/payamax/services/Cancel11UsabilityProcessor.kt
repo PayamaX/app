@@ -5,8 +5,8 @@ import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
 
 @Suppress("SpellCheckingInspection")
-val laqv = listOf("لغو", "لغو11", "لغو:۱۱", "لغو:11")
-val eleven = listOf("۱۱", "11")
+val laqv = listOf("لغو")
+val eleven = listOf("۱۱", "11", "١١")
 
 class Cancel11UsabilityProcessor : PayamakUsabilityRuleContract {
 
