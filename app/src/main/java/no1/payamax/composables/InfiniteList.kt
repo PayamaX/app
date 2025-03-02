@@ -1,5 +1,7 @@
 package no1.payamax.composables
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -9,6 +11,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.InstantProviderService
@@ -19,12 +23,14 @@ fun InfiniteList(
     onLoadMore: () -> Unit,
     onSelected: (Boolean) -> Unit,
     onClicked: (Long) -> Unit,
-    onDesiredResultChanged: () -> Unit
+    onDesiredResultChanged: () -> Unit,
+    paddings: PaddingValues = PaddingValues(0.dp),
 ) {
     val listState = rememberLazyListState()
 
     LazyColumn(
         state = listState,
+        modifier = Modifier.padding(paddings),
     ) {
         items(listItems) { msg ->
             MessageComposable(
