@@ -22,7 +22,9 @@ import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
+import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.utils.process
+import org.koin.java.KoinJavaComponent.inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +37,8 @@ fun FilteredPayamaksComposable(
 
     val messages = remember { mutableStateListOf<ReviewableProcessedPayamak>() }
     var lastIndex = 0
+    val engine by inject<UsabilityProcessorEngine>(UsabilityProcessorEngine::class.java)
+
     val payamakColumns = PayamakColumns(cursor)
 
     Scaffold(
@@ -78,7 +82,8 @@ fun FilteredPayamaksComposable(
                     val message = process(
                         cursor,
                         contentResolver,
-                        payamakColumns
+                        payamakColumns,
+                        engine
                     )
                     if (types.contains(message.pp.usability.clazz)) {
                         messages.add(message)

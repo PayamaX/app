@@ -1,0 +1,16 @@
+CREATE TABLE PredefinedOriginEntity(
+	id INTEGER PRIMARY KEY NOT NULL,
+    number INTEGER,
+    title TEXT,
+    rank REAL NOT NULL,
+    source TEXT AS no1.payamax.services.OriginRankSource NOT NULL,
+    position INTEGER NOT NULL,
+    last_synced INTEGER NOT NULL,
+    global_id INTEGER
+);
+
+all:
+SELECT * FROM PredefinedOriginEntity ORDER BY position ASC;
+
+insert:
+INSERT INTO PredefinedOriginEntity (number, title, rank, source, position, last_synced, global_id) VALUES ?;

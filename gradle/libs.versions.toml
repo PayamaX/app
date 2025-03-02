@@ -1,0 +1,59 @@
+[versions]
+accompanistPermissions = "0.33.2-alpha"
+androidVersion = "8.8.0"
+foundation = "1.7.7"
+kotlinAndroidVersion = "2.1.20-RC"
+activityCompose = "1.8.1"
+commonsIo = "2.13.0"
+composeBomVersion = "2025.01.01"
+coreKtx = "1.9.0"
+espressoCore = "3.6.1"
+gson = "2.10.1"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+kotlin = "2.0.0"
+koin = "4.1.0-Beta5"
+kotlinxSerializationJson = "1.6.3"
+lifecycleRuntimeKtx = "2.8.7"
+navigationCompose = "2.8.6"
+pagingCompose = "3.3.5"
+sqldelight = "2.0.2"
+xerialSqliteJdbc = "3.45.1.0"
+kotlinSerializationVersion = "1.8.20"
+
+[libraries]
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCore" }
+androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junitVersion" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-material3 = { module = "androidx.compose.material3:material3" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingCompose" }
+androidx-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
+androidx-ui = { module = "androidx.compose.ui:ui" }
+androidx-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+org-xerial-sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "xerialSqliteJdbc" }
+sqldelight-android-driver = {group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight"}
+sqldelight-coroutines-extensions-jvm = {group = "app.cash.sqldelight", name = "coroutines-extensions-jvm", version.ref = "sqldelight"}
+sqldelight-primitive-adapters = {group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight"}
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidVersion" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinAndroidVersion" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+sqldelight-plugin = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationVersion" }

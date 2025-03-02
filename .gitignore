@@ -36,3 +36,4 @@ test-classes/
 *.log
 *.aab
 *.apk
+.idea/*

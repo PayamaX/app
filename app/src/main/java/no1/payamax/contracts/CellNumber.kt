@@ -15,26 +15,24 @@ data class CellNumber(val prefix: Int?, val main: Long) {
     fun displayable(): String {
         var output = ""
         if (prefix.hasValue)
-            output += "+" + prefix;
+            output += "+$prefix";
         output += main;
         return output;
     }
+}
 
-    companion object {
-        private val prefixes = listOf(98)
+private val prefixes = listOf(98)
 
-        fun parse(number: Long): CellNumber {
-            val fullLength = log10(number.toDouble()).toInt() + 1
-            for (prefix in prefixes) {
-                val prefixLength = log10(prefix.toDouble()).toInt() + 1
-                val c = 10.0.pow((fullLength - prefixLength).toDouble())
-                val divided = (number / c).toInt()
-                if (divided == prefix) {
-                    val plainNumber = number % c
-                    return CellNumber(prefix, plainNumber.toLong())
-                }
-            }
-            return CellNumber(null, number)
+fun Long.cellNumber(): CellNumber {
+    val fullLength = log10(this.toDouble()).toInt() + 1
+    for (prefix in prefixes) {
+        val prefixLength = log10(prefix.toDouble()).toInt() + 1
+        val c = 10.0.pow((fullLength - prefixLength).toDouble())
+        val divided = (this / c).toInt()
+        if (divided == prefix) {
+            val plainNumber = this % c
+            return CellNumber(prefix, plainNumber.toLong())
         }
     }
+    return CellNumber(null, this)
 }
