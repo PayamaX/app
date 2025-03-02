@@ -13,11 +13,13 @@ junit = "4.13.2"
 junitVersion = "1.2.1"
 kotlin = "2.0.0"
 koin = "4.1.0-Beta5"
+kotlinxSerializationJson = "1.6.3"
 lifecycleRuntimeKtx = "2.8.7"
 navigationCompose = "2.8.6"
 pagingCompose = "3.3.5"
 sqldelight = "2.0.2"
 xerialSqliteJdbc = "3.45.1.0"
+kotlinSerializationVersion = "1.8.20"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -41,12 +43,12 @@ commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { module = "junit:junit", version.ref = "junit" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 org-xerial-sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "xerialSqliteJdbc" }
 sqldelight-android-driver = {group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight"}
 sqldelight-coroutines-extensions-jvm = {group = "app.cash.sqldelight", name = "coroutines-extensions-jvm", version.ref = "sqldelight"}
 sqldelight-primitive-adapters = {group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight"}
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
-koin-core = { module = "io.insert-koin:koin-core" }
 koin-android = { module = "io.insert-koin:koin-android" }
 
 [plugins]
@@ -54,3 +56,4 @@ android-application = { id = "com.android.application", version.ref = "androidVe
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinAndroidVersion" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 sqldelight-plugin = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerializationVersion" }

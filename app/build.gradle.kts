@@ -1,8 +1,8 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
-    id("app.cash.sqldelight")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.sqldelight.plugin)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -66,8 +66,6 @@ android {
 }
 
 dependencies {
-    implementation("androidx.compose.foundation:foundation:1.7.8")
-    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
     implementation(libs.org.xerial.sqlite.jdbc) // Use the latest version
 
     implementation(libs.androidx.foundation)
@@ -100,7 +98,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // Kotlin Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation(libs.kotlinx.serialization.json)
 
 
     //sqldelight
