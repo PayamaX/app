@@ -1,6 +1,6 @@
 [versions]
 accompanistPermissions = "0.33.2-alpha"
-androidVersion = "8.8.0"
+androidVersion = "8.8.2"
 foundation = "1.7.7"
 kotlinAndroidVersion = "2.1.20-RC"
 activityCompose = "1.8.1"
