@@ -8,4 +8,5 @@
     <string name="contact_permission_command">دسترسی به دفترتلفن</string>
     <string name="spams">هرزپیامک‌ها</string>
     <string name="app_title">پیامکص</string>
+    <string name="report_wrong_detection">ارسال گزارش تشخیص اشتباه</string>
 </resources>

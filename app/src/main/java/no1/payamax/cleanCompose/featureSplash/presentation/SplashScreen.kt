@@ -9,7 +9,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -29,15 +28,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import no1.payamax.R
-import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
+import no1.payamax.cleanCompose.core.presentation.base.BaseRoute
+import no1.payamax.cleanCompose.core.presentation.helper.MessagesRoute
 import no1.payamax.contracts.PayamakUsabilityClass
 
 @Composable
-fun SplashScreen(navController: NavHostController) {
+fun SplashScreen(
+    uiState: SplashUIStates,
+    onEvent: (SplashEvents) -> Unit,
+    navController: NavHostController,
+    navDestination: BaseRoute?
+) {
     val scale = remember {
         Animatable(0f)
     }
     LaunchedEffect(key1 = true, block = {
+
         scale.animateTo(
             targetValue = 0.9f,
             animationSpec = tween(
@@ -45,6 +51,7 @@ fun SplashScreen(navController: NavHostController) {
                 easing = { OvershootInterpolator(8f).getInterpolation(it) })
         )
         delay(200L)
+
         navController.navigate(
             MessagesRoute(
                 listOf(
@@ -53,6 +60,7 @@ fun SplashScreen(navController: NavHostController) {
                 )
             )
         )
+
     })
 
     Column(
@@ -88,5 +96,4 @@ fun SplashScreen(navController: NavHostController) {
             }
         }
     }
-
 }

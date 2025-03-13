@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.PayamaX" parent="android:Theme.Material.Light.NoActionBar" />
-    <style name="Theme.MyApp.Splash" parent="Theme.SplashScreen">
+    <style  name = "Theme.PayamaX.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/white</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/email_spam_svgrepo_com</item>
         <item name="postSplashScreenTheme">@style/Theme.PayamaX</item>
