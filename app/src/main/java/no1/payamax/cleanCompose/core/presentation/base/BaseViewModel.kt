@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import no1.payamax.PayamaxApp
 
 open class BaseViewModel<E : BaseState>(
-//    val app: App,
+    val app: PayamaxApp,
     state: E,
 ) : ViewModel() {
     

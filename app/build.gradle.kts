@@ -1,9 +1,11 @@
 plugins {
+    kotlin("kapt")
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.sqldelight.plugin)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.hilt)
 }
 
 sqldelight {
@@ -100,7 +102,6 @@ dependencies {
     // Kotlin Serialization
     implementation(libs.kotlinx.serialization.json)
 
-
     //sqldelight
     implementation(libs.sqldelight.coroutines.extensions.jvm)
     implementation(libs.sqldelight.android.driver)
@@ -109,4 +110,27 @@ dependencies {
     //koin
     implementation(project.dependencies.platform(libs.koin.bom))
     implementation(libs.koin.android)
+
+    //splash
+    implementation(libs.androidx.core.splashscreen)
+
+    //chucker
+    debugImplementation(libs.library)
+    releaseImplementation(libs.library.no.op)
+
+    //retrofit
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+
+    //hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+
+
 }

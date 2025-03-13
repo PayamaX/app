@@ -14,6 +14,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.distinctUntilChanged
+import no1.payamax.cleanCompose.feutureMessagesDetails.presentation.MessageComposable
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.InstantProviderService
 

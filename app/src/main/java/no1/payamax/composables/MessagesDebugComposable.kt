@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import no1.payamax.cleanCompose.feutureMessagesDetails.presentation.MessageDebugComposable
 import no1.payamax.hasValue
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.vm.MessagesViewModel
@@ -51,7 +52,7 @@ fun MessagesDebugComposable(viewModel: MessagesViewModel) {
                 items(messages) { message ->
                     MessageDebugComposable(msgValue = message,
                         { selected -> selectionState.intValue += (if (selected) 1 else -1) },
-                        { statusState.value = Stats(messages) })
+                        { statusState.value = Stats(messages) } , {} )
                     Spacer(modifier = Modifier.height(5.dp))
                 }
             }
