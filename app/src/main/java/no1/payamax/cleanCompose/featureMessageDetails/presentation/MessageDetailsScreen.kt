@@ -1,7 +1,9 @@
-package no1.payamax.cleanCompose.feutureMessagesDetails.presentation
+package no1.payamax.cleanCompose.featureMessageDetails.presentation
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,6 +25,7 @@ import no1.payamax.utils.process
 import org.koin.java.KoinJavaComponent.inject
 import kotlin.getValue
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessageDetailsScreen(

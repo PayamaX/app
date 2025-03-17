@@ -16,31 +16,30 @@ import com.google.accompanist.permissions.shouldShowRationale
 import no1.payamax.R
 import no1.payamax.cleanCompose.core.common.components.PayamaxTopAppBar
 import no1.payamax.cleanCompose.core.common.components.PayamaxTopAppBarData
-import no1.payamax.cleanCompose.core.presentation.ui.theme.PayamaxTheme
 import no1.payamax.cleanCompose.core.presentation.ui.theme.Spacing
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun ReadPayamakPermissionMessage(ps: PermissionState) {
+fun ReadNotificationPermissionMessage(ps: PermissionState) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(topBar = {
         PayamaxTopAppBar(
             scrollBehavior = scrollBehavior,
             payamaxTopAppBarData = PayamaxTopAppBarData(
-                title = "دسترسی مجوز پیامک ها",
+                title = "دسترسی مجوز اطلاع رسانی",
                 showBackIcon = false,
                 onBackClick = {})
         )
     }) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             val textToShow = if (ps.status.shouldShowRationale) {
-                stringResource(R.string.sms_permission_denied)
+                stringResource(R.string.notification_permission_denied)
             } else {
-                stringResource(R.string.sms_permission_comment)
+                stringResource(R.string.notification_permission_comment)
             }
-            Text(textToShow , modifier = Modifier.padding(Spacing.space8))
+            Text(text = textToShow , modifier = Modifier.padding(Spacing.space8))
             Button(onClick = { ps.launchPermissionRequest() }) {
-                Text(stringResource(R.string.sms_permission_command))
+                Text(stringResource(R.string.notification_permission_command))
             }
         }
     }

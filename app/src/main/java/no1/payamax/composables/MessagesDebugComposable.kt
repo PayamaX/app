@@ -22,7 +22,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import no1.payamax.cleanCompose.feutureMessagesDetails.presentation.MessageDebugComposable
+import no1.payamax.cleanCompose.featureMessageDetails.presentation.MessageDebugComposable
 import no1.payamax.hasValue
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.vm.MessagesViewModel

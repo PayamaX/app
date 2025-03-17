@@ -1,4 +1,4 @@
-package no1.payamax.cleanCompose.feutureMessagesDetails.presentation
+package no1.payamax.cleanCompose.featureMessageDetails.presentation
 
 import android.util.Log
 import dagger.hilt.android.lifecycle.HiltViewModel

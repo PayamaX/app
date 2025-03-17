@@ -15,11 +15,13 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no1.payamax.cleanCompose.core.presentation.ui.theme.PayamaxTheme
+import no1.payamax.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +50,7 @@ fun PayamaxTopAppBar(
                         IconButton(onClick = payamaxTopAppBarData.onBackClick) {
                             Icon(
                                 imageVector = Icons.Default.ArrowForward,
-                                contentDescription = "بازگشت"
+                                contentDescription = stringResource(R.string.back),
                             )
                         }
                     }
@@ -73,6 +75,6 @@ data class PayamaxTopAppBarData(
 private fun PayamaxTopAppBarPreview() {
     PayamaxTopAppBar(
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
-        payamaxTopAppBarData = PayamaxTopAppBarData("عنوان", true) {}
+        payamaxTopAppBarData = PayamaxTopAppBarData(stringResource(R.string.title), true) {}
     )
 }

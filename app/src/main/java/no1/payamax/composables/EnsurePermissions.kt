@@ -1,15 +1,18 @@
 package no1.payamax.composables
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun EnsurePermissions(content: @Composable () -> Unit) {
     val permissionState = rememberMultiplePermissionsState(
-        listOf(android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_CONTACTS)
+        listOf(android.Manifest.permission.READ_SMS, android.Manifest.permission.READ_CONTACTS , android.Manifest.permission.POST_NOTIFICATIONS)
     )
 
     for (ps in permissionState.permissions) {
@@ -17,6 +20,7 @@ fun EnsurePermissions(content: @Composable () -> Unit) {
             when (ps.permission) {
                 android.Manifest.permission.READ_SMS -> ReadPayamakPermissionMessage(ps)
                 android.Manifest.permission.READ_CONTACTS -> ReadContactsPermissionMessage(ps)
+                android.Manifest.permission.POST_NOTIFICATIONS -> ReadNotificationPermissionMessage(ps)
             }
             return
         }

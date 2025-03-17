@@ -1,4 +1,4 @@
-package no1.payamax.cleanCompose.feutureMessagesDetails.presentation
+package no1.payamax.cleanCompose.featureMessageDetails.presentation
 
 import android.content.Intent
 import androidx.compose.foundation.border
@@ -12,9 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
@@ -50,11 +49,11 @@ fun MessageDebugComposable(
     val expectedState = remember { mutableStateOf(msgValue.pp.expectedPayamakUsabilityClass) }
     val selectedState = remember { mutableStateOf(msgValue.selected) }
     val smsType = when (msgValue.pp.usability.clazz) {
-        PayamakUsabilityClass.Important -> "پیامک ارزشمند"
-        PayamakUsabilityClass.Usable -> "پیامک ارزشمند"
-        PayamakUsabilityClass.Unknown -> "پیامک هرز"
-        PayamakUsabilityClass.Spam -> "پیامک هرز"
-        else -> "نامشخص"
+        PayamakUsabilityClass.Important -> stringResource(R.string.important)
+        PayamakUsabilityClass.Usable -> stringResource(R.string.important)
+        PayamakUsabilityClass.Unknown -> stringResource(R.string.spam)
+        PayamakUsabilityClass.Spam -> stringResource(R.string.spam)
+        else -> stringResource(R.string.unknown)
     }
 
     PayamaxTheme {
@@ -146,33 +145,6 @@ fun MessageDebugComposable(
                 }
 
                 val ctx = LocalContext.current
-//                Row(
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                ) {
-//                    Button(onClick = {
-//                        val sendIntent = Intent().apply {
-//                            action = Intent.ACTION_SEND
-//                            type = "text/plain"
-//                            putExtra(Intent.EXTRA_TEXT, msgValue.pp.dump())
-//                        }
-//                        val shareIntent =
-//                            Intent.createChooser(
-//                                sendIntent,
-//                                "email to px@no1.ir or t.me/DrHBN "
-//                            )
-//                        ctx.startActivity(shareIntent)
-//                    }) {
-//                        Icon(Icons.Rounded.Share, contentDescription = "share")
-//                    }
-//                    Checkbox(checked = selectedState.value, onCheckedChange = {
-//                        selectedState.value = it
-//                        msgValue.selected = it
-//                        onSelected(it)
-//                    })
-//                }
-
                 Button(
                     onClick = {
                         onEvent.invoke(

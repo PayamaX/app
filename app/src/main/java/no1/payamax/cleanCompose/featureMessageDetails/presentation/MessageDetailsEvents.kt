@@ -1,4 +1,4 @@
-package no1.payamax.cleanCompose.feutureMessagesDetails.presentation
+package no1.payamax.cleanCompose.featureMessageDetails.presentation
 
 import no1.payamax.cleanCompose.core.presentation.base.BaseEvent
 import no1.payamax.model.ReviewableProcessedPayamak

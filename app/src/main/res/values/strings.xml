@@ -9,4 +9,13 @@
     <string name="spams">هرزپیامک‌ها</string>
     <string name="app_title">پیامکص</string>
     <string name="report_wrong_detection">ارسال گزارش تشخیص اشتباه</string>
+    <string name="notification_permission_denied">مجوز اطلاع رسانی لازم است</string>
+    <string name="notification_permission_comment">لطفا دسترسی نوتیفیکیشن رو بدید قول میدیم زیاد مزاحمتون نشیم.</string>
+    <string name="notification_permission_command">دسترسی اطلاع رسانی</string>
+    <string name="back">بازگشت</string>
+    <string name="title">عنوان</string>
+    <string name="important">پیامک ارزشمند</string>
+    <string name="unknown">ناشناخته</string>
+    <string name="spam"> پیامک هرز</string>
+    <string name="usable">قابل استفاده</string>
 </resources>

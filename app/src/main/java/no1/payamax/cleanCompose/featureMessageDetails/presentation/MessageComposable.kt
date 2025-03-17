@@ -1,4 +1,4 @@
-package no1.payamax.cleanCompose.feutureMessagesDetails.presentation
+package no1.payamax.cleanCompose.featureMessageDetails.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
