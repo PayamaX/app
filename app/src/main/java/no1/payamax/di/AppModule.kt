@@ -8,21 +8,24 @@ import no1.payamax.db.PayamaxDatabase
 import no1.payamax.db.PredefinedOriginEntity
 import no1.payamax.repos.PredefinedOriginRepo
 import no1.payamax.services.*
+import no1.payamax.utils.UserPreferences
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
+    single { UserPreferences(get()) }
     single<SqlDriver> { AndroidSqliteDriver(PayamaxDatabase.Schema, get(), "payamax.db") }
     single { PayamaxDatabase(get(), PredefinedOriginEntity.Adapter(EnumColumnAdapter())) }
     single { get<PayamaxDatabase>().predefinedOriginQueries }
     single { PredefinedOriginRepo(get()) }
+    single { PredefinedOriginProcessor(get()) } bind PayamakUsabilityRuleContract::class
     factoryOf(::Cancel11UsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::CodeUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::EmojiUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::LandlineOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::OperatorOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
-    factoryOf(::PredefinedOriginProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::PersonalOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::PhonebookOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::ThousandPrefixedOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }

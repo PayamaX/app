@@ -6,6 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,11 +21,16 @@ import no1.payamax.cleanCompose.featureSplash.presentation.SplashScreen
 import no1.payamax.composables.MessageScreen
 import no1.payamax.composables.MessagesScreen
 import no1.payamax.contracts.PayamakUsabilityClass
+import no1.payamax.utils.UserPreferences
+import org.koin.java.KoinJavaComponent.inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
 
+    private val userPreferences by inject<UserPreferences>(UserPreferences::class.java)
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         if (BuildConfig.DEBUG) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -34,7 +42,8 @@ class MainActivity : ComponentActivity() {
     private fun setupCompose() {
         enableEdgeToEdge()
         setContent {
-            PayamaxTheme {
+            val themeMode by userPreferences.themeMode.collectAsState()
+            PayamaxTheme(themeMode = themeMode) {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
@@ -43,6 +52,7 @@ class MainActivity : ComponentActivity() {
                     composable<SplashRoute> {
                         SplashScreen(navController = navController)
                     }
+
                     composable<MessagesRoute> { bse ->
                         val types = bse.arguments?.get("messagesClass") as List<PayamakUsabilityClass>?
                         MessagesScreen(
