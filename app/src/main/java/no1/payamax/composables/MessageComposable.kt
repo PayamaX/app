@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import no1.payamax.cleanCompose.core.presentation.ui.theme.ColorSchemeExtension
+import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.InstantProvider
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.model.ReviewableProcessedPayamak
@@ -48,11 +49,12 @@ fun MessageComposable(
 ) {
     val usabilityClass = msgValue.pp.activeUsabilityClass
     val (bgColor, textColor, strokeColor) = ColorSchemeExtension.getUsabilityColors(usabilityClass)
+    val spacing = MaterialTheme.spacing
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(horizontal = spacing.medium, vertical = spacing.extraSmall + 2.dp)
             .clickable { onClicked(msgValue.pp.id) },
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
@@ -63,7 +65,7 @@ fun MessageComposable(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(spacing.medium)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -90,7 +92,7 @@ fun MessageComposable(
                         }
                     }
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(spacing.small + 2.dp))
 
                     Column {
                         Text(
@@ -100,12 +102,12 @@ fun MessageComposable(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(spacing.extraSmall))
                         PersianDateTimeChips(timeInMillis = msgValue.pp.payamak.received)
                     }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(spacing.small))
 
                 // Usability Pill Badge
                 Surface(
@@ -115,14 +117,14 @@ fun MessageComposable(
                 ) {
                     Text(
                         text = getUsabilityPersianTitle(usabilityClass),
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(horizontal = spacing.small + 2.dp, vertical = spacing.extraSmall),
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = textColor
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(spacing.mediumSmall))
 
             Text(
                 text = msgValue.pp.payamak.body,
@@ -142,10 +144,11 @@ fun PersianDateTimeChips(
 ) {
     val userPreferences by inject<UserPreferences>(UserPreferences::class.java)
     val calendarType by userPreferences.calendarType.collectAsState()
+    val spacing = MaterialTheme.spacing
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(spacing.small - 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Date Item (تاریخ)
@@ -155,12 +158,12 @@ fun PersianDateTimeChips(
             border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                modifier = Modifier.padding(horizontal = spacing.small, vertical = spacing.extraSmall - 1.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(spacing.extraSmall)
             ) {
                 Text(
-                    text = if (calendarType == no1.payamax.utils.CalendarType.PERSIAN) "📅" else "📆",
+                    text = if (calendarType == CalendarType.PERSIAN) "📅" else "📆",
                     fontSize = 11.sp
                 )
                 Text(
@@ -178,9 +181,9 @@ fun PersianDateTimeChips(
             border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
         ) {
             Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                modifier = Modifier.padding(horizontal = spacing.small, vertical = spacing.extraSmall - 1.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(spacing.extraSmall)
             ) {
                 Text(
                     text = "⏰",

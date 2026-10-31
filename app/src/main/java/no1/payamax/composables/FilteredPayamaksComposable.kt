@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
+import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
@@ -126,6 +127,8 @@ fun FilteredPayamaksComposable(
         lastIndex = currentBatchIndex
     }
 
+    val spacing = MaterialTheme.spacing
+
     LaunchedEffect(selectedCategoryIndex) {
         while (messages.none { activeTypes.contains(it.pp.activeUsabilityClass) } && lastIndex < cursor.count) {
             val prevLastIndex = lastIndex
@@ -134,9 +137,10 @@ fun FilteredPayamaksComposable(
         }
     }
 
-    Scaffold(
-        modifier = modifier.statusBarsPadding(),
-        topBar = {
+    PayamaxScaffold(
+        title = "پیاماکس | PayamaX",
+        modifier = modifier,
+        topBarHeader = {
             Column {
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -165,7 +169,7 @@ fun FilteredPayamaksComposable(
                         onValueChange = { searchQuery = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                            .padding(horizontal = spacing.medium, vertical = spacing.extraSmall),
                         placeholder = { Text("جستجو در فرستنده یا متن پیامک...") },
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),
@@ -187,8 +191,8 @@ fun FilteredPayamaksComposable(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(horizontal = spacing.medium, vertical = spacing.small),
+                    horizontalArrangement = Arrangement.spacedBy(spacing.small)
                 ) {
                     FilterChip(
                         selected = selectedCategoryIndex == 0,
