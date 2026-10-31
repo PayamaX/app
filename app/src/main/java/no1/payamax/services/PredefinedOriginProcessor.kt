@@ -13,28 +13,50 @@ class PredefinedOriginProcessor(val repo: PredefinedOriginRepo) : PayamakUsabili
     override val name: String
         get() = "Origin Rank"
 
-    private val predefinedOrigins = mutableListOf(
-        PredefinedOrigin(0, null, "IRANCELL", 0.1, OriginRankSource.PayamaX, 0),
-        PredefinedOrigin(0, null, "SoratHesab", 1.0, OriginRankSource.PayamaX, 1),
-    )
+    private var initialized = false
+    private val predefinedOrigins = mutableListOf<PredefinedOrigin>()
 
     private fun ensureOrigins(): List<PredefinedOrigin> {
-        if (predefinedOrigins.isEmpty()) {
+        if (!initialized) {
+            predefinedOrigins.clear()
+            predefinedOrigins.add(PredefinedOrigin(0, null, "IRANCELL", 0.1, OriginRankSource.PayamaX, 0))
+            predefinedOrigins.add(PredefinedOrigin(0, null, "SoratHesab", 1.0, OriginRankSource.PayamaX, 1))
             predefinedOrigins.addAll(repo.all())
+            initialized = true
         }
         return predefinedOrigins
     }
 
-    override fun guess(payamak: Payamak): UsabilityRate? {
-        val related: List<PredefinedOrigin> = if (payamak.origin.title.hasValue) {
-            ensureOrigins().filter { payamak.origin.title.contentEquals(it.title!!, false) }
+    fun refresh() {
+        initialized = false
+    }
+
+    fun hasUserOverride(payamak: Payamak): Boolean {
+        val related = findRelatedOrigins(payamak)
+        return related.any { it.source == OriginRankSource.User }
+    }
+
+    private fun findRelatedOrigins(payamak: Payamak): List<PredefinedOrigin> {
+        val origins = ensureOrigins()
+        return if (payamak.origin.title.hasValue) {
+            origins.filter { it.title != null && payamak.origin.title.contentEquals(it.title, ignoreCase = true) }
         } else if (payamak.origin.number.hasValue) {
-            ensureOrigins().filter { payamak.origin.number!! == it.number }
+            origins.filter { it.number != null && payamak.origin.number!!.main == it.number.main }
         } else {
             listOf()
         }
+    }
+
+    override fun guess(payamak: Payamak): UsabilityRate? {
+        val related = findRelatedOrigins(payamak)
         if (related.isEmpty())
             return null
+
+        val userOrigin = related.find { it.source == OriginRankSource.User }
+        if (userOrigin != null) {
+            return UsabilityRate(userOrigin.rank)
+        }
+
         return UsabilityRate(related.sumOf { it.rank } / related.count())
     }
 }

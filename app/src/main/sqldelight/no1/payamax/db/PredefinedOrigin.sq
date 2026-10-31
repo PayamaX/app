@@ -1,5 +1,5 @@
 CREATE TABLE PredefinedOriginEntity(
-	id INTEGER PRIMARY KEY NOT NULL,
+	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     number INTEGER,
     title TEXT,
     rank REAL NOT NULL,
@@ -14,3 +14,19 @@ SELECT * FROM PredefinedOriginEntity ORDER BY position ASC;
 
 insert:
 INSERT INTO PredefinedOriginEntity (number, title, rank, source, position, last_synced, global_id) VALUES ?;
+
+insertEntity:
+INSERT INTO PredefinedOriginEntity (number, title, rank, source, position, last_synced, global_id)
+VALUES (:number, :title, :rank, :source, :position, :last_synced, :global_id);
+
+findByTitle:
+SELECT * FROM PredefinedOriginEntity WHERE title = :title;
+
+findByNumber:
+SELECT * FROM PredefinedOriginEntity WHERE number = :number;
+
+updateRankAndSourceByTitle:
+UPDATE PredefinedOriginEntity SET rank = :rank, source = :source WHERE title = :title;
+
+updateRankAndSourceByNumber:
+UPDATE PredefinedOriginEntity SET rank = :rank, source = :source WHERE number = :number;

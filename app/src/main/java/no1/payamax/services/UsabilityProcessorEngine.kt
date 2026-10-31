@@ -15,26 +15,32 @@ open class UsabilityProcessorEngine(private val rules: List<PayamakUsabilityRule
         if (rules.isEmpty()) return Usability(PayamakUsabilityClass.Unknown, UsabilityRate(0.0), listOf())
         var usabilitySum = 0.0
         var usabilityCount = 0
+        var userOverrideRate: UsabilityRate? = null
         val list = mutableListOf<ProcessResult>()
+
         for (rule in rules) {
             val guess = rule.guess(payamak)
             if (guess.hasValue) {
                 usabilitySum += guess!!.probability
                 usabilityCount++
+                if (rule is PredefinedOriginProcessor && rule.hasUserOverride(payamak)) {
+                    userOverrideRate = guess
+                }
             }
             list.add(ProcessResult(rule.name, guess.hasValue, guess?.probability, ""))
         }
-        if (usabilityCount == 0)
-            return Usability(PayamakUsabilityClass.Unknown, UsabilityRate(0.0), list)
-        val avg = usabilitySum / usabilityCount
+
+        val finalRate = userOverrideRate?.probability
+            ?: if (usabilityCount > 0) usabilitySum / usabilityCount else 0.0
+
         return Usability(
             when {
-                avg >= 0.9 -> PayamakUsabilityClass.Important
-                avg >= 0.7 -> PayamakUsabilityClass.Usable
-                avg >= 0.5 -> PayamakUsabilityClass.Unknown
+                finalRate >= 0.9 -> PayamakUsabilityClass.Important
+                finalRate >= 0.7 -> PayamakUsabilityClass.Usable
+                finalRate >= 0.5 -> PayamakUsabilityClass.Unknown
                 else -> PayamakUsabilityClass.Spam
             },
-            UsabilityRate(avg),
+            UsabilityRate(finalRate),
             list
         )
     }

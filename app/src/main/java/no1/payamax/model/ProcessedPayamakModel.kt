@@ -7,9 +7,12 @@ import no1.payamax.contracts.Usability
 data class ProcessedPayamakModel(
     val id: Long,
     val payamak: Payamak,
-    val usability: Usability,
+    var usability: Usability,
     var expectedPayamakUsabilityClass: PayamakUsabilityClass? = null,
 ) {
+    val activeUsabilityClass: PayamakUsabilityClass
+        get() = expectedPayamakUsabilityClass ?: usability.clazz
+
     fun dump(): String {
         val output = StringBuffer()
         output.append("payamak:\n")
