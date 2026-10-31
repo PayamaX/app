@@ -24,10 +24,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.ui.theme.ColorSchemeExtension
 import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.InstantProvider
@@ -199,11 +201,12 @@ fun PersianDateTimeChips(
     }
 }
 
+@Composable
 fun getUsabilityPersianTitle(clazz: PayamakUsabilityClass): String {
     return when (clazz) {
-        PayamakUsabilityClass.Important -> "مهم"
-        PayamakUsabilityClass.Usable -> "کاربردی"
-        PayamakUsabilityClass.Spam -> "اسپم"
-        PayamakUsabilityClass.Unknown -> "نامشخص"
+        PayamakUsabilityClass.Important -> stringResource(R.string.usability_important)
+        PayamakUsabilityClass.Usable -> stringResource(R.string.usability_usable)
+        PayamakUsabilityClass.Spam -> stringResource(R.string.usability_spam)
+        PayamakUsabilityClass.Unknown -> stringResource(R.string.usability_unknown)
     }
 }

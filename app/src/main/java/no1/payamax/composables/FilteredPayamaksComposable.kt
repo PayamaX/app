@@ -42,9 +42,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
 import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.PayamakUsabilityClass
@@ -138,7 +140,7 @@ fun FilteredPayamaksComposable(
     }
 
     PayamaxScaffold(
-        title = "پیاماکس | PayamaX",
+        title = stringResource(R.string.app_title_full),
         modifier = modifier,
         topBarHeader = {
             Column {
@@ -148,7 +150,7 @@ fun FilteredPayamaksComposable(
                     ),
                     title = {
                         Text(
-                            text = "پیاماکس | PayamaX",
+                            text = stringResource(R.string.app_title_full),
                             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -157,7 +159,7 @@ fun FilteredPayamaksComposable(
                         IconButton(onClick = { isSearchActive = !isSearchActive }) {
                             Icon(
                                 imageVector = if (isSearchActive) Icons.Default.Clear else Icons.Default.Search,
-                                contentDescription = "جستجو"
+                                contentDescription = stringResource(R.string.nav_search)
                             )
                         }
                     }
@@ -170,7 +172,7 @@ fun FilteredPayamaksComposable(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = spacing.medium, vertical = spacing.extraSmall),
-                        placeholder = { Text("جستجو در فرستنده یا متن پیامک...") },
+                        placeholder = { Text(stringResource(R.string.search_placeholder)) },
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -180,7 +182,7 @@ fun FilteredPayamaksComposable(
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
                                 IconButton(onClick = { searchQuery = "" }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "پاک کردن")
+                                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.nav_clear))
                                 }
                             }
                         }
@@ -197,7 +199,7 @@ fun FilteredPayamaksComposable(
                     FilterChip(
                         selected = selectedCategoryIndex == 0,
                         onClick = { selectedCategoryIndex = 0 },
-                        label = { Text("پیام‌های مفید") },
+                        label = { Text(stringResource(R.string.category_useful)) },
                         shape = RoundedCornerShape(999.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -207,7 +209,7 @@ fun FilteredPayamaksComposable(
                     FilterChip(
                         selected = selectedCategoryIndex == 1,
                         onClick = { selectedCategoryIndex = 1 },
-                        label = { Text("اسپم و تبلیغاتی") },
+                        label = { Text(stringResource(R.string.category_spam)) },
                         shape = RoundedCornerShape(999.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.errorContainer,
@@ -217,7 +219,7 @@ fun FilteredPayamaksComposable(
                     FilterChip(
                         selected = selectedCategoryIndex == 2,
                         onClick = { selectedCategoryIndex = 2 },
-                        label = { Text("همه") },
+                        label = { Text(stringResource(R.string.category_all)) },
                         shape = RoundedCornerShape(999.dp)
                     )
                 }
@@ -241,10 +243,10 @@ fun FilteredPayamaksComposable(
                 Surface(
                     shape = RoundedCornerShape(24.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    modifier = Modifier.padding(32.dp)
+                    modifier = Modifier.padding(spacing.extraLarge)
                 ) {
                     Column(
-                        modifier = Modifier.padding(24.dp),
+                        modifier = Modifier.padding(spacing.large),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
@@ -253,9 +255,9 @@ fun FilteredPayamaksComposable(
                             modifier = Modifier.size(64.dp),
                             tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(spacing.medium))
                         Text(
-                            text = "پیامکی در این دسته‌بندی یافت نشد",
+                            text = stringResource(R.string.empty_messages),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

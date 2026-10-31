@@ -11,7 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
+import no1.payamax.R
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
@@ -23,9 +25,9 @@ fun MessageScreen(contentResolver: ContentResolver, navController: NavHostContro
     val engine by inject<UsabilityProcessorEngine>(UsabilityProcessorEngine::class.java)
 
     PayamaxScaffold(
-        title = "جزئیات پیامک",
+        title = stringResource(R.string.message_details_title),
         navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
-        navigationIconContentDescription = "بازگشت",
+        navigationIconContentDescription = stringResource(R.string.nav_back),
         onNavigationIconClick = { navController.navigateUp() }
     ) { paddingValues ->
         Column(

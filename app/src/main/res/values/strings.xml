@@ -1,11 +1,83 @@
 <resources>
     <string name="app_name">PayamaX</string>
+    <string name="app_title">پیامکص</string>
+    <string name="app_title_full">پیاماکس | PayamaX</string>
+    <string name="app_subtitle">فیلتر و مدیریت هوشمند پیامک‌ها</string>
+    <string name="app_logo_desc">لوگوی پیاماکس</string>
+
+    <!-- Navigation Strings -->
+    <string name="nav_home">صفحه اصلی</string>
+    <string name="nav_profile">پروفایل</string>
+    <string name="nav_back">بازگشت</string>
+    <string name="nav_search">جستجو</string>
+    <string name="nav_clear">پاک کردن</string>
+    <string name="profile_settings_title">پروفایل و تنظیمات</string>
+    <string name="message_details_title">جزئیات پیامک</string>
+
+    <!-- Permissions Strings -->
     <string name="sms_permission_denied">مجوز دریافت پیامک‌ها لازم است</string>
-    <string name="sms_permission_comment">"برای بررسی و تشخیص هرزپیامک‌ها، دسترسی به پیامک‌ها لازم است. "</string>
+    <string name="sms_permission_comment">برای بررسی و تشخیص هرزپیامک‌ها، دسترسی به پیامک‌ها لازم است.</string>
     <string name="sms_permission_command">درخواست مجوز دریافت پیامک‌ها</string>
     <string name="contact_permission_denied">مجوز دسترسی به دفترتلفن لازم است</string>
     <string name="contact_permission_comment">برای تشخیص هرز بودن یا نبودن پیامک‌ها، نیاز به دسترسی به دفترتلفن هست</string>
     <string name="contact_permission_command">دسترسی به دفترتلفن</string>
     <string name="spams">هرزپیامک‌ها</string>
-    <string name="app_title">پیامکص</string>
+
+    <!-- Profile & Settings Strings -->
+    <string name="user_profile_title">کاربر پیاماکس</string>
+    <string name="user_profile_subtitle">تنظیمات پوسته، تقویم و مدیریت برنامه</string>
+    <string name="theme_settings_title">پوسته برنامه (تم شب و روز)</string>
+    <string name="theme_settings_subtitle">حالت نمایش رنگ‌های برنامه را انتخاب کنید</string>
+    <string name="theme_system">پیروی از سیستم 📱</string>
+    <string name="theme_light">حالت روشن ☀️</string>
+    <string name="theme_dark">حالت تاریک 🌙</string>
+    <string name="calendar_settings_title">نوع تقویم و نمایش تاریخ</string>
+    <string name="calendar_settings_subtitle">فرمت تاریخ نمایش داده شده در کارت‌های پیامک</string>
+    <string name="calendar_persian">تقویم شمسی (خورشیدی) 📅</string>
+    <string name="calendar_gregorian">تقویم میلادی 📆</string>
+    <string name="about_app_title">درباره پیاماکس | PayamaX</string>
+    <string name="about_app_description">پیاماکس یک دستیار هوشمند برای فیلتر و گروه‌بندی پیامک‌های ورودی است. با استفاده از موتور پردازش محلی، پیامک‌های کاربردی و مهم را جدا کرده و پیامک‌های اسپم را دسته‌بندی می‌کند.</string>
+    <string name="about_feature_1">• فیلتر هوشمند پیامک‌های تبلیغاتی و اسپم</string>
+    <string name="about_feature_2">• نمایش تاریخ شمسی و میلادی با قابلیت تنظیم</string>
+    <string name="about_feature_3">• پشتیبانی کامل از حالت‌های مختلف تم و پوسته</string>
+    <string name="about_feature_4">• بازطبقه‌بندی دستی پیامک‌ها و یادگیری موتور</string>
+
+    <!-- Category Filters & Messages -->
+    <string name="category_useful">پیام‌های مفید</string>
+    <string name="category_spam">اسپم و تبلیغاتی</string>
+    <string name="category_all">همه</string>
+    <string name="search_placeholder">جستجو در فرستنده یا متن پیامک...</string>
+    <string name="empty_messages">پیامکی در این دسته‌بندی یافت نشد</string>
+
+    <!-- Usability Titles -->
+    <string name="usability_important">مهم</string>
+    <string name="usability_usable">کاربردی</string>
+    <string name="usability_spam">اسپم</string>
+    <string name="usability_unknown">نامشخص</string>
+
+    <!-- Message Details & Debug Strings -->
+    <string name="unknown_number">شماره نامشخص</string>
+    <string name="contact_label">مخاطب: %1$s</string>
+    <string name="sms_body_title">متن پیامک</string>
+    <string name="copy_text">کپی متن</string>
+    <string name="text_copied_toast">متن پیام کپی شد</string>
+    <string name="share_text">اشتراک‌گذاری</string>
+    <string name="share_dialog_title">اشتراک‌گذاری اطلاعات پیامک</string>
+    <string name="reclassify_title">تغییر دسته‌بندی پیامک</string>
+    <string name="processing_details_title">جزئیات قوانین پردازش (نرخ: %1$s)</string>
+    <string name="no_rate">بدون نرخ</string>
+
+    <!-- Gregorian Month Names -->
+    <string name="month_january">ژانویه</string>
+    <string name="month_february">فوریه</string>
+    <string name="month_march">مارس</string>
+    <string name="month_april">آوریل</string>
+    <string name="month_may">می</string>
+    <string name="month_june">ژوئن</string>
+    <string name="month_july">ژوئیه</string>
+    <string name="month_august">اوت</string>
+    <string name="month_september">سپتامبر</string>
+    <string name="month_october">اکتبر</string>
+    <string name="month_november">نوامبر</string>
+    <string name="month_december">دسامبر</string>
 </resources>

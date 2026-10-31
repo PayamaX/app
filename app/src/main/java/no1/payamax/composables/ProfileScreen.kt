@@ -39,9 +39,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.utils.CalendarType
 import no1.payamax.utils.ThemeMode
@@ -57,7 +59,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
     val spacing = MaterialTheme.spacing
 
     PayamaxScaffold(
-        title = "پروفایل و تنظیمات",
+        title = stringResource(R.string.profile_settings_title),
         modifier = modifier
     ) { paddingValues ->
         Column(
@@ -98,13 +100,13 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     Spacer(modifier = Modifier.width(spacing.medium))
                     Column {
                         Text(
-                            text = "کاربر پیاماکس",
+                            text = stringResource(R.string.user_profile_title),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.height(spacing.extraSmall))
                         Text(
-                            text = "تنظیمات پوسته، تقویم و مدیریت برنامه",
+                            text = stringResource(R.string.user_profile_subtitle),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -122,13 +124,13 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             ) {
                 Column(modifier = Modifier.padding(spacing.medium + 2.dp)) {
                     Text(
-                        text = "پوسته برنامه (تم شب و روز)",
+                        text = stringResource(R.string.theme_settings_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(spacing.extraSmall))
                     Text(
-                        text = "حالت نمایش رنگ‌های برنامه را انتخاب کنید",
+                        text = stringResource(R.string.theme_settings_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -138,9 +140,9 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                         horizontalArrangement = Arrangement.spacedBy(spacing.small)
                     ) {
                         val themeOptions = listOf(
-                            ThemeMode.SYSTEM to "پیروی از سیستم 📱",
-                            ThemeMode.LIGHT to "حالت روشن ☀️",
-                            ThemeMode.DARK to "حالت تاریک 🌙"
+                            ThemeMode.SYSTEM to stringResource(R.string.theme_system),
+                            ThemeMode.LIGHT to stringResource(R.string.theme_light),
+                            ThemeMode.DARK to stringResource(R.string.theme_dark)
                         )
 
                         for ((mode, label) in themeOptions) {
@@ -170,13 +172,13 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
             ) {
                 Column(modifier = Modifier.padding(spacing.medium + 2.dp)) {
                     Text(
-                        text = "نوع تقویم و نمایش تاریخ",
+                        text = stringResource(R.string.calendar_settings_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(spacing.extraSmall))
                     Text(
-                        text = "فرمت تاریخ نمایش داده شده در کارت‌های پیامک",
+                        text = stringResource(R.string.calendar_settings_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -186,8 +188,8 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                         horizontalArrangement = Arrangement.spacedBy(spacing.small)
                     ) {
                         val calendarOptions = listOf(
-                            CalendarType.PERSIAN to "تقویم شمسی (خورشیدی) 📅",
-                            CalendarType.GREGORIAN to "تقویم میلادی 📆"
+                            CalendarType.PERSIAN to stringResource(R.string.calendar_persian),
+                            CalendarType.GREGORIAN to stringResource(R.string.calendar_gregorian)
                         )
 
                         for ((type, label) in calendarOptions) {
@@ -227,14 +229,14 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "درباره پیاماکس | PayamaX",
+                            text = stringResource(R.string.about_app_title),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
                     Spacer(modifier = Modifier.height(spacing.small))
                     Text(
-                        text = "پیاماکس یک دستیار هوشمند برای فیلتر و گروه‌بندی پیامک‌های ورودی است. با استفاده از موتور پردازش محلی، پیامک‌های کاربردی و مهم را جدا کرده و پیامک‌های اسپم را دسته‌بندی می‌کند.",
+                        text = stringResource(R.string.about_app_description),
                         style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -243,13 +245,13 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                     Spacer(modifier = Modifier.height(spacing.mediumSmall))
 
-                    Text(text = "• فیلتر هوشمند پیامک‌های تبلیغاتی و اسپم", style = MaterialTheme.typography.bodySmall)
+                    Text(text = stringResource(R.string.about_feature_1), style = MaterialTheme.typography.bodySmall)
                     Spacer(modifier = Modifier.height(spacing.extraSmall))
-                    Text(text = "• نمایش تاریخ شمسی و میلادی با قابلیت تنظیم", style = MaterialTheme.typography.bodySmall)
+                    Text(text = stringResource(R.string.about_feature_2), style = MaterialTheme.typography.bodySmall)
                     Spacer(modifier = Modifier.height(spacing.extraSmall))
-                    Text(text = "• پشتیبانی کامل از حالت‌های مختلف تم و پوسته", style = MaterialTheme.typography.bodySmall)
+                    Text(text = stringResource(R.string.about_feature_3), style = MaterialTheme.typography.bodySmall)
                     Spacer(modifier = Modifier.height(spacing.extraSmall))
-                    Text(text = "• بازطبقه‌بندی دستی پیامک‌ها و یادگیری موتور", style = MaterialTheme.typography.bodySmall)
+                    Text(text = stringResource(R.string.about_feature_4), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }

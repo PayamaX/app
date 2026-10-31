@@ -15,7 +15,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import no1.payamax.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +25,7 @@ fun PayamaxScaffold(
     title: String,
     modifier: Modifier = Modifier,
     navigationIcon: ImageVector? = null,
-    navigationIconContentDescription: String? = "بازگشت",
+    navigationIconContentDescription: String? = null,
     onNavigationIconClick: (() -> Unit)? = null,
     actions: @Composable (RowScope.() -> Unit) = {},
     bottomBar: @Composable () -> Unit = {},
@@ -54,7 +56,7 @@ fun PayamaxScaffold(
                             IconButton(onClick = onNavigationIconClick) {
                                 Icon(
                                     imageVector = navigationIcon,
-                                    contentDescription = navigationIconContentDescription
+                                    contentDescription = navigationIconContentDescription ?: stringResource(R.string.nav_back)
                                 )
                             }
                         }

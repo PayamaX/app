@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,7 +94,7 @@ fun SplashScreen(navController: NavHostController) {
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.email_spam_svgrepo_com),
-                        contentDescription = "PayamaX Logo",
+                        contentDescription = stringResource(R.string.app_logo_desc),
                         modifier = Modifier.size(90.dp),
                         contentScale = ContentScale.Fit
                     )
@@ -103,7 +104,7 @@ fun SplashScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(28.dp))
 
             Text(
-                text = "پیاماکس | PayamaX",
+                text = stringResource(R.string.app_title_full),
                 style = MaterialTheme.typography.displaySmall.copy(
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 1.sp
@@ -114,7 +115,7 @@ fun SplashScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "فیلتر و مدیریت هوشمند پیامک‌ها",
+                text = stringResource(R.string.app_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

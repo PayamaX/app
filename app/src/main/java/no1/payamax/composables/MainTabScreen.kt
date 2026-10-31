@@ -19,8 +19,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
+import no1.payamax.R
 import no1.payamax.contracts.PayamakUsabilityClass
 
 @Composable
@@ -41,12 +43,12 @@ fun MainTabScreen(
                     icon = {
                         Icon(
                             imageVector = if (selectedTab == 0) Icons.Filled.Home else Icons.Outlined.Home,
-                            contentDescription = "صفحه اصلی"
+                            contentDescription = stringResource(R.string.nav_home)
                         )
                     },
                     label = {
                         Text(
-                            text = "صفحه اصلی",
+                            text = stringResource(R.string.nav_home),
                             fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal
                         )
                     }
@@ -58,12 +60,12 @@ fun MainTabScreen(
                     icon = {
                         Icon(
                             imageVector = if (selectedTab == 1) Icons.Filled.Person else Icons.Outlined.Person,
-                            contentDescription = "پروفایل"
+                            contentDescription = stringResource(R.string.nav_profile)
                         )
                     },
                     label = {
                         Text(
-                            text = "پروفایل",
+                            text = stringResource(R.string.nav_profile),
                             fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal
                         )
                     }

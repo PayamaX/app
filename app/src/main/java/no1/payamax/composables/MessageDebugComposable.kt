@@ -39,9 +39,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.ui.theme.ColorSchemeExtension
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.model.ReviewableProcessedPayamak
@@ -111,7 +113,7 @@ fun MessageDebugComposable(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            val number = msgValue.pp.payamak.origin.number?.toString() ?: "شماره نامشخص"
+                            val number = msgValue.pp.payamak.origin.number?.toString() ?: stringResource(R.string.unknown_number)
                             Text(
                                 text = number,
                                 style = MaterialTheme.typography.bodySmall,
@@ -139,7 +141,7 @@ fun MessageDebugComposable(
                 msgValue.pp.payamak.origin.contact?.let { contact ->
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "مخاطب: ${contact.name}",
+                        text = stringResource(R.string.contact_label, contact.name),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -157,7 +159,7 @@ fun MessageDebugComposable(
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 Text(
-                    text = "متن پیامک",
+                    text = stringResource(R.string.sms_body_title),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -182,12 +184,12 @@ fun MessageDebugComposable(
                             val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("SMS Body", msgValue.pp.payamak.body)
                             clipboard.setPrimaryClip(clip)
-                            Toast.makeText(ctx, "متن پیام کپی شد", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, ctx.getString(R.string.text_copied_toast), Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("کپی متن")
+                        Text(stringResource(R.string.copy_text))
                     }
 
                     Button(
@@ -197,7 +199,7 @@ fun MessageDebugComposable(
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, msgValue.pp.dump())
                             }
-                            val shareIntent = Intent.createChooser(sendIntent, "اشتراک‌گذاری اطلاعات پیامک")
+                            val shareIntent = Intent.createChooser(sendIntent, ctx.getString(R.string.share_dialog_title))
                             ctx.startActivity(shareIntent)
                         },
                         modifier = Modifier.weight(1f),
@@ -205,7 +207,7 @@ fun MessageDebugComposable(
                     ) {
                         Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("اشتراک‌گذاری")
+                        Text(stringResource(R.string.share_text))
                     }
                 }
             }
@@ -221,7 +223,7 @@ fun MessageDebugComposable(
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 Text(
-                    text = "تغییر دسته‌بندی پیامک",
+                    text = stringResource(R.string.reclassify_title),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -280,7 +282,7 @@ fun MessageDebugComposable(
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
                 Text(
-                    text = "جزئیات قوانین پردازش (نرخ: ${msgValue.pp.usability.rate.probability})",
+                    text = stringResource(R.string.processing_details_title, msgValue.pp.usability.rate.probability),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -300,7 +302,7 @@ fun MessageDebugComposable(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        val rateText = pr.rate?.toString() ?: "بدون نرخ"
+                        val rateText = pr.rate?.toString() ?: stringResource(R.string.no_rate)
                         Text(
                             text = rateText,
                             style = MaterialTheme.typography.labelMedium,
