@@ -74,6 +74,7 @@ dependencies {
 
     //noinspection GradleDependency
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     //noinspection GradleDependency
     implementation(libs.androidx.activity.compose)
