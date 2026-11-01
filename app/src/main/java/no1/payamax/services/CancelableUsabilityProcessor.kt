@@ -1,17 +1,17 @@
 package no1.payamax.services
 
+import android.content.Context
+import no1.payamax.R
 import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
 
-@Suppress("SpellCheckingInspection")
-val laqv = listOf("لغو")
-val eleven = listOf("۱۱", "11", "١١")
 
-class Cancel11UsabilityProcessor : PayamakUsabilityRuleContract {
+
+class CancelableUsabilityProcessor(private val context: Context) : PayamakUsabilityRuleContract {
 
     override val name: String
-        get() = "Cancel11"
+        get() = context.getString(R.string.cancelable)
 
     override fun guess(payamak: Payamak): UsabilityRate? {
         if (payamak.body.isBlank()) return null
@@ -20,4 +20,8 @@ class Cancel11UsabilityProcessor : PayamakUsabilityRuleContract {
             return UsabilityRate(0.1)
         return null
     }
+
+    @Suppress("SpellCheckingInspection")
+    val laqv = listOf("لغو")
+    val eleven = listOf("۱۱", "11", "١١")
 }

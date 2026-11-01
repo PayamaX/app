@@ -3,7 +3,7 @@ CREATE TABLE PredefinedOriginEntity(
     number INTEGER,
     title TEXT,
     rank REAL NOT NULL,
-    source TEXT AS no1.payamax.services.OriginRankSource NOT NULL,
+    source TEXT AS no1.payamax.enums.OriginRankSource NOT NULL,
     position INTEGER NOT NULL,
     last_synced INTEGER NOT NULL,
     global_id INTEGER

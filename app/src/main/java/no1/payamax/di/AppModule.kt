@@ -17,7 +17,8 @@ val appModule = module {
     single { PayamaxDatabase(get(), PredefinedOriginEntity.Adapter(EnumColumnAdapter())) }
     single { get<PayamaxDatabase>().predefinedOriginQueries }
     single { PredefinedOriginRepo(get()) }
-    factoryOf(::Cancel11UsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
+    single { PredefinedOriginProcessor(get(), get()) } bind PayamakUsabilityRuleContract::class
+    factoryOf(::CancelableUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::CodeUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::EmojiUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::LandlineOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
