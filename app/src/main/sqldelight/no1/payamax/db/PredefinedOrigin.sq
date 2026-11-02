@@ -1,16 +1,16 @@
 CREATE TABLE PredefinedOriginEntity(
 	id INTEGER PRIMARY KEY NOT NULL,
-    number INTEGER,
-    title TEXT,
+    origin TEXT NOT NULL UNIQUE,
     rank REAL NOT NULL,
-    source TEXT AS no1.payamax.services.OriginRankSource NOT NULL,
+    source TEXT AS no1.payamax.enums.OriginRankSource NOT NULL,
     position INTEGER NOT NULL,
     last_synced INTEGER NOT NULL,
-    global_id INTEGER
+    global_id TEXT
 );
 
 all:
 SELECT * FROM PredefinedOriginEntity ORDER BY position ASC;
 
-insert:
-INSERT INTO PredefinedOriginEntity (number, title, rank, source, position, last_synced, global_id) VALUES ?;
+upsert:
+INSERT OR REPLACE INTO PredefinedOriginEntity (origin, rank, source, position, last_synced, global_id)
+VALUES (:origin, :rank, :source, :position, :last_synced, :global_id);

@@ -1,12 +1,14 @@
 package no1.payamax.services
 
+import android.content.Context
+import no1.payamax.R
 import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
 
-class LandlineOriginUsabilityProcessor : PayamakUsabilityRuleContract {
+class LandlineOriginUsabilityProcessor(private val context: Context) : PayamakUsabilityRuleContract {
     override val name: String
-        get() = "Landline"
+        get() = context.getString(R.string.landline)
 
     override fun guess(payamak: Payamak): UsabilityRate? {
         if (payamak.origin.number == null)

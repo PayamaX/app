@@ -1,12 +1,14 @@
 package no1.payamax.services
 
+import android.content.Context
+import no1.payamax.R
 import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
 
-class OperatorOriginUsabilityProcessor : PayamakUsabilityRuleContract {
+class OperatorOriginUsabilityProcessor(private val context: Context) : PayamakUsabilityRuleContract {
     override val name: String
-        get() = "Operator"
+        get() = context.getString(R.string.broadcast)
 
     override fun guess(payamak: Payamak): UsabilityRate? {
         if (payamak.origin.number == null)
@@ -15,6 +17,6 @@ class OperatorOriginUsabilityProcessor : PayamakUsabilityRuleContract {
         val matches: Boolean = textual.matches(operatorNumberPattern)
         return if (matches) UsabilityRate(0.0) else null
     }
-}
 
-val operatorNumberPattern = Regex("\\d{3,8}")
+    val operatorNumberPattern = Regex("(\\d{3,8})|(\\+98999\\d+)")
+}

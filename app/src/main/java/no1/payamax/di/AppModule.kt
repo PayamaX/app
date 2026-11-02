@@ -10,6 +10,7 @@ import no1.payamax.repos.PredefinedOriginRepo
 import no1.payamax.services.*
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val appModule = module {
@@ -17,7 +18,9 @@ val appModule = module {
     single { PayamaxDatabase(get(), PredefinedOriginEntity.Adapter(EnumColumnAdapter())) }
     single { get<PayamaxDatabase>().predefinedOriginQueries }
     single { PredefinedOriginRepo(get()) }
-    factoryOf(::Cancel11UsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
+    single { PredefinedOriginProcessor(get(), get()) } bind PayamakUsabilityRuleContract::class
+    factoryOf(::ConversionalUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
+    factoryOf(::CancelableUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::CodeUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::EmojiUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::LandlineOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
