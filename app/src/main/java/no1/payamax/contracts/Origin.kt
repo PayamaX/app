@@ -23,4 +23,14 @@ data class Origin(val number: CellNumber?, val title: String?, val contact: Cont
         }
         return "?"
     }
+
+    fun origin(): String {
+        if (title.hasValue) {
+            return title!!;
+        }
+        if (number.hasValue) {
+            return number!!.displayable()
+        }
+        return "?"
+    }
 }

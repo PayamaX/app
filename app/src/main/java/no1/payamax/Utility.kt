@@ -12,8 +12,7 @@ val Any?.hasValue: Boolean
 fun PredefinedOriginEntity.prepared(): PredefinedOrigin {
     return PredefinedOrigin(
         this.id,
-        this.number?.cellNumber(),
-        this.title,
+        this.origin,
         this.rank,
         this.source,
         this.position

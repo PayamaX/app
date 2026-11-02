@@ -6,6 +6,7 @@ import no1.payamax.hasValue
 import no1.payamax.enums.OriginRankSource
 import no1.payamax.prepared
 import no1.payamax.services.PredefinedOriginProcessor
+import java.util.UUID
 
 class PredefinedOriginRepo(val queries: PredefinedOriginQueries) {
     fun all(): List<PredefinedOriginProcessor.PredefinedOrigin> {
@@ -16,37 +17,6 @@ class PredefinedOriginRepo(val queries: PredefinedOriginQueries) {
         val title = if (origin.title.hasValue) origin.title else null
         val numberMain = origin.number?.main
         val now = System.currentTimeMillis()
-
-        if (title != null) {
-            val existing = queries.findByTitle(title).executeAsOneOrNull()
-            if (existing != null) {
-                queries.updateRankAndSourceByTitle(rank = rank, source = source, title = title)
-            } else {
-                queries.insertEntity(
-                    number = numberMain,
-                    title = title,
-                    rank = rank,
-                    source = source,
-                    position = 0,
-                    last_synced = now,
-                    global_id = null
-                )
-            }
-        } else if (numberMain != null) {
-            val existing = queries.findByNumber(numberMain).executeAsOneOrNull()
-            if (existing != null) {
-                queries.updateRankAndSourceByNumber(rank = rank, source = source, number = numberMain)
-            } else {
-                queries.insertEntity(
-                    number = numberMain,
-                    title = null,
-                    rank = rank,
-                    source = source,
-                    position = 0,
-                    last_synced = now,
-                    global_id = null
-                )
-            }
-        }
+        queries.upsert(origin.origin(), rank, source, 1, 0, UUID.randomUUID().toString())
     }
 }

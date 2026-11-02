@@ -23,12 +23,12 @@ class PredefinedOriginProcessor(val repo: PredefinedOriginRepo, private val cont
         if (!initialized) {
             predefinedOrigins.clear()
             var index = 0L;
-            predefinedOrigins.add(PredefinedOrigin(1000 + index, null, "IRANCELL", 0.1, OriginRankSource.PayamaX, index++))
-            predefinedOrigins.add(PredefinedOrigin(1000 + index, null, "SoratHesab", 1.0, OriginRankSource.PayamaX, index++))
-            predefinedOrigins.add(PredefinedOrigin(1000 + index, CellNumber(98, 9999987641L), null, 1.0, OriginRankSource.PayamaX, index++))
-            predefinedOrigins.add(PredefinedOrigin(1000 + index, CellNumber(98, 5000_4747), null, 1.0, OriginRankSource.PayamaX, index++))
-            predefinedOrigins.add(PredefinedOrigin(1000 + index, null, "CRA", 1.0, OriginRankSource.PayamaX, index++))
-            predefinedOrigins.add(PredefinedOrigin(1000 + index, CellNumber(98,2020), null, 1.0, OriginRankSource.PayamaX, index++))
+            predefinedOrigins.add(PredefinedOrigin(1000 + index, "IRANCELL", 0.1, OriginRankSource.PayamaX, index++))
+            predefinedOrigins.add(PredefinedOrigin(1000 + index, "SoratHesab", 1.0, OriginRankSource.PayamaX, index++))
+            predefinedOrigins.add(PredefinedOrigin(1000 + index, CellNumber(98, 9999987641L).displayable(), 1.0, OriginRankSource.PayamaX, index++))
+            predefinedOrigins.add(PredefinedOrigin(1000 + index, CellNumber(98, 5000_4747).displayable(), 1.0, OriginRankSource.PayamaX, index++))
+            predefinedOrigins.add(PredefinedOrigin(1000 + index, "CRA", 1.0, OriginRankSource.PayamaX, index++))
+            predefinedOrigins.add(PredefinedOrigin(1000 + index, CellNumber(98, 2020).displayable(), 1.0, OriginRankSource.PayamaX, index++))
             predefinedOrigins.addAll(repo.all())
             initialized = true
         }
@@ -47,9 +47,9 @@ class PredefinedOriginProcessor(val repo: PredefinedOriginRepo, private val cont
     private fun findRelatedOrigins(payamak: Payamak): List<PredefinedOrigin> {
         val origins = ensureOrigins()
         return if (payamak.origin.title.hasValue) {
-            origins.filter { it.title != null && payamak.origin.title.contentEquals(it.title, ignoreCase = true) }
+            origins.filter { payamak.origin.title.contentEquals(it.origin, ignoreCase = true) }
         } else if (payamak.origin.number.hasValue) {
-            origins.filter { it.number != null && payamak.origin.number!!.main == it.number.main }
+            origins.filter { it.origin.endsWith(payamak.origin.number!!.main.toString()) }
         } else {
             listOf()
         }
@@ -70,8 +70,7 @@ class PredefinedOriginProcessor(val repo: PredefinedOriginRepo, private val cont
 
     data class PredefinedOrigin(
         val id: Long,
-        val number: CellNumber?,
-        val title: String?,
+        val origin: String,
         val rank: Double,
         val source: OriginRankSource,
         val position: Long
