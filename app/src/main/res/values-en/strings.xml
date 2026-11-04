@@ -1,0 +1,90 @@
+<resources>
+    <string name="app_name">PayamaX</string>
+    <string name="app_title">PayamaX</string>
+    <string name="app_title_full">PayamaX</string>
+    <string name="app_subtitle">Smart SMS Filter &amp; Management</string>
+    <string name="app_logo_desc">PayamaX Logo</string>
+
+    <!-- Navigation Strings -->
+    <string name="nav_home">Home</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_back">Back</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_clear">Clear</string>
+    <string name="press_back_again_to_exit">Press back again to exit</string>
+    <string name="profile_settings_title">Profile &amp; Settings</string>
+    <string name="message_details_title">Message Details</string>
+
+    <!-- Permissions Strings -->
+    <string name="sms_permission_denied">SMS permission is required</string>
+    <string name="sms_permission_comment">Access to SMS is required to analyze and detect spam messages.</string>
+    <string name="sms_permission_command">Request SMS Permission</string>
+    <string name="contact_permission_denied">Contacts permission is required</string>
+    <string name="contact_permission_comment">Access to contacts is required to identify sender legitimacy.</string>
+    <string name="contact_permission_command">Grant Contacts Access</string>
+    <string name="spams">Spam Messages</string>
+
+    <!-- Profile & Settings Strings -->
+    <string name="section_personalization">Personalization</string>
+    <string name="section_about">About App</string>
+    <string name="user_profile_title">PayamaX User</string>
+    <string name="user_profile_subtitle">Theme, calendar, language and app settings</string>
+    <string name="theme_settings_title">App Theme Mode</string>
+    <string name="theme_settings_subtitle">Select the app color display mode</string>
+    <string name="theme_system">System Default 📱</string>
+    <string name="theme_light">Light Mode ☀️</string>
+    <string name="theme_dark">Dark Mode 🌙</string>
+    <string name="calendar_settings_title">Calendar &amp; Date Display</string>
+    <string name="calendar_settings_subtitle">Format of dates displayed on message cards</string>
+    <string name="calendar_persian">Solar Hijri (Persian) 📅</string>
+    <string name="calendar_gregorian">Gregorian 📆</string>
+    <string name="language_settings_title">App Language</string>
+    <string name="language_settings_subtitle">Select your preferred user interface language</string>
+    <string name="language_persian">فارسی 🇮🇷</string>
+    <string name="language_english">English 🇬🇧</string>
+    <string name="about_app_title">About PayamaX</string>
+    <string name="about_app_description">PayamaX is a smart assistant for filtering and grouping incoming text messages. Using an on-device engine, it separates useful messages and classifies spam.</string>
+    <string name="about_feature_1">• Smart filtering of promotional and spam SMS</string>
+    <string name="about_feature_2">• Customizable Persian and Gregorian calendar dates</string>
+    <string name="about_feature_3">• Full support for Light and Dark themes</string>
+    <string name="about_feature_4">• Manual reclassification and local engine learning</string>
+
+    <!-- Category Filters & Messages -->
+    <string name="category_useful">Useful Messages</string>
+    <string name="category_spam">Spam &amp; Promo</string>
+    <string name="category_all">All</string>
+    <string name="search_placeholder">Search sender or message text&#8230;</string>
+    <string name="empty_messages">No messages found in this category</string>
+
+    <!-- Usability Titles -->
+    <string name="usability_important">Important</string>
+    <string name="usability_usable">Useful</string>
+    <string name="usability_spam">Spam</string>
+    <string name="usability_unknown">Unknown</string>
+
+    <!-- Message Details & Debug Strings -->
+    <string name="unknown_number">Unknown Number</string>
+    <string name="contact_label">Contact: %1$s</string>
+    <string name="sms_body_title">SMS Body</string>
+    <string name="copy_text">Copy Text</string>
+    <string name="text_copied_toast">Message text copied to clipboard</string>
+    <string name="share_text">Share</string>
+    <string name="share_dialog_title">Share SMS Information</string>
+    <string name="reclassify_title">Reclassify Message</string>
+    <string name="processing_details_title">Processing Rules Details (Rate: %1$s)</string>
+    <string name="no_rate">No Rate</string>
+
+    <!-- Gregorian Month Names -->
+    <string name="month_january">January</string>
+    <string name="month_february">February</string>
+    <string name="month_march">March</string>
+    <string name="month_april">April</string>
+    <string name="month_may">May</string>
+    <string name="month_june">June</string>
+    <string name="month_july">July</string>
+    <string name="month_august">August</string>
+    <string name="month_september">September</string>
+    <string name="month_october">October</string>
+    <string name="month_november">November</string>
+    <string name="month_december">December</string>
+</resources>

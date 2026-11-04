@@ -14,6 +14,11 @@ enum class CalendarType {
     PERSIAN, GREGORIAN
 }
 
+enum class AppLanguage(val code: String) {
+    PERSIAN("fa"),
+    ENGLISH("en")
+}
+
 class UserPreferences(context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("payamax_user_prefs", Context.MODE_PRIVATE)
@@ -23,6 +28,9 @@ class UserPreferences(context: Context) {
 
     private val _calendarType = MutableStateFlow(getSavedCalendarType())
     val calendarType: StateFlow<CalendarType> = _calendarType.asStateFlow()
+
+    private val _appLanguage = MutableStateFlow(getSavedAppLanguage())
+    val appLanguage: StateFlow<AppLanguage> = _appLanguage.asStateFlow()
 
     private fun getSavedThemeMode(): ThemeMode {
         val name = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
@@ -52,8 +60,23 @@ class UserPreferences(context: Context) {
         _calendarType.value = type
     }
 
+    private fun getSavedAppLanguage(): AppLanguage {
+        val name = prefs.getString(KEY_APP_LANGUAGE, AppLanguage.PERSIAN.name) ?: AppLanguage.PERSIAN.name
+        return try {
+            AppLanguage.valueOf(name)
+        } catch (e: Exception) {
+            AppLanguage.PERSIAN
+        }
+    }
+
+    fun setAppLanguage(language: AppLanguage) {
+        prefs.edit().putString(KEY_APP_LANGUAGE, language.name).apply()
+        _appLanguage.value = language
+    }
+
     companion object {
         private const val KEY_THEME_MODE = "key_theme_mode"
         private const val KEY_CALENDAR_TYPE = "key_calendar_type"
+        private const val KEY_APP_LANGUAGE = "key_app_language"
     }
 }

@@ -1,13 +1,19 @@
 package no1.payamax.cleanCompose.core
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,6 +29,7 @@ import no1.payamax.composables.MessagesScreen
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.utils.UserPreferences
 import org.koin.java.KoinJavaComponent.inject
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -43,31 +50,53 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val themeMode by userPreferences.themeMode.collectAsState()
-            PayamaxTheme(themeMode = themeMode) {
-                val navController = rememberNavController()
-                NavHost(
-                    navController = navController,
-                    startDestination = SplashRoute,
-                ) {
-                    composable<SplashRoute> {
-                        SplashScreen(navController = navController)
-                    }
+            val appLanguage by userPreferences.appLanguage.collectAsState()
 
-                    composable<MessagesRoute> { bse ->
-                        val types = bse.arguments?.get("messagesClass") as List<PayamakUsabilityClass>?
-                        MessagesScreen(
-                            contentResolver,
-                            navController,
-                            types ?: throw RuntimeException("")
-                        )
-                    }
+            val context = LocalContext.current
+            val locale = remember(appLanguage) { Locale(appLanguage.code) }
+            val localizedContext = remember(context, locale) {
+                val config = Configuration(context.resources.configuration)
+                config.setLocale(locale)
+                config.setLayoutDirection(locale)
+                val configContext = context.createConfigurationContext(config)
+                object : android.content.ContextWrapper(context) {
+                    override fun getResources(): android.content.res.Resources = configContext.resources
+                }
+            }
+            val layoutDirection = remember(locale) {
+                if (locale.language == "fa") LayoutDirection.Rtl else LayoutDirection.Ltr
+            }
 
-                    composable<MessageRoute> { bse ->
-                        MessageScreen(
-                            contentResolver,
-                            navController,
-                            bse.arguments?.getLong("payamakId") ?: throw RuntimeException("")
-                        )
+            CompositionLocalProvider(
+                LocalContext provides localizedContext,
+                LocalLayoutDirection provides layoutDirection
+            ) {
+                PayamaxTheme(themeMode = themeMode) {
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = SplashRoute,
+                    ) {
+                        composable<SplashRoute> {
+                            SplashScreen(navController = navController)
+                        }
+
+                        composable<MessagesRoute> { bse ->
+                            val types = bse.arguments?.get("messagesClass") as List<PayamakUsabilityClass>?
+                            MessagesScreen(
+                                contentResolver,
+                                navController,
+                                types ?: throw RuntimeException("")
+                            )
+                        }
+
+                        composable<MessageRoute> { bse ->
+                            MessageScreen(
+                                contentResolver,
+                                navController,
+                                bse.arguments?.getLong("payamakId") ?: throw RuntimeException("")
+                            )
+                        }
                     }
                 }
             }

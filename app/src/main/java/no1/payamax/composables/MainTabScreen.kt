@@ -1,7 +1,12 @@
 package no1.payamax.composables
 
+import android.app.Activity
 import android.content.ContentResolver
+import android.content.Context
+import android.content.ContextWrapper
 import android.database.Cursor
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -16,9 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
@@ -33,6 +40,23 @@ fun MainTabScreen(
     types: List<PayamakUsabilityClass>
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    var backPressedTime by remember { mutableLongStateOf(0L) }
+    val context = LocalContext.current
+    val exitToastMessage = stringResource(R.string.press_back_again_to_exit)
+
+    BackHandler {
+        if (selectedTab != 0) {
+            selectedTab = 0
+        } else {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - backPressedTime < 2000) {
+                context.findActivity()?.finish()
+            } else {
+                backPressedTime = currentTime
+                Toast.makeText(context, exitToastMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -90,4 +114,13 @@ fun MainTabScreen(
             }
         }
     }
+}
+
+private fun Context.findActivity(): Activity? {
+    var currentContext = this
+    while (currentContext is ContextWrapper) {
+        if (currentContext is Activity) return currentContext
+        currentContext = currentContext.baseContext
+    }
+    return null
 }

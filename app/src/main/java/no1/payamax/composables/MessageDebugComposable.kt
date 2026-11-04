@@ -51,6 +51,7 @@ import no1.payamax.repos.PredefinedOriginRepo
 import no1.payamax.services.OriginRankSource
 import no1.payamax.services.PredefinedOriginProcessor
 import no1.payamax.services.UsabilityProcessorEngine
+import no1.payamax.utils.toPersianDigits
 import org.koin.java.KoinJavaComponent.inject
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -113,12 +114,14 @@ fun MessageDebugComposable(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            val number = msgValue.pp.payamak.origin.number?.toString() ?: stringResource(R.string.unknown_number)
-                            Text(
-                                text = number,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            val formattedNumber = msgValue.pp.payamak.origin.number?.displayable()?.toPersianDigits()
+                            if (formattedNumber != null && formattedNumber != msgValue.pp.payamak.origin.displayable()) {
+                                Text(
+                                    text = formattedNumber,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                             Spacer(modifier = Modifier.height(6.dp))
                             PersianDateTimeChips(timeInMillis = msgValue.pp.payamak.received)
                         }

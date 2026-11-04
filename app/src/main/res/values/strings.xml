@@ -11,6 +11,7 @@
     <string name="nav_back">بازگشت</string>
     <string name="nav_search">جستجو</string>
     <string name="nav_clear">پاک کردن</string>
+    <string name="press_back_again_to_exit">برای خروج یک بار دیگر بزنید</string>
     <string name="profile_settings_title">پروفایل و تنظیمات</string>
     <string name="message_details_title">جزئیات پیامک</string>
 
@@ -24,6 +25,8 @@
     <string name="spams">هرزپیامک‌ها</string>
 
     <!-- Profile & Settings Strings -->
+    <string name="section_personalization">شخصی‌سازی</string>
+    <string name="section_about">درباره برنامه</string>
     <string name="user_profile_title">کاربر پیاماکس</string>
     <string name="user_profile_subtitle">تنظیمات پوسته، تقویم و مدیریت برنامه</string>
     <string name="theme_settings_title">پوسته برنامه (تم شب و روز)</string>
@@ -35,6 +38,10 @@
     <string name="calendar_settings_subtitle">فرمت تاریخ نمایش داده شده در کارت‌های پیامک</string>
     <string name="calendar_persian">تقویم شمسی (خورشیدی) 📅</string>
     <string name="calendar_gregorian">تقویم میلادی 📆</string>
+    <string name="language_settings_title">زبان برنامه</string>
+    <string name="language_settings_subtitle">زبان نمایش رابط کاربری را انتخاب کنید</string>
+    <string name="language_persian">فارسی 🇮🇷</string>
+    <string name="language_english">English 🇬🇧</string>
     <string name="about_app_title">درباره پیاماکس | PayamaX</string>
     <string name="about_app_description">پیاماکس یک دستیار هوشمند برای فیلتر و گروه‌بندی پیامک‌های ورودی است. با استفاده از موتور پردازش محلی، پیامک‌های کاربردی و مهم را جدا کرده و پیامک‌های اسپم را دسته‌بندی می‌کند.</string>
     <string name="about_feature_1">• فیلتر هوشمند پیامک‌های تبلیغاتی و اسپم</string>

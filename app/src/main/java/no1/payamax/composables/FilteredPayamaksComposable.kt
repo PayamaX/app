@@ -76,13 +76,19 @@ fun FilteredPayamaksComposable(
     // Tab categories
     var selectedCategoryIndex by remember {
         mutableIntStateOf(
-            if (types.contains(PayamakUsabilityClass.Spam)) 1 else 0
+            if (types.contains(PayamakUsabilityClass.Spam)) 2 else 0
         )
     }
 
     val activeTypes = when (selectedCategoryIndex) {
-        0 -> listOf(PayamakUsabilityClass.Important, PayamakUsabilityClass.Usable)
-        1 -> listOf(PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown)
+        0 -> listOf(
+            PayamakUsabilityClass.Important,
+            PayamakUsabilityClass.Usable,
+            PayamakUsabilityClass.Spam,
+            PayamakUsabilityClass.Unknown
+        )
+        1 -> listOf(PayamakUsabilityClass.Important, PayamakUsabilityClass.Usable)
+        2 -> listOf(PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown)
         else -> listOf(
             PayamakUsabilityClass.Important,
             PayamakUsabilityClass.Usable,
@@ -199,6 +205,12 @@ fun FilteredPayamaksComposable(
                     FilterChip(
                         selected = selectedCategoryIndex == 0,
                         onClick = { selectedCategoryIndex = 0 },
+                        label = { Text(stringResource(R.string.category_all)) },
+                        shape = RoundedCornerShape(999.dp)
+                    )
+                    FilterChip(
+                        selected = selectedCategoryIndex == 1,
+                        onClick = { selectedCategoryIndex = 1 },
                         label = { Text(stringResource(R.string.category_useful)) },
                         shape = RoundedCornerShape(999.dp),
                         colors = FilterChipDefaults.filterChipColors(
@@ -207,20 +219,14 @@ fun FilteredPayamaksComposable(
                         )
                     )
                     FilterChip(
-                        selected = selectedCategoryIndex == 1,
-                        onClick = { selectedCategoryIndex = 1 },
+                        selected = selectedCategoryIndex == 2,
+                        onClick = { selectedCategoryIndex = 2 },
                         label = { Text(stringResource(R.string.category_spam)) },
                         shape = RoundedCornerShape(999.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = MaterialTheme.colorScheme.errorContainer,
                             selectedLabelColor = MaterialTheme.colorScheme.onErrorContainer
                         )
-                    )
-                    FilterChip(
-                        selected = selectedCategoryIndex == 2,
-                        onClick = { selectedCategoryIndex = 2 },
-                        label = { Text(stringResource(R.string.category_all)) },
-                        shape = RoundedCornerShape(999.dp)
                     )
                 }
             }
