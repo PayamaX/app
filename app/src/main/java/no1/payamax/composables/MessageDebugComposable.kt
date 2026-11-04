@@ -46,9 +46,9 @@ import androidx.compose.ui.unit.sp
 import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.ui.theme.ColorSchemeExtension
 import no1.payamax.contracts.PayamakUsabilityClass
+import no1.payamax.enums.OriginRankSource
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.repos.PredefinedOriginRepo
-import no1.payamax.services.OriginRankSource
 import no1.payamax.services.PredefinedOriginProcessor
 import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.utils.toPersianDigits

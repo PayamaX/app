@@ -1,15 +1,16 @@
 package no1.payamax.services
 
+import android.content.Context
+import no1.payamax.R
 import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
 
-val codeRegex = "code\\s*\\:\\s*\\d{1,}".toRegex(option = RegexOption.IGNORE_CASE)
 
-class CodeUsabilityProcessor : PayamakUsabilityRuleContract {
+class CodeUsabilityProcessor(private val context: Context) : PayamakUsabilityRuleContract {
 
     override val name: String
-        get() = "Code"
+        get() = context.getString(R.string.code)
 
     override fun guess(payamak: Payamak): UsabilityRate? {
         if (payamak.body.isBlank()) return null
@@ -17,4 +18,6 @@ class CodeUsabilityProcessor : PayamakUsabilityRuleContract {
             return UsabilityRate(1.0)
         return null
     }
+
+    val codeRegex = "\\w+\\s*:\\s*\\d+".toRegex(option = RegexOption.IGNORE_CASE)
 }

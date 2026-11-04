@@ -87,4 +87,17 @@
     <string name="month_october">October</string>
     <string name="month_november">November</string>
     <string name="month_december">December</string>
+
+    <!-- Processor Rule Names -->
+    <string name="cancelable">Cancelable</string>
+    <string name="code">Verification Code</string>
+    <string name="emoji">With Emoji</string>
+    <string name="landline">Landline Phone</string>
+    <string name="broadcast">Broadcast</string>
+    <string name="mobile">Mobile Number</string>
+    <string name="phonebook">Phonebook</string>
+    <string name="predefinedorigin">Predefined Origin</string>
+    <string name="advertisement">1000 Prefix Shortcode</string>
+    <string name="titled">Titled Sender</string>
+    <string name="conversional">Conversational</string>
 </resources>
