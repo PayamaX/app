@@ -1,5 +1,6 @@
 package no1.payamax.di
 
+import androidx.sqlite.db.SupportSQLiteDatabase
 import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
@@ -16,7 +17,24 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { UserPreferences(get()) }
-    single<SqlDriver> { AndroidSqliteDriver(PayamaxDatabase.Schema, get(), "payamax.db") }
+    single<SqlDriver> {
+        AndroidSqliteDriver(
+            schema = PayamaxDatabase.Schema,
+            context = get(),
+            name = "payamax.db",
+            callback = object : AndroidSqliteDriver.Callback(PayamaxDatabase.Schema) {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    super.onOpen(db)
+                    try {
+                        db.query("SELECT origin FROM PredefinedOriginEntity LIMIT 0").use { }
+                    } catch (e: Exception) {
+                        db.execSQL("DROP TABLE IF EXISTS PredefinedOriginEntity")
+                        onCreate(db)
+                    }
+                }
+            }
+        )
+    }
     single { PayamaxDatabase(get(), PredefinedOriginEntity.Adapter(EnumColumnAdapter())) }
     single { get<PayamaxDatabase>().predefinedOriginQueries }
     single { PredefinedOriginRepo(get()) }

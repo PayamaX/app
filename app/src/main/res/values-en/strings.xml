@@ -88,6 +88,16 @@
     <string name="month_november">November</string>
     <string name="month_december">December</string>
 
+    <!-- Export Strings -->
+    <string name="export_excel">Export Excel</string>
+    <string name="export_permission_dialog_title">Storage Permission</string>
+    <string name="export_permission_dialog_desc">Storage permission is required to save the Excel file in the Downloads folder.</string>
+    <string name="export_permission_grant">Grant Permission</string>
+    <string name="export_cancel">Cancel</string>
+    <string name="export_success">Excel file successfully saved in Downloads folder</string>
+    <string name="export_failed">Failed to save Excel file</string>
+    <string name="export_empty">No origins found to export</string>
+
     <!-- Processor Rule Names -->
     <string name="cancelable">Cancelable</string>
     <string name="code">Verification Code</string>

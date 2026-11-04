@@ -88,6 +88,16 @@
     <string name="month_november">نوامبر</string>
     <string name="month_december">دسامبر</string>
 
+    <!-- Export Strings -->
+    <string name="export_excel">اکسپورت اکسل</string>
+    <string name="export_permission_dialog_title">دسترسی به حافظه</string>
+    <string name="export_permission_dialog_desc">برای ذخیره‌سازی فایل اکسل در پوشه دانلودها، دسترسی به حافظه دستگاه لازم است.</string>
+    <string name="export_permission_grant">اعطای دسترسی</string>
+    <string name="export_cancel">انصراف</string>
+    <string name="export_success">فایل اکسل با موفقیت در پوشه Downloads ذخیره شد</string>
+    <string name="export_failed">خطا در ذخیره‌سازی فایل اکسل</string>
+    <string name="export_empty">هیچ سرشماره‌ای برای خروجی یافت نشد</string>
+
     <!-- Processor Rule Names -->
     <string name="cancelable">لغوشدنی</string>
     <string name="code">کد تایید</string>
