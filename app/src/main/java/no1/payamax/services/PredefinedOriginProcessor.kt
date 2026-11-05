@@ -6,8 +6,6 @@ import no1.payamax.contracts.CellNumber
 import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
-import no1.payamax.contracts.cellNumber
-import no1.payamax.db.PredefinedOriginEntity
 import no1.payamax.enums.OriginRankSource
 import no1.payamax.hasValue
 import no1.payamax.repos.PredefinedOriginRepo
@@ -22,7 +20,7 @@ class PredefinedOriginProcessor(val repo: PredefinedOriginRepo, private val cont
     private fun ensureOrigins(): List<PredefinedOrigin> {
         if (!initialized) {
             predefinedOrigins.clear()
-            var index = 0L;
+            var index = 0L
             predefinedOrigins.add(PredefinedOrigin(1000 + index, "IRANCELL", 0.1, OriginRankSource.PayamaX, index++))
             predefinedOrigins.add(PredefinedOrigin(1000 + index, "SoratHesab", 1.0, OriginRankSource.PayamaX, index++))
             predefinedOrigins.add(PredefinedOrigin(1000 + index, CellNumber(98, 9999987641L).displayable(), 1.0, OriginRankSource.PayamaX, index++))

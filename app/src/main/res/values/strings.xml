@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">PayamaX</string>
     <string name="app_title">پیامکص</string>
-    <string name="app_title_full">پیامکص | PayamaX</string>
+    <string name="app_title_full">پیاماکس | PayamaX</string>
     <string name="app_subtitle">فیلتر و مدیریت هوشمند پیامک‌ها</string>
-    <string name="app_logo_desc">لوگوی پیامکص</string>
+    <string name="app_logo_desc">لوگوی پیاماکس</string>
 
     <!-- Navigation Strings -->
     <string name="nav_home">صفحه اصلی</string>
@@ -11,6 +11,7 @@
     <string name="nav_back">بازگشت</string>
     <string name="nav_search">جستجو</string>
     <string name="nav_clear">پاک کردن</string>
+    <string name="press_back_again_to_exit">برای خروج یک بار دیگر بزنید</string>
     <string name="profile_settings_title">پروفایل و تنظیمات</string>
     <string name="message_details_title">جزئیات پیامک</string>
 
@@ -24,7 +25,9 @@
     <string name="spams">هرزپیامک‌ها</string>
 
     <!-- Profile & Settings Strings -->
-    <string name="user_profile_title">کاربر پیامکص</string>
+    <string name="section_personalization">شخصی‌سازی</string>
+    <string name="section_about">درباره برنامه</string>
+    <string name="user_profile_title">کاربر پیاماکس</string>
     <string name="user_profile_subtitle">تنظیمات پوسته، تقویم و مدیریت برنامه</string>
     <string name="theme_settings_title">پوسته برنامه (تم شب و روز)</string>
     <string name="theme_settings_subtitle">حالت نمایش رنگ‌های برنامه را انتخاب کنید</string>
@@ -35,8 +38,12 @@
     <string name="calendar_settings_subtitle">فرمت تاریخ نمایش داده شده در کارت‌های پیامک</string>
     <string name="calendar_persian">تقویم شمسی (خورشیدی) 📅</string>
     <string name="calendar_gregorian">تقویم میلادی 📆</string>
-    <string name="about_app_title">درباره پیامکص | PayamaX</string>
-    <string name="about_app_description">پیامکص یک دستیار هوشمند برای فیلتر و گروه‌بندی پیامک‌های ورودی است. با استفاده از موتور پردازش محلی، پیامک‌های کاربردی و مهم را جدا کرده و پیامک‌های اسپم را دسته‌بندی می‌کند.</string>
+    <string name="language_settings_title">زبان برنامه</string>
+    <string name="language_settings_subtitle">زبان نمایش رابط کاربری را انتخاب کنید</string>
+    <string name="language_persian">فارسی 🇮🇷</string>
+    <string name="language_english">English 🇬🇧</string>
+    <string name="about_app_title">درباره پیاماکس | PayamaX</string>
+    <string name="about_app_description">پیاماکس یک دستیار هوشمند برای فیلتر و گروه‌بندی پیامک‌های ورودی است. با استفاده از موتور پردازش محلی، پیامک‌های کاربردی و مهم را جدا کرده و پیامک‌های اسپم را دسته‌بندی می‌کند.</string>
     <string name="about_feature_1">• فیلتر هوشمند پیامک‌های تبلیغاتی و اسپم</string>
     <string name="about_feature_2">• نمایش تاریخ شمسی و میلادی با قابلیت تنظیم</string>
     <string name="about_feature_3">• پشتیبانی کامل از حالت‌های مختلف تم و پوسته</string>
@@ -80,6 +87,18 @@
     <string name="month_october">اکتبر</string>
     <string name="month_november">نوامبر</string>
     <string name="month_december">دسامبر</string>
+
+    <!-- Export Strings -->
+    <string name="export_excel">اکسپورت اکسل</string>
+    <string name="export_permission_dialog_title">دسترسی به حافظه</string>
+    <string name="export_permission_dialog_desc">برای ذخیره‌سازی فایل اکسل در پوشه دانلودها، دسترسی به حافظه دستگاه لازم است.</string>
+    <string name="export_permission_grant">اعطای دسترسی</string>
+    <string name="export_cancel">انصراف</string>
+    <string name="export_success">فایل اکسل با موفقیت در پوشه Downloads ذخیره شد</string>
+    <string name="export_failed">خطا در ذخیره‌سازی فایل اکسل</string>
+    <string name="export_empty">هیچ سرشماره‌ای برای خروجی یافت نشد</string>
+
+    <!-- Processor Rule Names -->
     <string name="cancelable">لغوشدنی</string>
     <string name="code">کد تایید</string>
     <string name="emoji">شکلک‌دار</string>

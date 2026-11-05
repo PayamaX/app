@@ -1,5 +1,5 @@
 CREATE TABLE PredefinedOriginEntity(
-	id INTEGER PRIMARY KEY NOT NULL,
+    id INTEGER PRIMARY KEY NOT NULL,
     origin TEXT NOT NULL UNIQUE,
     rank REAL NOT NULL,
     source TEXT AS no1.payamax.enums.OriginRankSource NOT NULL,
