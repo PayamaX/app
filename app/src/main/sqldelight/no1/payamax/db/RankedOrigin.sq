@@ -1,0 +1,22 @@
+CREATE TABLE RankedOriginEntity(
+    id INTEGER PRIMARY KEY NOT NULL,
+    origin TEXT NOT NULL UNIQUE,
+    rank REAL NOT NULL,
+    source TEXT AS no1.payamax.enums.OriginRankSource NOT NULL,
+    position INTEGER NOT NULL,
+    last_synced INTEGER NOT NULL,
+    global_id TEXT
+);
+
+list:
+SELECT * FROM RankedOriginEntity ORDER BY position ASC;
+
+upsert:
+INSERT OR REPLACE INTO RankedOriginEntity (origin, rank, source, position, last_synced, global_id)
+VALUES (:origin, :rank, :source, :position, :last_synced, :global_id);
+
+removeUnsyncedItems:
+DELETE FROM RankedOriginEntity WHERE last_synced < :lastSynced AND source = 'PayamaX';
+
+countGlobals:
+SELECT count(*) FROM RankedOriginEntity WHERE source = 'PayamaX';

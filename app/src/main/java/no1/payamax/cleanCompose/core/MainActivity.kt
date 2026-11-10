@@ -18,6 +18,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import no1.payamax.BuildConfig
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
@@ -26,7 +27,6 @@ import no1.payamax.cleanCompose.core.presentation.ui.theme.PayamaxTheme
 import no1.payamax.cleanCompose.featureSplash.presentation.SplashScreen
 import no1.payamax.composables.MessageScreen
 import no1.payamax.composables.MessagesScreen
-import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.utils.UserPreferences
 import org.koin.java.KoinJavaComponent.inject
 import java.util.Locale
@@ -81,20 +81,21 @@ class MainActivity : ComponentActivity() {
                             SplashScreen(navController = navController)
                         }
 
-                        composable<MessagesRoute> { bse ->
-                            val types = bse.arguments?.get("messagesClass") as List<PayamakUsabilityClass>?
+                        composable<MessagesRoute> { entry ->
+                            val route = entry.toRoute<MessagesRoute>()
                             MessagesScreen(
                                 contentResolver,
                                 navController,
-                                types ?: throw RuntimeException("")
+                                route.messagesClass
                             )
                         }
 
-                        composable<MessageRoute> { bse ->
+                        composable<MessageRoute> { entry ->
+                            val route = entry.toRoute<MessageRoute>()
                             MessageScreen(
                                 contentResolver,
                                 navController,
-                                bse.arguments?.getLong("payamakId") ?: throw RuntimeException("")
+                                route.payamakId
                             )
                         }
                     }

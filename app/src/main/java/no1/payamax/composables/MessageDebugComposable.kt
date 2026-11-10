@@ -36,6 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,8 +50,8 @@ import no1.payamax.cleanCompose.core.presentation.ui.theme.ColorSchemeExtension
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.enums.OriginRankSource
 import no1.payamax.model.ReviewableProcessedPayamak
-import no1.payamax.repos.PredefinedOriginRepo
-import no1.payamax.services.PredefinedOriginProcessor
+import no1.payamax.modules.rankedorigin.RankedOriginContract
+import no1.payamax.services.RankedOriginProcessor
 import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.utils.toPersianDigits
 import org.koin.java.KoinJavaComponent.inject
@@ -62,9 +64,10 @@ fun MessageDebugComposable(
     onDesiredResultChanged: () -> Unit
 ) {
     val ctx = LocalContext.current
-    val repo by inject<PredefinedOriginRepo>(PredefinedOriginRepo::class.java)
+    val scope = rememberCoroutineScope()
+    val repo by inject<RankedOriginContract>(RankedOriginContract::class.java)
     val engine by inject<UsabilityProcessorEngine>(UsabilityProcessorEngine::class.java)
-    val predefinedOriginProcessor by inject<PredefinedOriginProcessor>(PredefinedOriginProcessor::class.java)
+    val rankedOriginProcessor by inject<RankedOriginProcessor>(RankedOriginProcessor::class.java)
 
     val expectedState = remember { mutableStateOf(msgValue.pp.expectedPayamakUsabilityClass) }
     val usabilityClass = expectedState.value ?: msgValue.pp.activeUsabilityClass
@@ -252,11 +255,13 @@ fun MessageDebugComposable(
                                     PayamakUsabilityClass.Spam -> 0.0
                                 }
 
-                                repo.upsert(msgValue.pp.payamak.origin, rank, OriginRankSource.User)
-                                predefinedOriginProcessor.refresh()
-                                msgValue.pp.usability = engine.detect(msgValue.pp.payamak)
+                                scope.launch {
+                                    repo.upsert(msgValue.pp.payamak.origin, rank, OriginRankSource.User)
+                                    rankedOriginProcessor.refresh()
+                                    msgValue.pp.usability = engine.detect(msgValue.pp.payamak)
 
-                                onDesiredResultChanged()
+                                    onDesiredResultChanged()
+                                }
                             },
                             label = { Text(getUsabilityPersianTitle(clazz)) },
                             shape = RoundedCornerShape(999.dp),

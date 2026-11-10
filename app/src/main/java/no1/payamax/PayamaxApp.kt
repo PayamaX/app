@@ -2,6 +2,7 @@ package no1.payamax
 
 import android.app.Application
 import no1.payamax.di.appModule
+import no1.payamax.modules.rankedorigin.SyncWorker
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
@@ -13,5 +14,6 @@ class PayamaxApp : Application() {
             androidContext(this@PayamaxApp)
             modules(appModule)
         }
+        SyncWorker.schedule(this)
     }
 }

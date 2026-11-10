@@ -7,6 +7,9 @@ import android.content.ContextWrapper
 import android.database.Cursor
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -14,23 +17,30 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import no1.payamax.R
 import no1.payamax.contracts.PayamakUsabilityClass
+import no1.payamax.modules.rankedorigin.RankedOriginContract
+import org.koin.java.KoinJavaComponent.inject
 
 @Composable
 fun MainTabScreen(
@@ -39,10 +49,16 @@ fun MainTabScreen(
     navController: NavHostController,
     types: List<PayamakUsabilityClass>
 ) {
+    val rankedOriginsProvider by inject<RankedOriginContract>(RankedOriginContract::class.java)
+    val rankedOriginsCount = remember { mutableStateOf<Int?>(null) }
     var selectedTab by remember { mutableIntStateOf(0) }
     var backPressedTime by remember { mutableLongStateOf(0L) }
     val context = LocalContext.current
     val exitToastMessage = stringResource(R.string.press_back_again_to_exit)
+
+    LaunchedEffect(Unit) {
+        rankedOriginsCount.value = rankedOriginsProvider.cachedItemsCount().toInt()
+    }
 
     BackHandler {
         if (selectedTab != 0) {
@@ -99,14 +115,28 @@ fun MainTabScreen(
     ) { innerPadding ->
         when (selectedTab) {
             0 -> {
-                FilteredPayamaksComposable(
-                    cursor = cursor,
-                    contentResolver = contentResolver,
-                    navController = navController,
-                    types = types,
-                    modifier = Modifier.padding(innerPadding)
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                ) {
+                    Text(
+                        text = "Ranked Origins: ${rankedOriginsCount.value ?: "?"}",
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .fillMaxWidth(),
+                        style = MaterialTheme.typography.bodySmall.copy(textDirection = TextDirection.Ltr)
+                    )
+                    FilteredPayamaksComposable(
+                        cursor = cursor,
+                        contentResolver = contentResolver,
+                        navController = navController,
+                        types = types,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
+
             1 -> {
                 ProfileScreen(
                     modifier = Modifier.padding(innerPadding)

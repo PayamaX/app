@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import no1.payamax.contracts.PayamakUsabilityClass
+import androidx.core.net.toUri
 
 @Composable
 fun MessagesScreen(
@@ -14,7 +15,7 @@ fun MessagesScreen(
 ) {
     EnsurePermissions {
         val inboxUri = "content://sms/inbox"
-        val uri = Uri.parse(inboxUri)
+        val uri = inboxUri.toUri()
         val cursor = contentResolver.query(uri, null, null, null, "date desc")
         if (cursor != null) {
             MainTabScreen(cursor, contentResolver, navController, types)
