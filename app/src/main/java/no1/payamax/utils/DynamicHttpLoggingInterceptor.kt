@@ -1,7 +1,6 @@
-package no1.payamax.api
+package no1.payamax.utils
 
 import android.util.Log
-import no1.payamax.utils.UserPreferences
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor

@@ -56,7 +56,6 @@ import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.utils.toPersianDigits
 import org.koin.java.KoinJavaComponent.inject
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MessageDebugComposable(
     msgValue: ReviewableProcessedPayamak,
@@ -259,7 +258,6 @@ fun MessageDebugComposable(
 
                                 scope.launch {
                                     repo.upsert(msgValue.pp.payamak.origin, rank, OriginRankSource.User)
-                                    rankedOriginProcessor.refresh()
                                     msgValue.pp.usability = engine.detect(msgValue.pp.payamak)
 
                                     onDesiredResultChanged()

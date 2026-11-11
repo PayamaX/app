@@ -1,7 +1,7 @@
 package no1.payamax
 
 import android.app.Application
-import no1.payamax.api.DynamicHttpLoggingInterceptor
+import no1.payamax.utils.DynamicHttpLoggingInterceptor
 import no1.payamax.api.infrastructure.ApiClient
 import no1.payamax.di.appModule
 import no1.payamax.modules.rankedorigin.SyncWorker

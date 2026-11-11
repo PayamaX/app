@@ -2,10 +2,13 @@ package no1.payamax.modules.rankedorigin
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import app.cash.sqldelight.Query
 import app.cash.sqldelight.async.coroutines.awaitAsList
+import app.cash.sqldelight.coroutines.asFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -27,18 +30,11 @@ class RankedOriginService(
     private val queries: RankedOriginQueries,
     private val preferences: SharedPreferences,
 ) : RankedOriginContract {
-    override suspend fun itemsFlow(): Flow<List<RankedOriginPublicPortable>> = flow {
-        val dbItems = queries.list().awaitAsList()
-        val dbPortables = dbItems.map { it.portable() }
-        emit(dbPortables)
-        if (refreshNeeded()) {
-            sync()
-            emit(queries.list().awaitAsList().map { it.portable() })
-        }
-    }
+
+    override fun itemsFlow(): Flow<List<RankedOriginEntity>> = queries.list().asFlow().map { it.awaitAsList() }
 
     override suspend fun cachedItems(): List<RankedOriginPublicPortable> {
-        return queries.list().awaitAsList().map { it.portable() }
+        return cachedEntries().map { it.portable() }
     }
 
     override suspend fun cachedEntries(): List<RankedOriginEntity> {

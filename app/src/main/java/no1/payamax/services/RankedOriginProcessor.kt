@@ -1,59 +1,41 @@
 package no1.payamax.services
 
 import android.content.Context
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.stateIn
 import no1.payamax.R
 import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.contracts.UsabilityRate
+import no1.payamax.db.RankedOriginEntity
 import no1.payamax.enums.OriginRankSource
 import no1.payamax.hasValue
 import no1.payamax.modules.rankedorigin.RankedOriginContract
 
 class RankedOriginProcessor(private val rankedOriginProvider: RankedOriginContract, private val context: Context) : PayamakUsabilityRuleContract {
     override val name: String
-        get() = context.getString(R.string.predefinedorigin)
+        get() = context.getString(R.string.rankedorigin)
 
-    private var initialized = false
-    private val predefinedOrigins = mutableListOf<PredefinedOrigin>()
-
-    private fun ensureOrigins(): List<PredefinedOrigin> {
-        if (!initialized) {
-            predefinedOrigins.clear()
-            val cached = runBlocking { rankedOriginProvider.cachedEntries() }
-            for ((id, origin, rank, source, position) in cached) {
-                predefinedOrigins.add(
-                    PredefinedOrigin(
-                        id = id,
-                        origin = origin,
-                        rank = rank,
-                        source = source,
-                        position = position
-                    )
-                )
-            }
-            initialized = true
-        }
-        return predefinedOrigins
-    }
-
-    fun refresh() {
-        initialized = false
-    }
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val origins = rankedOriginProvider.itemsFlow().stateIn(scope, SharingStarted.Eagerly, emptyList())
 
     fun hasUserOverride(payamak: Payamak): Boolean {
         val related = findRelatedOrigins(payamak)
         return related.any { it.source == OriginRankSource.User }
     }
 
-    private fun findRelatedOrigins(payamak: Payamak): List<PredefinedOrigin> {
-        val origins = ensureOrigins()
+    private fun findRelatedOrigins(payamak: Payamak): List<RankedOriginEntity> {
         val title = payamak.origin.title
         val number = payamak.origin.number
         return if (title.hasValue && title != null) {
-            origins.filter { title.equals(it.origin, ignoreCase = true) }
+            origins.value.filter { title.equals(it.origin, ignoreCase = true) }
         } else if (number.hasValue && number != null) {
-            origins.filter { it.origin.endsWith(number.main.toString()) }
+            origins.value.filter { it.origin.endsWith(number.main.toString()) }
         } else {
             listOf()
         }
@@ -71,12 +53,4 @@ class RankedOriginProcessor(private val rankedOriginProvider: RankedOriginContra
 
         return UsabilityRate(related.sumOf { it.rank } / related.count())
     }
-
-    data class PredefinedOrigin(
-        val id: Long,
-        val origin: String,
-        val rank: Double,
-        val source: OriginRankSource,
-        val position: Long
-    )
 }

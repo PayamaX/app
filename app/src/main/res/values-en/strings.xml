@@ -106,7 +106,7 @@
     <string name="broadcast">Broadcast</string>
     <string name="mobile">Mobile Number</string>
     <string name="phonebook">Phonebook</string>
-    <string name="predefinedorigin">Predefined Origin</string>
+    <string name="rankedorigin">Ranked Origin</string>
     <string name="advertisement">1000 Prefix Shortcode</string>
     <string name="titled">Titled Sender</string>
     <string name="conversional">Conversational</string>
