@@ -15,8 +15,5 @@ upsert:
 INSERT OR REPLACE INTO RankedOriginEntity (origin, rank, source, position, last_synced, global_id)
 VALUES (:origin, :rank, :source, :position, :last_synced, :global_id);
 
-countGlobals:
-SELECT count(*) FROM RankedOriginEntity WHERE source = 'PayamaX';
-
 delete:
 DELETE FROM RankedOriginEntity WHERE global_id = :global_id;
