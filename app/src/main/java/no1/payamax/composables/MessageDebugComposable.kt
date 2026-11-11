@@ -64,6 +64,8 @@ fun MessageDebugComposable(
     onDesiredResultChanged: () -> Unit
 ) {
     val ctx = LocalContext.current
+    val textCopiedMessage = stringResource(R.string.text_copied_toast)
+    val shareDialogTitle = stringResource(R.string.share_dialog_title)
     val scope = rememberCoroutineScope()
     val repo by inject<RankedOriginContract>(RankedOriginContract::class.java)
     val engine by inject<UsabilityProcessorEngine>(UsabilityProcessorEngine::class.java)
@@ -190,7 +192,7 @@ fun MessageDebugComposable(
                             val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("SMS Body", msgValue.pp.payamak.body)
                             clipboard.setPrimaryClip(clip)
-                            Toast.makeText(ctx, ctx.getString(R.string.text_copied_toast), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, textCopiedMessage, Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
@@ -205,7 +207,7 @@ fun MessageDebugComposable(
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, msgValue.pp.dump())
                             }
-                            val shareIntent = Intent.createChooser(sendIntent, ctx.getString(R.string.share_dialog_title))
+                            val shareIntent = Intent.createChooser(sendIntent, shareDialogTitle)
                             ctx.startActivity(shareIntent)
                         },
                         modifier = Modifier.weight(1f),
