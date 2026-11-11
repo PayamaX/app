@@ -2,12 +2,10 @@ package no1.payamax.modules.rankedorigin
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import app.cash.sqldelight.Query
 import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.coroutines.asFlow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -15,7 +13,6 @@ import kotlinx.coroutines.withContext
 import no1.payamax.api.apis.RankedOriginsPublicV1ControllerApi
 import no1.payamax.api.models.RankedOriginPublicPortable
 import no1.payamax.config.PaxConfig
-import no1.payamax.config.PaxKeys
 import no1.payamax.config.PaxKeys.RANKED_ORIGIN_LAST_SYNCED
 import no1.payamax.contracts.Origin
 import no1.payamax.db.RankedOriginEntity
@@ -58,24 +55,22 @@ class RankedOriginService(
     override suspend fun sync() {
         val lastSynced = loadLastSynced()
         val lastSyncedText = lastSynced.toCompact()
-        mutex.withLock {
-            var cursorInstant: String? = null
-            var cursorId: Long? = null
-            do {
-                val apiItems = withContext(Dispatchers.IO) {
-                    RankedOriginsPublicV1ControllerApi().get1(lastSyncedText, cursorInstant, cursorId)
-                }
-                if (apiItems.isEmpty()) {
-                    break
-                }
-                sync(apiItems)
+        var cursorInstant: String? = null
+        var cursorId: Long? = null
+        do {
+            val apiItems = withContext(Dispatchers.IO) {
+                RankedOriginsPublicV1ControllerApi().get1(lastSyncedText, cursorInstant, cursorId)
+            }
+            if (apiItems.isEmpty()) {
+                break
+            }
+            sync(apiItems)
 
-                cursorInstant = apiItems.last().updated
-                cursorId = apiItems.last().identifier
-            } while (true)
+            cursorInstant = apiItems.last().updated
+            cursorId = apiItems.last().identifier
+        } while (true)
 
-            persistLastSynced(Instant.now())
-        }
+        persistLastSynced(Instant.now())
     }
 
     private suspend fun sync(apiItems: List<RankedOriginPublicPortable>) {
