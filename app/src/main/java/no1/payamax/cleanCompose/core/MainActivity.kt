@@ -11,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -18,6 +19,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import no1.payamax.BuildConfig
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
@@ -26,7 +28,6 @@ import no1.payamax.cleanCompose.core.presentation.ui.theme.PayamaxTheme
 import no1.payamax.cleanCompose.featureSplash.presentation.SplashScreen
 import no1.payamax.composables.MessageScreen
 import no1.payamax.composables.MessagesScreen
-import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.utils.UserPreferences
 import org.koin.java.KoinJavaComponent.inject
 import java.util.Locale
@@ -53,9 +54,10 @@ class MainActivity : ComponentActivity() {
             val appLanguage by userPreferences.appLanguage.collectAsState()
 
             val context = LocalContext.current
+            val configuration = LocalConfiguration.current
             val locale = remember(appLanguage) { Locale(appLanguage.code) }
-            val localizedContext = remember(context, locale) {
-                val config = Configuration(context.resources.configuration)
+            val localizedContext = remember(context, configuration, locale) {
+                val config = Configuration(configuration)
                 config.setLocale(locale)
                 config.setLayoutDirection(locale)
                 val configContext = context.createConfigurationContext(config)
@@ -81,20 +83,21 @@ class MainActivity : ComponentActivity() {
                             SplashScreen(navController = navController)
                         }
 
-                        composable<MessagesRoute> { bse ->
-                            val types = bse.arguments?.get("messagesClass") as List<PayamakUsabilityClass>?
+                        composable<MessagesRoute> { entry ->
+                            val route = entry.toRoute<MessagesRoute>()
                             MessagesScreen(
                                 contentResolver,
                                 navController,
-                                types ?: throw RuntimeException("")
+                                route.messagesClass
                             )
                         }
 
-                        composable<MessageRoute> { bse ->
+                        composable<MessageRoute> { entry ->
+                            val route = entry.toRoute<MessageRoute>()
                             MessageScreen(
                                 contentResolver,
                                 navController,
-                                bse.arguments?.getLong("payamakId") ?: throw RuntimeException("")
+                                route.payamakId
                             )
                         }
                     }

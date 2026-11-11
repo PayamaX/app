@@ -106,8 +106,13 @@
     <string name="broadcast">Broadcast</string>
     <string name="mobile">Mobile Number</string>
     <string name="phonebook">Phonebook</string>
-    <string name="predefinedorigin">Predefined Origin</string>
+    <string name="rankedorigin">Ranked Origin</string>
     <string name="advertisement">1000 Prefix Shortcode</string>
     <string name="titled">Titled Sender</string>
     <string name="conversional">Conversational</string>
+
+    <!-- Debug / Developer Strings -->
+    <string name="section_developer">Developer / Debug</string>
+    <string name="http_logging_title">Full HTTP Logging</string>
+    <string name="http_logging_subtitle">Log HTTP request and response headers &amp; bodies in Logcat</string>
 </resources>

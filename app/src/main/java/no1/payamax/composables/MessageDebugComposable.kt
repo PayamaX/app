@@ -36,6 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,13 +50,12 @@ import no1.payamax.cleanCompose.core.presentation.ui.theme.ColorSchemeExtension
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.enums.OriginRankSource
 import no1.payamax.model.ReviewableProcessedPayamak
-import no1.payamax.repos.PredefinedOriginRepo
-import no1.payamax.services.PredefinedOriginProcessor
+import no1.payamax.modules.rankedorigin.RankedOriginContract
+import no1.payamax.services.RankedOriginProcessor
 import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.utils.toPersianDigits
 import org.koin.java.KoinJavaComponent.inject
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MessageDebugComposable(
     msgValue: ReviewableProcessedPayamak,
@@ -62,9 +63,12 @@ fun MessageDebugComposable(
     onDesiredResultChanged: () -> Unit
 ) {
     val ctx = LocalContext.current
-    val repo by inject<PredefinedOriginRepo>(PredefinedOriginRepo::class.java)
+    val textCopiedMessage = stringResource(R.string.text_copied_toast)
+    val shareDialogTitle = stringResource(R.string.share_dialog_title)
+    val scope = rememberCoroutineScope()
+    val repo by inject<RankedOriginContract>(RankedOriginContract::class.java)
     val engine by inject<UsabilityProcessorEngine>(UsabilityProcessorEngine::class.java)
-    val predefinedOriginProcessor by inject<PredefinedOriginProcessor>(PredefinedOriginProcessor::class.java)
+    val rankedOriginProcessor by inject<RankedOriginProcessor>(RankedOriginProcessor::class.java)
 
     val expectedState = remember { mutableStateOf(msgValue.pp.expectedPayamakUsabilityClass) }
     val usabilityClass = expectedState.value ?: msgValue.pp.activeUsabilityClass
@@ -187,7 +191,7 @@ fun MessageDebugComposable(
                             val clipboard = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("SMS Body", msgValue.pp.payamak.body)
                             clipboard.setPrimaryClip(clip)
-                            Toast.makeText(ctx, ctx.getString(R.string.text_copied_toast), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, textCopiedMessage, Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
@@ -202,7 +206,7 @@ fun MessageDebugComposable(
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, msgValue.pp.dump())
                             }
-                            val shareIntent = Intent.createChooser(sendIntent, ctx.getString(R.string.share_dialog_title))
+                            val shareIntent = Intent.createChooser(sendIntent, shareDialogTitle)
                             ctx.startActivity(shareIntent)
                         },
                         modifier = Modifier.weight(1f),
@@ -252,11 +256,12 @@ fun MessageDebugComposable(
                                     PayamakUsabilityClass.Spam -> 0.0
                                 }
 
-                                repo.upsert(msgValue.pp.payamak.origin, rank, OriginRankSource.User)
-                                predefinedOriginProcessor.refresh()
-                                msgValue.pp.usability = engine.detect(msgValue.pp.payamak)
+                                scope.launch {
+                                    repo.upsert(msgValue.pp.payamak.origin, rank, OriginRankSource.User)
+                                    msgValue.pp.usability = engine.detect(msgValue.pp.payamak)
 
-                                onDesiredResultChanged()
+                                    onDesiredResultChanged()
+                                }
                             },
                             label = { Text(getUsabilityPersianTitle(clazz)) },
                             shape = RoundedCornerShape(999.dp),

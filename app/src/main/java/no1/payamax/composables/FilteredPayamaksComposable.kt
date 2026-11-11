@@ -78,6 +78,9 @@ fun FilteredPayamaksComposable(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val exportEmptyMessage = stringResource(R.string.export_empty)
+    val exportSuccessMessage = stringResource(R.string.export_success)
+    val exportFailedMessage = stringResource(R.string.export_failed)
     val messages = remember { mutableStateListOf<ReviewableProcessedPayamak>() }
     var lastIndex = 0
     val engine by inject<UsabilityProcessorEngine>(UsabilityProcessorEngine::class.java)
@@ -135,15 +138,15 @@ fun FilteredPayamaksComposable(
             }
 
         if (exportList.isEmpty()) {
-            Toast.makeText(context, context.getString(R.string.export_empty), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, exportEmptyMessage, Toast.LENGTH_SHORT).show()
             return
         }
 
         val result = ExcelExporter.exportOriginsToCsv(context, categoryName, exportList)
         result.onSuccess {
-            Toast.makeText(context, context.getString(R.string.export_success), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, exportSuccessMessage, Toast.LENGTH_LONG).show()
         }.onFailure {
-            Toast.makeText(context, context.getString(R.string.export_failed), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, exportFailedMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -153,7 +156,7 @@ fun FilteredPayamaksComposable(
         if (isGranted) {
             performExport()
         } else {
-            Toast.makeText(context, context.getString(R.string.export_failed), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, exportFailedMessage, Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -4,9 +4,12 @@ import no1.payamax.utils.calendar.PersianCalendar
 import no1.payamax.utils.calendar.PersianCalendarConstants
 import java.util.Calendar
 import java.util.Locale
+import java.util.TimeZone
+
+private val persianTimeZone: TimeZone = TimeZone.getTimeZone("Asia/Tehran")
 
 fun Long.dayOfWeek(): String {
-    val calendar = Calendar.getInstance(Locale.ENGLISH)
+    val calendar = Calendar.getInstance(persianTimeZone, Locale.ENGLISH)
     calendar.timeInMillis = this
     return PersianCalendarConstants.persianWeekDays[calendar.get(Calendar.DAY_OF_WEEK) % 7]
 }
@@ -19,7 +22,7 @@ fun Long.toFormattedDateString(calendarType: CalendarType = CalendarType.PERSIAN
 }
 
 fun Long.toGregorianDateString(): String {
-    val calendar = Calendar.getInstance()
+    val calendar = Calendar.getInstance(persianTimeZone)
     calendar.timeInMillis = this
 
     val year = calendar.get(Calendar.YEAR)
@@ -35,7 +38,7 @@ fun Long.toGregorianDateString(): String {
 }
 
 fun Long.toPersianDateString(): String {
-    val calendar = Calendar.getInstance()
+    val calendar = Calendar.getInstance(persianTimeZone)
     calendar.timeInMillis = this
 
     val gYear = calendar.get(Calendar.YEAR)
@@ -50,7 +53,7 @@ fun Long.toPersianDateString(): String {
 }
 
 fun Long.toPersianTimeString(): String {
-    val calendar = Calendar.getInstance()
+    val calendar = Calendar.getInstance(persianTimeZone)
     calendar.timeInMillis = this
 
     val hour = calendar.get(Calendar.HOUR_OF_DAY)

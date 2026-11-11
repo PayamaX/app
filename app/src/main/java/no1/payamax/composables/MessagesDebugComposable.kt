@@ -78,14 +78,3 @@ data class Stats(val trueDetectedCount: Int, val falseDetections: Int, val undet
         msgs.count { it.pp.expectedPayamakUsabilityClass == null },
     )
 }
-
-
-@Preview(showBackground = true)
-@Composable
-fun MessagesDebugComposablePreview() {
-    MessagesDebugComposable(
-        viewModel = MessagesViewModel(
-            listOf()
-        )
-    )
-}

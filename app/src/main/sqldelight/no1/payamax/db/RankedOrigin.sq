@@ -1,4 +1,4 @@
-CREATE TABLE PredefinedOriginEntity(
+CREATE TABLE RankedOriginEntity(
     id INTEGER PRIMARY KEY NOT NULL,
     origin TEXT NOT NULL UNIQUE,
     rank REAL NOT NULL,
@@ -8,9 +8,12 @@ CREATE TABLE PredefinedOriginEntity(
     global_id TEXT
 );
 
-all:
-SELECT * FROM PredefinedOriginEntity ORDER BY position ASC;
+list:
+SELECT * FROM RankedOriginEntity ORDER BY position ASC;
 
 upsert:
-INSERT OR REPLACE INTO PredefinedOriginEntity (origin, rank, source, position, last_synced, global_id)
+INSERT OR REPLACE INTO RankedOriginEntity (origin, rank, source, position, last_synced, global_id)
 VALUES (:origin, :rank, :source, :position, :last_synced, :global_id);
+
+delete:
+DELETE FROM RankedOriginEntity WHERE global_id = :global_id;

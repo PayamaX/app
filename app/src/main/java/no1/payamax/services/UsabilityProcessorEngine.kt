@@ -23,7 +23,7 @@ open class UsabilityProcessorEngine(private val rules: List<PayamakUsabilityRule
             if (guess.hasValue) {
                 usabilitySum += guess!!.probability
                 usabilityCount++
-                if (rule is PredefinedOriginProcessor && rule.hasUserOverride(payamak)) {
+                if (rule is RankedOriginProcessor && rule.hasUserOverride(payamak)) {
                     userOverrideRate = guess
                 }
             }

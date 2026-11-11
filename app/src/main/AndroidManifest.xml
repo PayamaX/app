@@ -6,7 +6,10 @@
         android:name="android.hardware.telephony"
         android:required="false" />
 
-    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_SMS"
+        tools:ignore="SmsAndCallLogPolicy" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
@@ -19,7 +22,7 @@
         android:supportsRtl="true"
         android:name=".PayamaxApp"
         android:theme="@style/Theme.App.Starting"
-        tools:targetApi="31">
+        tools:targetApi="37">
         <activity
             android:name=".cleanCompose.core.MainActivity"
             android:exported="true"

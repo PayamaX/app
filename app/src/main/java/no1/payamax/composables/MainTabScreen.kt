@@ -104,9 +104,9 @@ fun MainTabScreen(
                     contentResolver = contentResolver,
                     navController = navController,
                     types = types,
-                    modifier = Modifier.padding(innerPadding)
                 )
             }
+
             1 -> {
                 ProfileScreen(
                     modifier = Modifier.padding(innerPadding)
