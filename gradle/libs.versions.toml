@@ -52,10 +52,12 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { module = "junit:junit", version.ref = "junit" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 org-xerial-sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "xerialSqliteJdbc" }
 sqldelight-android-driver = {group = "app.cash.sqldelight", name = "android-driver", version.ref = "sqldelight"}
 sqldelight-coroutines-extensions-jvm = {group = "app.cash.sqldelight", name = "coroutines-extensions-jvm", version.ref = "sqldelight"}
 sqldelight-primitive-adapters = {group = "app.cash.sqldelight", name = "primitive-adapters", version.ref = "sqldelight"}
+sqldelight-sqlite-driver = {group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight"}
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android" }
 

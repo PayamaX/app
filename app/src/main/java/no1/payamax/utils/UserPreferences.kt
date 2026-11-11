@@ -32,6 +32,9 @@ class UserPreferences(context: Context) {
     private val _appLanguage = MutableStateFlow(getSavedAppLanguage())
     val appLanguage: StateFlow<AppLanguage> = _appLanguage.asStateFlow()
 
+    private val _httpLoggingEnabled = MutableStateFlow(getSavedHttpLoggingEnabled())
+    val httpLoggingEnabled: StateFlow<Boolean> = _httpLoggingEnabled.asStateFlow()
+
     private fun getSavedThemeMode(): ThemeMode {
         val name = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
         return try {
@@ -74,9 +77,19 @@ class UserPreferences(context: Context) {
         _appLanguage.value = language
     }
 
+    private fun getSavedHttpLoggingEnabled(): Boolean {
+        return prefs.getBoolean(KEY_HTTP_LOGGING, true)
+    }
+
+    fun setHttpLoggingEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_HTTP_LOGGING, enabled).apply()
+        _httpLoggingEnabled.value = enabled
+    }
+
     companion object {
         private const val KEY_THEME_MODE = "key_theme_mode"
         private const val KEY_CALENDAR_TYPE = "key_calendar_type"
         private const val KEY_APP_LANGUAGE = "key_app_language"
+        private const val KEY_HTTP_LOGGING = "key_http_logging"
     }
 }

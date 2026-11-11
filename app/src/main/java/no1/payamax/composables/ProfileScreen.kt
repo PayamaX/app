@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
@@ -28,6 +29,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -55,6 +57,7 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
     val currentThemeMode by userPreferences.themeMode.collectAsState()
     val currentCalendarType by userPreferences.calendarType.collectAsState()
     val currentAppLanguage by userPreferences.appLanguage.collectAsState()
+    val currentHttpLogging by userPreferences.httpLoggingEnabled.collectAsState()
     val spacing = MaterialTheme.spacing
 
     var showLanguageSheet by remember { mutableStateOf(false) }
@@ -164,6 +167,29 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                         onClick = { showCalendarSheet = true }
                     )
                 }
+            }
+
+            // Section 2: Developer / Debug Settings
+            SectionHeader(title = stringResource(R.string.section_developer))
+
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ProfileItem(
+                    title = stringResource(R.string.http_logging_title),
+                    icon = Icons.Outlined.BugReport,
+                    showChevron = false,
+                    trailingContent = {
+                        Switch(
+                            checked = currentHttpLogging,
+                            onCheckedChange = { userPreferences.setHttpLoggingEnabled(it) }
+                        )
+                    }
+                )
             }
 
             // Section 2: About App Info

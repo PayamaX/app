@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
+    testImplementation(libs.sqldelight.sqlite.driver)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
@@ -105,6 +106,7 @@ dependencies {
 
     implementation(libs.gson)
     implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
     implementation(libs.commons.io)
 
     implementation(libs.androidx.navigation.compose)

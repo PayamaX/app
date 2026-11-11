@@ -1,6 +1,7 @@
 package no1.payamax.modules.rankedorigin
 
 import android.content.Context
+import android.util.Log
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -27,10 +28,13 @@ class SyncWorker(
             rankedOrigins.sync()
             Result.success()
         } catch (e: IOException) {
+            Log.e("SyncWorker", "Exception while syncing data", e)
             Result.retry()
         } catch (e: ClientException) {
+            Log.e("SyncWorker", "Exception while syncing data", e)
             Result.retry()
         } catch (e: ServerException) {
+            Log.e("SyncWorker", "Exception while syncing data", e)
             Result.retry()
         }
     }

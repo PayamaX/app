@@ -1,6 +1,6 @@
 package no1.payamax.di
 
-import androidx.sqlite.db.SupportSQLiteDatabase
+import android.content.Context
 import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
@@ -30,7 +30,12 @@ val appModule = module {
     }
     single { PayamaxDatabase(get(), RankedOriginEntity.Adapter(EnumColumnAdapter())) }
     single { get<PayamaxDatabase>().rankedOriginQueries }
-    single<RankedOriginContract> { RankedOriginService(get(), get()) }
+    single<RankedOriginContract> {
+        RankedOriginService(
+            get(),
+            get<Context>().getSharedPreferences("general", Context.MODE_PRIVATE),
+        )
+    }
     single { RankedOriginProcessor(get(), get()) } bind PayamakUsabilityRuleContract::class
     factoryOf(::ConversionalUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::CancelableUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
