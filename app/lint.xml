@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- The OpenAPI client is generated. Do not report warnings from it. -->
+    <issue id="all">
+        <ignore path="**/generated/api/**" />
+        <ignore path="**/generated/api-kotlin/**" />
+    </issue>
+</lint>

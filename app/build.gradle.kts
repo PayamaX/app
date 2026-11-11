@@ -6,7 +6,6 @@ import java.net.http.HttpResponse
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.sqldelight.plugin)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
@@ -24,12 +23,12 @@ sqldelight {
 
 android {
     namespace = "no1.payamax"
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "no1.payamax"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 37
         versionCode = 14
         versionName = "14"
 
@@ -57,15 +56,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.12"
     }
     packaging {
         resources {
@@ -132,7 +125,7 @@ dependencies {
 val apiSpec = layout.projectDirectory.file("api/public.json")
 val apiClientDir = layout.buildDirectory.dir("generated/api")
 
-val apiGet by tasks.registering {
+val apiGet = tasks.register("apiGet") {
     group = "api"
     description = "Downloads the public OpenAPI document to api/public.json."
     outputs.upToDateWhen { false }
@@ -160,7 +153,7 @@ val apiGet by tasks.registering {
     }
 }
 
-val apiGen by tasks.registering(GenerateTask::class) {
+val apiGen = tasks.register<GenerateTask>("apiGen") {
     group = "api"
     description = "Generates the Kotlin API client from api/public.json."
     generatorName.set("kotlin")
@@ -191,10 +184,44 @@ tasks.register("apiGent") {
     dependsOn(apiGet, apiGen)
 }
 
-android.sourceSets.named("main") {
-    kotlin.srcDir(apiClientDir.map { it.dir("src/main/kotlin") })
+// The generator writes a full project tree. AGP needs a directory that contains only the Kotlin sources.
+abstract class ApiKotlinSources : DefaultTask() {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val inputDir: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun copySources() {
+        val destination = outputDir.get().asFile
+        destination.deleteRecursively()
+        val source = inputDir.get().asFile
+        source.walkTopDown().filter { it.isFile }.forEach { file ->
+            val target = destination.resolve(source.toPath().relativize(file.toPath()).toString())
+            target.parentFile.mkdirs()
+            if (file.extension == "kt") {
+                val original = file.readText()
+                val suppress = "@file:Suppress(\"warnings\")"
+                val replaced = Regex("""@file:Suppress\s*\([^)]*\)""")
+                    .replace(original, suppress)
+                target.writeText(if (replaced == original) "$suppress\n\n$original" else replaced)
+            } else {
+                file.copyTo(target, overwrite = true)
+            }
+        }
+    }
 }
 
-tasks.named("preBuild").configure {
+val apiKotlinSources = tasks.register<ApiKotlinSources>("apiKotlinSources") {
     dependsOn(apiGen)
+    inputDir.set(apiClientDir.map { it.dir("src/main/kotlin") })
+    outputDir.set(layout.buildDirectory.dir("generated/api-kotlin"))
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.sources.kotlin?.addGeneratedSourceDirectory(apiKotlinSources, ApiKotlinSources::outputDir)
+    }
 }

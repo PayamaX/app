@@ -11,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -53,9 +54,10 @@ class MainActivity : ComponentActivity() {
             val appLanguage by userPreferences.appLanguage.collectAsState()
 
             val context = LocalContext.current
+            val configuration = LocalConfiguration.current
             val locale = remember(appLanguage) { Locale(appLanguage.code) }
-            val localizedContext = remember(context, locale) {
-                val config = Configuration(context.resources.configuration)
+            val localizedContext = remember(context, configuration, locale) {
+                val config = Configuration(configuration)
                 config.setLocale(locale)
                 config.setLayoutDirection(locale)
                 val configContext = context.createConfigurationContext(config)

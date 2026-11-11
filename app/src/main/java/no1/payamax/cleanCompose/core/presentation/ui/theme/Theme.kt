@@ -35,8 +35,9 @@ fun PayamaxTheme(
         SideEffect {
             val window = (view.context as? Activity)?.window
             if (window != null) {
-                window.statusBarColor = colorScheme.surface.toArgb()
-                window.navigationBarColor = colorScheme.surface.toArgb()
+                // Android 15 and later ignore status and navigation bar colors when the app
+                // targets API 35 or higher. The window background shows through those bars.
+                window.decorView.setBackgroundColor(colorScheme.surface.toArgb())
 
                 val insetsController = WindowCompat.getInsetsController(window, view)
                 insetsController.isAppearanceLightStatusBars = !isDark

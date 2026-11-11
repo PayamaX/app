@@ -20,7 +20,7 @@ class RankedOriginProcessor(private val rankedOriginProvider: RankedOriginContra
     private fun ensureOrigins(): List<PredefinedOrigin> {
         if (!initialized) {
             predefinedOrigins.clear()
-            val cached = runBlocking { rankedOriginProvider.cachedEntities() }
+            val cached = runBlocking { rankedOriginProvider.cachedEntries() }
             for ((id, origin, rank, source, position) in cached) {
                 predefinedOrigins.add(
                     PredefinedOrigin(

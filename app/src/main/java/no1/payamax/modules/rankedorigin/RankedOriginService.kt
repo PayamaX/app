@@ -20,7 +20,6 @@ import no1.payamax.db.RankedOriginEntity
 import no1.payamax.db.RankedOriginQueries
 import no1.payamax.enums.OriginRankSource
 import no1.payamax.hasValue
-import no1.payamax.utils.InstantUtility
 import no1.payamax.utils.InstantUtility.fromCompact
 import no1.payamax.utils.toCompact
 import java.time.Instant
@@ -45,26 +44,22 @@ class RankedOriginService(
         return queries.list().awaitAsList().map { it.portable() }
     }
 
-    override suspend fun cachedEntities(): List<RankedOriginEntity> {
+    override suspend fun cachedEntries(): List<RankedOriginEntity> {
         return queries.list().awaitAsList()
     }
 
-    override suspend fun upsert(origin: Origin, rank: Double, user: OriginRankSource) {
+    override suspend fun upsert(origin: Origin, rank: Double, source: OriginRankSource) {
         mutex.withLock {
             val now = Instant.now().toEpochMilli()
             queries.upsert(
                 origin.origin(),
                 rank,
-                user,
+                source,
                 0,
                 now,
                 null
             )
         }
-    }
-
-    override suspend fun cachedItemsCount(): Long {
-        return queries.countGlobals().awaitAsOne()
     }
 
     override suspend fun sync() {
