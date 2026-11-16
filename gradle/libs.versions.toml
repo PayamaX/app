@@ -22,6 +22,7 @@ sqldelight = "2.4.1"
 work = "2.12.0"
 xerialSqliteJdbc = "3.54.1.0"
 openapiGenerator = "7.27.0"
+coilCompose = "2.7.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -59,6 +60,7 @@ sqldelight-primitive-adapters = {group = "app.cash.sqldelight", name = "primitiv
 sqldelight-sqlite-driver = {group = "app.cash.sqldelight", name = "sqlite-driver", version.ref = "sqldelight"}
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidVersion" }
