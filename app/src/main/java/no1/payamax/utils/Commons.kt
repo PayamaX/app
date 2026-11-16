@@ -5,7 +5,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.ContactsContract
-import android.util.Log
 import androidx.core.database.getStringOrNull
 import no1.payamax.contracts.Contact
 import no1.payamax.contracts.InstantProvider
@@ -18,25 +17,54 @@ import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
 import java.time.Instant
 
-fun contact(addressNumber: String, cr: ContentResolver): Contact? {
-    val contactsUri = Uri.withAppendedPath(
-        ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(addressNumber)
-    )
-    cr.query(
-        contactsUri,
-        arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME),
-        null,
-        null,
-        null
-    )?.use {
-        //return Contact(it.count.toLong(), it.count.toString())
-        if (it.moveToFirst()) {
-            val dump = dump(it)
-            Log.i("dump", dump)
-            return Contact(it.getLong(0), it.getString(1))
+object ContactCache {
+    private val cache = HashMap<String, Contact?>()
+
+    fun getContact(addressNumber: String, cr: ContentResolver): Contact? {
+        if (addressNumber.isBlank()) return null
+        val digits = addressNumber.filter { it.isDigit() }
+        val key = if (digits.length >= 7) digits.takeLast(7) else addressNumber
+        if (cache.containsKey(key)) {
+            return cache[key]
         }
+        val result = contact(addressNumber, cr)
+        cache[key] = result
+        return result
     }
-    return null
+
+    fun clear() {
+        cache.clear()
+    }
+}
+
+fun contact(addressNumber: String, cr: ContentResolver): Contact? {
+    if (addressNumber.isBlank()) return null
+    val digits = addressNumber.filter { it.isDigit() }
+    if (digits.length < 3) return null
+
+    return try {
+        val contactsUri = Uri.withAppendedPath(
+            ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(addressNumber)
+        )
+        cr.query(
+            contactsUri,
+            arrayOf(
+                BaseColumns._ID,
+                ContactsContract.PhoneLookup.DISPLAY_NAME,
+                ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI
+            ),
+            null,
+            null,
+            null
+        )?.use {
+            if (it.moveToFirst()) {
+                val photoUri = it.getStringOrNull(2)
+                Contact(it.getLong(0), it.getString(1), photoUri)
+            } else null
+        }
+    } catch (e: Exception) {
+        null
+    }
 }
 
 fun dump(it: Cursor): String {
@@ -72,11 +100,38 @@ fun Long.moment(instantProvider: InstantProvider): String {
 }
 
 fun process(cursor: Cursor, contentResolver: ContentResolver, payamakColumns: PayamakColumns, engine: UsabilityProcessorEngine): ReviewableProcessedPayamak {
-    val addressValue = cursor.getString(payamakColumns.addressIndex)
+    val addressValue = cursor.getString(payamakColumns.addressIndex) ?: ""
     val address = addressValue.toLongOrNull()?.cellNumber()
     val addressTitle = if (address == null) addressValue else null
-    val origin =
-        Origin(address, addressTitle, address?.let { contact(addressValue, contentResolver) })
+    val contactInfo = if (addressValue.isNotBlank()) ContactCache.getContact(addressValue, contentResolver) else null
+    val origin = Origin(address, addressTitle, contactInfo)
+    val payamak = Payamak(
+        cursor.getLong(payamakColumns.idIndex),
+        cursor.getLong(payamakColumns.dateIndex),
+        origin,
+        cursor.getString(payamakColumns.bodyIndex)
+    )
+
+    return ReviewableProcessedPayamak(
+        ProcessedPayamakModel(
+            cursor.getLong(payamakColumns.idIndex),
+            payamak,
+            engine.detect(payamak)
+        ),
+        false
+    )
+}
+
+fun processFast(
+    cursor: Cursor,
+    payamakColumns: PayamakColumns,
+    engine: UsabilityProcessorEngine,
+    cachedContact: Contact?
+): ReviewableProcessedPayamak {
+    val addressValue = cursor.getString(payamakColumns.addressIndex) ?: ""
+    val address = addressValue.toLongOrNull()?.cellNumber()
+    val addressTitle = if (address == null) addressValue else null
+    val origin = Origin(address, addressTitle, cachedContact)
     val payamak = Payamak(
         cursor.getLong(payamakColumns.idIndex),
         cursor.getLong(payamakColumns.dateIndex),

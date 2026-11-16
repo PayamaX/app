@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.coil.compose)
     testImplementation(libs.junit)
     testImplementation(libs.sqldelight.sqlite.driver)
     androidTestImplementation(libs.androidx.junit)

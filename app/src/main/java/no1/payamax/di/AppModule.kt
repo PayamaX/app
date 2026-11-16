@@ -12,6 +12,7 @@ import no1.payamax.modules.rankedorigin.RankedOriginContract
 import no1.payamax.modules.rankedorigin.RankedOriginService
 import no1.payamax.services.*
 import no1.payamax.utils.UserPreferences
+import no1.payamax.vm.ThreadConversationViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.bind
@@ -47,5 +48,6 @@ val appModule = module {
     factoryOf(::PhonebookOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::ThousandPrefixedOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::TitledOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
+    factoryOf(::ThreadConversationViewModel)
     factory { UsabilityProcessorEngine(getAll()) }
 }
