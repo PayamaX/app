@@ -12,6 +12,7 @@
     <string name="nav_search">جستجو</string>
     <string name="nav_clear">پاک کردن</string>
     <string name="press_back_again_to_exit">برای خروج یک بار دیگر بزنید</string>
+    <string name="message_count_format">%1$d پیام</string>
     <string name="profile_settings_title">پروفایل و تنظیمات</string>
     <string name="message_details_title">جزئیات پیامک</string>
 

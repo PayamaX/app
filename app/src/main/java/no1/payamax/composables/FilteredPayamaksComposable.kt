@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -57,9 +60,11 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
+import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ThreadConversationRoute
 import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.hasValue
+import no1.payamax.model.PayamakThread
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
@@ -197,6 +202,7 @@ fun FilteredPayamaksComposable(
         if (!cursor.moveToFirst()) return
         var currentBatchIndex = 0
         var addedSize = 0
+        var scannedInThisBatch = 0
         do {
             if (currentBatchIndex++ < lastIndex) {
                 continue
@@ -208,17 +214,18 @@ fun FilteredPayamaksComposable(
                 engine
             )
             messages.add(message)
+            scannedInThisBatch++
             if (activeTypes.contains(message.pp.activeUsabilityClass)) {
                 addedSize++
             }
-        } while (cursor.moveToNext() && addedSize < 20)
+        } while (cursor.moveToNext() && addedSize < 20 && scannedInThisBatch < 500)
         lastIndex = currentBatchIndex
     }
 
     val spacing = MaterialTheme.spacing
 
     LaunchedEffect(selectedCategoryIndex) {
-        while (messages.none { activeTypes.contains(it.pp.activeUsabilityClass) } && lastIndex < cursor.count) {
+        while (messages.count { activeTypes.contains(it.pp.activeUsabilityClass) } < 20 && lastIndex < cursor.count) {
             val prevLastIndex = lastIndex
             loadNextBatch()
             if (lastIndex == prevLastIndex) break

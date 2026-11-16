@@ -12,6 +12,7 @@
     <string name="nav_search">Search</string>
     <string name="nav_clear">Clear</string>
     <string name="press_back_again_to_exit">Press back again to exit</string>
+    <string name="message_count_format">%1$d messages</string>
     <string name="profile_settings_title">Profile &amp; Settings</string>
     <string name="message_details_title">Message Details</string>
 

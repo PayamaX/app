@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.distinctUntilChanged
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.InstantProviderService
 
@@ -59,24 +58,26 @@ fun InfiniteList(
 @Composable
 fun InfiniteListHandler(
     listState: LazyListState,
-    buffer: Int = 10,
+    buffer: Int = 5,
     onLoadMore: () -> Unit
 ) {
-    val loadMore = remember {
+    val shouldLoadMore = remember(listState) {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
             val totalItemsNumber = layoutInfo.totalItemsCount
+            if (totalItemsNumber == 0) return@derivedStateOf false
             val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
 
-            lastVisibleItemIndex > (totalItemsNumber - buffer)
+            lastVisibleItemIndex >= (totalItemsNumber - buffer)
         }
     }
 
-    LaunchedEffect(loadMore) {
-        snapshotFlow { loadMore.value }
-            .distinctUntilChanged()
-            .collect {
-                onLoadMore()
+    LaunchedEffect(listState) {
+        snapshotFlow { shouldLoadMore.value }
+            .collect { isNearEnd ->
+                if (isNearEnd) {
+                    onLoadMore()
+                }
             }
     }
 }
