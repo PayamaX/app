@@ -5,8 +5,6 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Deselect
@@ -35,34 +32,26 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,15 +66,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
-import no1.payamax.cleanCompose.core.presentation.ui.theme.ColorSchemeExtension
 import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.modules.report.PayamakReportContract
@@ -135,14 +121,7 @@ fun ThreadConversationScreen(
     var usableSharingOption by remember { mutableStateOf(UsableInfoSharingOption.PARTIAL) }
     var isSubmittingReport by remember { mutableStateOf(false) }
 
-    // Interactive feedback banner & bottom sheet state
-    var showReportBottomSheet by remember { mutableStateOf(false) }
-    var selectedMessageIndex by remember { mutableIntStateOf(0) }
-    var isReportAllMessagesInThread by remember { mutableStateOf(false) }
-    var sheetUserOpinion by remember { mutableStateOf(PayamakUsabilityClass.Spam) }
-    var sheetUserComment by remember { mutableStateOf("") }
     var isBannerDismissed by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     BackHandler(enabled = isReportMode) {
         isReportMode = false
@@ -373,357 +352,6 @@ fun ThreadConversationScreen(
         )
     }
 
-    // Modal Bottom Sheet for single-sender feedback & report
-    if (showReportBottomSheet) {
-        val currentMsg = viewModel.messages.getOrNull(selectedMessageIndex) ?: viewModel.messages.firstOrNull()
-        val currentLayoutDirection = LocalLayoutDirection.current
-        val currentContext = LocalContext.current
-        val currentConfiguration = LocalConfiguration.current
-
-        ModalBottomSheet(
-            onDismissRequest = {
-                if (!isSubmittingReport) showReportBottomSheet = false
-            },
-            sheetState = sheetState,
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-            tonalElevation = 8.dp,
-            scrimColor = BottomSheetDefaults.ScrimColor
-        ) {
-            CompositionLocalProvider(
-                LocalLayoutDirection provides currentLayoutDirection,
-                LocalContext provides currentContext,
-                LocalConfiguration provides currentConfiguration
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = spacing.large)
-                        .padding(bottom = spacing.extraLarge),
-                    verticalArrangement = Arrangement.spacedBy(spacing.medium)
-                ) {
-                    Text(
-                        text = stringResource(R.string.report_sender_title, titleText),
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    Text(
-                        text = stringResource(R.string.report_sheet_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    // Target message selector: Single vs All in thread
-                    if (viewModel.messages.size > 1) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(spacing.small)
-                        ) {
-                            FilterChip(
-                                selected = !isReportAllMessagesInThread,
-                                onClick = { isReportAllMessagesInThread = false },
-                                label = { Text(stringResource(R.string.report_target_mode_single)) },
-                                shape = RoundedCornerShape(999.dp)
-                            )
-                            FilterChip(
-                                selected = isReportAllMessagesInThread,
-                                onClick = { isReportAllMessagesInThread = true },
-                                label = { Text(stringResource(R.string.report_target_mode_all, viewModel.messages.size)) },
-                                shape = RoundedCornerShape(999.dp)
-                            )
-                        }
-                    }
-
-                    // Message preview card with previous/next stepper
-                    if (!isReportAllMessagesInThread && currentMsg != null) {
-                        Surface(
-                            shape = RoundedCornerShape(14.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainer,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(spacing.medium)) {
-                                if (viewModel.messages.size > 1) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = stringResource(
-                                                R.string.report_message_indicator,
-                                                (selectedMessageIndex + 1),
-                                                viewModel.messages.size
-                                            ),
-                                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            IconButton(
-                                                onClick = {
-                                                    if (selectedMessageIndex < viewModel.messages.size - 1) {
-                                                        selectedMessageIndex++
-                                                        sheetUserOpinion = viewModel.messages[selectedMessageIndex].pp.activeUsabilityClass
-                                                    }
-                                                },
-                                                enabled = selectedMessageIndex < viewModel.messages.size - 1,
-                                                modifier = Modifier.size(32.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                                    contentDescription = stringResource(R.string.report_next_message),
-                                                    modifier = Modifier.size(18.dp)
-                                                )
-                                            }
-
-                                            Spacer(modifier = Modifier.width(spacing.extraSmall))
-
-                                            IconButton(
-                                                onClick = {
-                                                    if (selectedMessageIndex > 0) {
-                                                        selectedMessageIndex--
-                                                        sheetUserOpinion = viewModel.messages[selectedMessageIndex].pp.activeUsabilityClass
-                                                    }
-                                                },
-                                                enabled = selectedMessageIndex > 0,
-                                                modifier = Modifier.size(32.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                    contentDescription = stringResource(R.string.report_prev_message),
-                                                    modifier = Modifier.size(18.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-
-                                    Spacer(modifier = Modifier.height(spacing.extraSmall))
-                                }
-
-                                Text(
-                                    text = currentMsg.pp.payamak.body,
-                                    style = MaterialTheme.typography.bodySmall.copy(lineHeight = 20.sp),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 4,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    }
-
-                    // Opinion Chips
-                    Text(
-                        text = stringResource(R.string.report_user_opinion),
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(spacing.small)
-                    ) {
-                        val opinionOptions = listOf(
-                            PayamakUsabilityClass.Important,
-                            PayamakUsabilityClass.Usable,
-                            PayamakUsabilityClass.Spam
-                        )
-                        for (clazz in opinionOptions) {
-                            val isSelected = sheetUserOpinion == clazz
-                            val (chipBg, chipText, chipStroke) = ColorSchemeExtension.getUsabilityColors(clazz)
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = { sheetUserOpinion = clazz },
-                                label = { Text(getUsabilityPersianTitle(clazz)) },
-                                shape = RoundedCornerShape(999.dp),
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = chipBg,
-                                    selectedLabelColor = chipText
-                                ),
-                                border = FilterChipDefaults.filterChipBorder(
-                                    enabled = true,
-                                    selected = isSelected,
-                                    selectedBorderColor = chipStroke
-                                )
-                            )
-                        }
-                    }
-
-                    // Comment text field
-                    OutlinedTextField(
-                        value = sheetUserComment,
-                        onValueChange = { sheetUserComment = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(stringResource(R.string.report_comment_label)) },
-                        placeholder = { Text(stringResource(R.string.report_comment_placeholder)) },
-                        shape = RoundedCornerShape(12.dp),
-                        minLines = 2,
-                        maxLines = 4,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
-                        )
-                    )
-
-                    // Consent 1: Spam messages consent
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainer,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(spacing.small),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = allowAllSpamInfo,
-                                onCheckedChange = { allowAllSpamInfo = it },
-                                enabled = !isSubmittingReport
-                            )
-                            Spacer(modifier = Modifier.width(spacing.extraSmall))
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.report_dialog_spam_consent),
-                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = stringResource(R.string.report_dialog_spam_consent_desc),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-
-                    // Consent 2: Usable SMS consent (Partial Hash vs Full Text)
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainer,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(spacing.small)) {
-                            Text(
-                                text = stringResource(R.string.report_dialog_usable_consent),
-                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(horizontal = spacing.extraSmall, vertical = spacing.extraSmall)
-                            )
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(enabled = !isSubmittingReport) {
-                                        usableSharingOption = UsableInfoSharingOption.PARTIAL
-                                    }
-                            ) {
-                                RadioButton(
-                                    selected = usableSharingOption == UsableInfoSharingOption.PARTIAL,
-                                    onClick = { usableSharingOption = UsableInfoSharingOption.PARTIAL },
-                                    enabled = !isSubmittingReport
-                                )
-                                Text(
-                                    text = stringResource(R.string.report_dialog_usable_partial),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(enabled = !isSubmittingReport) {
-                                        usableSharingOption = UsableInfoSharingOption.FULL
-                                    }
-                            ) {
-                                RadioButton(
-                                    selected = usableSharingOption == UsableInfoSharingOption.FULL,
-                                    onClick = { usableSharingOption = UsableInfoSharingOption.FULL },
-                                    enabled = !isSubmittingReport
-                                )
-                                Text(
-                                    text = stringResource(R.string.report_dialog_usable_full),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    }
-
-                    if (isSubmittingReport) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = spacing.small),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(spacing.medium))
-                            Text(
-                                text = stringResource(R.string.report_dialog_submitting),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    } else {
-                        Button(
-                            onClick = {
-                                val targets = if (isReportAllMessagesInThread) {
-                                    viewModel.messages.toList()
-                                } else {
-                                    val m = viewModel.messages.getOrNull(selectedMessageIndex) ?: viewModel.messages.firstOrNull()
-                                    if (m != null) listOf(m) else emptyList()
-                                }
-
-                                if (targets.isNotEmpty()) {
-                                    isSubmittingReport = true
-                                    scope.launch {
-                                        val items = targets.map { msg ->
-                                            PayamakReportSubmissionItem(
-                                                message = msg,
-                                                userOpinion = sheetUserOpinion,
-                                                userComment = sheetUserComment
-                                            )
-                                        }
-                                        val result = reportService.submitBatchReport(
-                                            items = items,
-                                            allowAllSpamInfo = allowAllSpamInfo,
-                                            usableInfoSharingOption = usableSharingOption
-                                        )
-                                        isSubmittingReport = false
-                                        showReportBottomSheet = false
-                                        isBannerDismissed = true
-                                        when (result) {
-                                            is ReportSubmissionResult.Success -> {
-                                                Toast.makeText(context, reportSuccessMessage, Toast.LENGTH_LONG).show()
-                                            }
-                                            is ReportSubmissionResult.SavedLocallyOnly,
-                                            is ReportSubmissionResult.Failure -> {
-                                                Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
-                                            }
-                                        }
-                                    }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(stringResource(R.string.report_dialog_confirm))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     PayamaxScaffold(
         title = if (isReportMode) stringResource(R.string.report_mode_title) else titleText,
         navigationIcon = if (isReportMode) null else Icons.AutoMirrored.Filled.ArrowBack,
@@ -803,11 +431,12 @@ fun ThreadConversationScreen(
                 ) {
                     // Visible affordance: Flag icon to report this sender
                     IconButton(onClick = {
+                        isReportMode = true
+                        selectedItemIds.clear()
                         val firstMsg = viewModel.messages.firstOrNull()
-                        selectedMessageIndex = 0
-                        isReportAllMessagesInThread = false
-                        sheetUserOpinion = firstMsg?.pp?.activeUsabilityClass ?: PayamakUsabilityClass.Spam
-                        showReportBottomSheet = true
+                        if (firstMsg != null) {
+                            selectedItemIds[firstMsg.pp.id] = true
+                        }
                     }) {
                         Icon(
                             imageVector = Icons.Default.Warning,
@@ -841,6 +470,49 @@ fun ThreadConversationScreen(
                                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                             }
+                        }
+                    }
+                }
+            }
+        },
+        bottomBar = {
+            if (isReportMode) {
+                Surface(
+                    tonalElevation = 6.dp,
+                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = spacing.medium, vertical = spacing.small),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.report_mode_selected_count, selectedItemIds.size),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Button(
+                            onClick = {
+                                if (selectedItemIds.isEmpty()) {
+                                    Toast.makeText(context, reportNoSelectionMessage, Toast.LENGTH_SHORT).show()
+                                } else {
+                                    showReportConfirmDialog = true
+                                }
+                            },
+                            enabled = selectedItemIds.isNotEmpty(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(spacing.extraSmall))
+                            Text(text = stringResource(R.string.report_mode_submit))
                         }
                     }
                 }
@@ -932,10 +604,12 @@ fun ThreadConversationScreen(
                                 ) {
                                     Button(
                                         onClick = {
-                                            selectedMessageIndex = 0
-                                            isReportAllMessagesInThread = false
-                                            sheetUserOpinion = PayamakUsabilityClass.Spam
-                                            showReportBottomSheet = true
+                                            isReportMode = true
+                                            selectedItemIds.clear()
+                                            viewModel.messages.forEach { m ->
+                                                selectedItemIds[m.pp.id] = true
+                                                userOpinions[m.pp.id] = PayamakUsabilityClass.Spam
+                                            }
                                         },
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -952,10 +626,12 @@ fun ThreadConversationScreen(
 
                                     FilledTonalButton(
                                         onClick = {
-                                            selectedMessageIndex = 0
-                                            isReportAllMessagesInThread = false
-                                            sheetUserOpinion = PayamakUsabilityClass.Usable
-                                            showReportBottomSheet = true
+                                            isReportMode = true
+                                            selectedItemIds.clear()
+                                            viewModel.messages.forEach { m ->
+                                                selectedItemIds[m.pp.id] = true
+                                                userOpinions[m.pp.id] = PayamakUsabilityClass.Usable
+                                            }
                                         },
                                         colors = ButtonDefaults.filledTonalButtonColors(
                                             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -1006,13 +682,9 @@ fun ThreadConversationScreen(
                         isReportMode = isReportMode,
                         isSelected = isSelected,
                         onLongClicked = {
-                            val idx = viewModel.messages.indexOfFirst { it.pp.id == msgId }
-                            if (idx != -1) {
-                                selectedMessageIndex = idx
-                                isReportAllMessagesInThread = false
-                                sheetUserOpinion = msg.pp.activeUsabilityClass
-                                showReportBottomSheet = true
-                            }
+                            isReportMode = true
+                            selectedItemIds.clear()
+                            selectedItemIds[msgId] = true
                         },
                         userOpinion = userOpinions[msgId],
                         onUserOpinionChanged = { opinion ->
