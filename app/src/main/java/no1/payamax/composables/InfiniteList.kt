@@ -177,7 +177,7 @@ fun ThreadInfiniteList(
 
     InfiniteListHandler(
         listState = listState,
-        buffer = 8,
+        buffer = 5,
         isLoading = isLoading
     ) {
         onLoadMore()
@@ -196,7 +196,7 @@ fun ThreadInfiniteList(
 @Composable
 fun InfiniteListHandler(
     listState: LazyListState,
-    buffer: Int = 8,
+    buffer: Int = 4,
     isLoading: Boolean = false,
     onLoadMore: () -> Unit
 ) {
@@ -207,12 +207,11 @@ fun InfiniteListHandler(
             if (totalItemsNumber == 0) return@derivedStateOf false
             val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
 
-            val hasScrolled = listState.firstVisibleItemIndex > 0 || listState.isScrollInProgress
-            hasScrolled && lastVisibleItemIndex >= (totalItemsNumber - buffer)
+            lastVisibleItemIndex >= (totalItemsNumber - buffer)
         }
     }
 
-    LaunchedEffect(shouldLoadMore, isLoading) {
+    LaunchedEffect(shouldLoadMore) {
         snapshotFlow { shouldLoadMore.value }
             .distinctUntilChanged()
             .collect { isNearEnd ->
@@ -220,5 +219,11 @@ fun InfiniteListHandler(
                     onLoadMore()
                 }
             }
+    }
+
+    LaunchedEffect(isLoading) {
+        if (!isLoading && shouldLoadMore.value) {
+            onLoadMore()
+        }
     }
 }

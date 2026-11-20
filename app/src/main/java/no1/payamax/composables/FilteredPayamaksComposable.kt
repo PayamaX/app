@@ -128,8 +128,13 @@ fun FilteredPayamaksComposable(
     val reportSavedOfflineMessage = stringResource(R.string.report_saved_offline_toast)
     val reportNoSelectionMessage = stringResource(R.string.report_no_selection_toast)
 
-    val messages = remember { mutableStateListOf<ReviewableProcessedPayamak>() }
-    var lastIndex = 0
+    val threads = remember { mutableStateListOf<PayamakThread>() }
+    val seenThreadKeys = remember { mutableSetOf<String>() }
+    val seenRawAddresses = remember { mutableSetOf<String>() }
+    var cursorOffset by remember { mutableIntStateOf(0) }
+    var hasMoreToLoad by remember { mutableStateOf(true) }
+    var isLoadingMore by remember { mutableStateOf(false) }
+
     val engine by inject<UsabilityProcessorEngine>(UsabilityProcessorEngine::class.java)
     val reportService by inject<PayamakReportContract>(PayamakReportContract::class.java)
     val payamakColumns = PayamakColumns(cursor)
@@ -179,30 +184,7 @@ fun FilteredPayamaksComposable(
         )
     }
 
-    val threads by remember(messages.size) {
-        derivedStateOf {
-            val map = LinkedHashMap<String, ReviewableProcessedPayamak>()
-            for (msg in messages) {
-                val key = getThreadKey(msg)
-                if (!map.containsKey(key)) {
-                    map[key] = msg
-                }
-            }
-            map.map { (key, latest) ->
-                val origin = latest.pp.payamak.origin
-                val address = origin.number?.let { if (it.prefix != null) "+${it.prefix}${it.main}" else it.main.toString() }
-                    ?: (origin.title ?: origin.displayable())
-                PayamakThread(
-                    key = key,
-                    address = address,
-                    origin = origin,
-                    latestMessage = latest
-                )
-            }
-        }
-    }
-
-    val filteredThreads by remember(threads, selectedCategoryIndex, searchQuery) {
+    val filteredThreads by remember(threads.size, selectedCategoryIndex, searchQuery) {
         derivedStateOf {
             threads.filter { thread ->
                 activeTypes.contains(thread.latestMessage.pp.activeUsabilityClass) &&
@@ -277,55 +259,70 @@ fun FilteredPayamaksComposable(
         }
     }
 
-    var isLoadingMore by remember { mutableStateOf(false) }
-    var hasMoreToLoad by remember { mutableStateOf(true) }
-
     fun loadNextBatch() {
         if (isLoadingMore || !hasMoreToLoad) return
-        if (lastIndex >= cursor.count) {
+        if (cursorOffset >= cursor.count) {
             hasMoreToLoad = false
             return
         }
 
         isLoadingMore = true
         scope.launch(Dispatchers.Default) {
-            val batch = mutableListOf<ReviewableProcessedPayamak>()
-            var currentBatchIndex = 0
-            var addedSize = 0
-            var scannedCount = 0
-            val targetBatchSize = 15
-            val maxScanPerRun = 25
+            val newThreads = mutableListOf<PayamakThread>()
+            var currentOffset = cursorOffset
+            var reachedEnd = false
 
             synchronized(cursor) {
-                if (cursor.moveToFirst()) {
+                if (cursor.moveToPosition(currentOffset)) {
+                    val targetNewThreads = 15
+                    val maxScanLimit = 500
+                    var scanned = 0
+
                     do {
-                        if (currentBatchIndex++ < lastIndex) {
-                            continue
+                        val addressValue = cursor.getString(payamakColumns.addressIndex) ?: ""
+                        if (!seenRawAddresses.contains(addressValue)) {
+                            seenRawAddresses.add(addressValue)
+                            val message = process(
+                                cursor,
+                                contentResolver,
+                                payamakColumns,
+                                engine
+                            )
+                            val key = getThreadKey(message)
+                            if (!seenThreadKeys.contains(key)) {
+                                seenThreadKeys.add(key)
+                                val origin = message.pp.payamak.origin
+                                val address = origin.number?.let { if (it.prefix != null) "+${it.prefix}${it.main}" else it.main.toString() }
+                                    ?: (origin.title ?: origin.displayable())
+                                newThreads.add(
+                                    PayamakThread(
+                                        key = key,
+                                        address = address,
+                                        origin = origin,
+                                        latestMessage = message
+                                    )
+                                )
+                            }
                         }
-                        val message = process(
-                            cursor,
-                            contentResolver,
-                            payamakColumns,
-                            engine
-                        )
-                        batch.add(message)
-                        scannedCount++
-                        if (activeTypes.contains(message.pp.activeUsabilityClass)) {
-                            addedSize++
-                        }
-                    } while (cursor.moveToNext() && addedSize < targetBatchSize && scannedCount < maxScanPerRun)
-                    lastIndex = currentBatchIndex
-                    if (currentBatchIndex >= cursor.count) {
-                        hasMoreToLoad = false
+                        currentOffset++
+                        scanned++
+                    } while (cursor.moveToNext() && newThreads.size < targetNewThreads && scanned < maxScanLimit)
+
+                    if (currentOffset >= cursor.count) {
+                        reachedEnd = true
                     }
                 } else {
-                    hasMoreToLoad = false
+                    reachedEnd = true
                 }
             }
 
             withContext(Dispatchers.Main) {
-                if (batch.isNotEmpty()) {
-                    messages.addAll(batch)
+                cursorOffset = currentOffset
+                if (reachedEnd) {
+                    hasMoreToLoad = false
+                }
+                if (newThreads.isNotEmpty()) {
+                    threads.addAll(newThreads)
                 }
                 isLoadingMore = false
             }
@@ -334,8 +331,8 @@ fun FilteredPayamaksComposable(
 
     val spacing = MaterialTheme.spacing
 
-    LaunchedEffect(selectedCategoryIndex) {
-        if (filteredThreads.isEmpty() && hasMoreToLoad && !isLoadingMore) {
+    LaunchedEffect(selectedCategoryIndex, threads.size) {
+        if (filteredThreads.size < 10 && hasMoreToLoad && !isLoadingMore) {
             loadNextBatch()
         }
     }
