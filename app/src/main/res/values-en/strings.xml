@@ -140,4 +140,18 @@
     <string name="report_success_toast">SMS report saved and submitted successfully</string>
     <string name="report_saved_offline_toast">Report saved to local database, but server submission failed</string>
     <string name="report_no_selection_toast">Please select at least one message to report</string>
+
+    <!-- Interactive Feedback Banner & Sheet Strings -->
+    <string name="banner_is_spam_question">Is this sender spam?</string>
+    <string name="banner_action_spam">Spam</string>
+    <string name="banner_action_useful">Useful</string>
+    <string name="banner_dismiss">Dismiss</string>
+    <string name="report_sender_title">Report Sender: %1$s</string>
+    <string name="report_sender_action">Report and give feedback on this sender</string>
+    <string name="report_sheet_desc">Your feedback helps improve PayamaX intelligent engine.</string>
+    <string name="report_target_mode_single">Only selected message</string>
+    <string name="report_target_mode_all">All messages in thread (%1$d)</string>
+    <string name="report_message_indicator">Message %1$d of %2$d</string>
+    <string name="report_prev_message">Previous message</string>
+    <string name="report_next_message">Next message</string>
 </resources>

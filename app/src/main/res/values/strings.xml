@@ -140,4 +140,18 @@
     <string name="report_success_toast">گزارش پیامک‌ها با موفقیت ذخیره و ارسال شد</string>
     <string name="report_saved_offline_toast">گزارش در پایگاه داده محلی ذخیره شد، اما ارسال به سرور با خطا مواجه شد</string>
     <string name="report_no_selection_toast">لطفاً حداقل یک پیامک را برای گزارش انتخاب کنید</string>
+
+    <!-- Interactive Feedback Banner & Sheet Strings -->
+    <string name="banner_is_spam_question">آیا پیام‌های این فرستنده اسپم هستند؟</string>
+    <string name="banner_action_spam">اسپم است</string>
+    <string name="banner_action_useful">مفید است</string>
+    <string name="banner_dismiss">بستن</string>
+    <string name="report_sender_title">گزارش فرستنده: %1$s</string>
+    <string name="report_sender_action">گزارش و ثبت بازخورد این فرستنده</string>
+    <string name="report_sheet_desc">نظر شما به ارتقای دقت هوش مصنوعی پیاماکس کمک می‌کند.</string>
+    <string name="report_target_mode_single">فقط پیامک انتخابی</string>
+    <string name="report_target_mode_all">تمام پیامک‌های این گفتگو (%1$d پیام)</string>
+    <string name="report_message_indicator">پیامک %1$d از %2$d</string>
+    <string name="report_prev_message">پیامک قبلی</string>
+    <string name="report_next_message">پیامک بعدی</string>
 </resources>
