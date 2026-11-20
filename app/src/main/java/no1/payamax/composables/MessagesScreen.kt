@@ -16,7 +16,8 @@ fun MessagesScreen(
     EnsurePermissions {
         val inboxUri = "content://sms/inbox"
         val uri = inboxUri.toUri()
-        val cursor = contentResolver.query(uri, null, null, null, "date desc")
+        val projection = arrayOf("_id", "date", "address", "body")
+        val cursor = contentResolver.query(uri, projection, null, null, "date desc")
         if (cursor != null) {
             MainTabScreen(cursor, contentResolver, navController, types)
         }

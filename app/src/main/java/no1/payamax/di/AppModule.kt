@@ -15,6 +15,7 @@ import no1.payamax.modules.report.PayamakReportContract
 import no1.payamax.modules.report.PayamakReportService
 import no1.payamax.services.*
 import no1.payamax.utils.UserPreferences
+import no1.payamax.vm.ThreadConversationViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.bind
@@ -79,5 +80,6 @@ val appModule = module {
     factoryOf(::PhonebookOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::ThousandPrefixedOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::TitledOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
-    factory { UsabilityProcessorEngine(getAll()) }
+    factoryOf(::ThreadConversationViewModel)
+    single { UsabilityProcessorEngine(getAll()) }
 }

@@ -52,7 +52,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -77,10 +76,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no1.payamax.R
-import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
+import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ThreadConversationRoute
 import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.hasValue
+import no1.payamax.model.PayamakThread
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.modules.report.PayamakReportContract
 import no1.payamax.modules.report.PayamakReportSubmissionItem
@@ -92,6 +92,23 @@ import no1.payamax.utils.ExcelExporter
 import no1.payamax.utils.OriginExportData
 import no1.payamax.utils.process
 import org.koin.java.KoinJavaComponent.inject
+
+fun getThreadKey(msg: ReviewableProcessedPayamak): String {
+    val origin = msg.pp.payamak.origin
+    if (origin.contact != null && origin.contact.hasValue) {
+        return "contact_${origin.contact.id}"
+    }
+    val numberStr = origin.number?.displayable() ?: ""
+    val digits = (if (numberStr.isNotEmpty()) numberStr else (origin.title ?: "")).filter { it.isDigit() }
+    if (digits.length >= 7) {
+        return "num_${digits.takeLast(10)}"
+    }
+    val title = origin.title ?: origin.displayable()
+    if (title.isNotBlank()) {
+        return "title_${title.trim().lowercase()}"
+    }
+    return "addr_${msg.pp.id}"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,7 +140,7 @@ fun FilteredPayamaksComposable(
 
     // Batch report mode state
     var isReportMode by remember { mutableStateOf(false) }
-    val selectedItemIds = remember { mutableStateMapOf<Long, Boolean>() }
+    val selectedThreadKeys = remember { mutableStateMapOf<String, Boolean>() }
     val userOpinions = remember { mutableStateMapOf<Long, PayamakUsabilityClass>() }
     val userComments = remember { mutableStateMapOf<Long, String>() }
 
@@ -135,7 +152,7 @@ fun FilteredPayamaksComposable(
     // Intercept back button when in report mode
     BackHandler(enabled = isReportMode) {
         isReportMode = false
-        selectedItemIds.clear()
+        selectedThreadKeys.clear()
     }
 
     // Tab categories
@@ -162,22 +179,57 @@ fun FilteredPayamaksComposable(
         )
     }
 
+    val threads by remember(messages.size) {
+        derivedStateOf {
+            val map = LinkedHashMap<String, ReviewableProcessedPayamak>()
+            for (msg in messages) {
+                val key = getThreadKey(msg)
+                if (!map.containsKey(key)) {
+                    map[key] = msg
+                }
+            }
+            map.map { (key, latest) ->
+                val origin = latest.pp.payamak.origin
+                val address = origin.number?.let { if (it.prefix != null) "+${it.prefix}${it.main}" else it.main.toString() }
+                    ?: (origin.title ?: origin.displayable())
+                PayamakThread(
+                    key = key,
+                    address = address,
+                    origin = origin,
+                    latestMessage = latest
+                )
+            }
+        }
+    }
+
+    val filteredThreads by remember(threads, selectedCategoryIndex, searchQuery) {
+        derivedStateOf {
+            threads.filter { thread ->
+                activeTypes.contains(thread.latestMessage.pp.activeUsabilityClass) &&
+                        (searchQuery.isEmpty() ||
+                                thread.origin.displayable().contains(searchQuery, ignoreCase = true) ||
+                                thread.address.contains(searchQuery, ignoreCase = true) ||
+                                thread.latestMessage.pp.payamak.body.contains(searchQuery, ignoreCase = true))
+            }
+        }
+    }
+
     fun performExport() {
         val categoryName = if (selectedCategoryIndex == 1) "Useful" else "Spam"
         val categoryLabel = if (selectedCategoryIndex == 1) "پیام‌های مفید" else "اسپم و تبلیغاتی"
 
-        val exportList = messages
-            .filter { activeTypes.contains(it.pp.activeUsabilityClass) }
+        val exportList = threads
+            .filter { activeTypes.contains(it.latestMessage.pp.activeUsabilityClass) }
             .filter {
                 if (selectedCategoryIndex == 1) {
-                    it.pp.payamak.origin.contact == null || !it.pp.payamak.origin.contact.hasValue
+                    it.origin.contact == null || !it.origin.contact.hasValue
                 } else true
             }
             .distinctBy {
-                it.pp.payamak.origin.number?.displayable() ?: it.pp.payamak.origin.displayable()
+                it.origin.number?.displayable() ?: it.origin.displayable()
             }
             .map {
-                val origin = it.pp.payamak.origin
+                val origin = it.origin
                 OriginExportData(
                     title = origin.title ?: origin.displayable(),
                     number = origin.number?.displayable() ?: "",
@@ -225,22 +277,6 @@ fun FilteredPayamaksComposable(
         }
     }
 
-    DisposableEffect(navController.currentBackStackEntry) {
-        for (i in messages.indices) {
-            val oldMsg = messages[i]
-            val updatedUsability = engine.detect(oldMsg.pp.payamak)
-            if (updatedUsability != oldMsg.pp.usability || oldMsg.pp.expectedPayamakUsabilityClass != null) {
-                messages[i] = oldMsg.copy(
-                    pp = oldMsg.pp.copy(
-                        usability = updatedUsability,
-                        expectedPayamakUsabilityClass = null
-                    )
-                )
-            }
-        }
-        onDispose { }
-    }
-
     var isLoadingMore by remember { mutableStateOf(false) }
     var hasMoreToLoad by remember { mutableStateOf(true) }
 
@@ -257,8 +293,8 @@ fun FilteredPayamaksComposable(
             var currentBatchIndex = 0
             var addedSize = 0
             var scannedCount = 0
-            val targetBatchSize = 25
-            val maxScanPerRun = 400
+            val targetBatchSize = 15
+            val maxScanPerRun = 25
 
             synchronized(cursor) {
                 if (cursor.moveToFirst()) {
@@ -298,20 +334,9 @@ fun FilteredPayamaksComposable(
 
     val spacing = MaterialTheme.spacing
 
-    LaunchedEffect(selectedCategoryIndex, messages.size, hasMoreToLoad) {
-        if (messages.none { activeTypes.contains(it.pp.activeUsabilityClass) } && hasMoreToLoad && !isLoadingMore) {
+    LaunchedEffect(selectedCategoryIndex) {
+        if (filteredThreads.isEmpty() && hasMoreToLoad && !isLoadingMore) {
             loadNextBatch()
-        }
-    }
-
-    val filteredMessages by remember(messages, selectedCategoryIndex, searchQuery) {
-        derivedStateOf {
-            messages.filter { msg ->
-                activeTypes.contains(msg.pp.activeUsabilityClass) &&
-                        (searchQuery.isEmpty() ||
-                                msg.pp.payamak.body.contains(searchQuery, ignoreCase = true) ||
-                                msg.pp.payamak.origin.displayable().contains(searchQuery, ignoreCase = true))
-            }
         }
     }
 
@@ -370,7 +395,7 @@ fun FilteredPayamaksComposable(
                         verticalArrangement = Arrangement.spacedBy(spacing.medium)
                     ) {
                         Text(
-                            text = stringResource(R.string.report_dialog_desc, selectedItemIds.size),
+                            text = stringResource(R.string.report_dialog_desc, selectedThreadKeys.size),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -497,15 +522,15 @@ fun FilteredPayamaksComposable(
                         onClick = {
                             isSubmittingReport = true
                             scope.launch {
-                                val itemsToSubmit = messages
-                                    .filter { selectedItemIds.containsKey(it.pp.id) }
-                                    .map { msg ->
-                                        PayamakReportSubmissionItem(
-                                            message = msg,
-                                            userOpinion = userOpinions[msg.pp.id] ?: msg.pp.activeUsabilityClass,
-                                            userComment = userComments[msg.pp.id] ?: ""
-                                        )
-                                    }
+                                val selectedThreads = threads.filter { selectedThreadKeys.containsKey(it.key) }
+                                val itemsToSubmit = selectedThreads.map { thread ->
+                                    val msg = thread.latestMessage
+                                    PayamakReportSubmissionItem(
+                                        message = msg,
+                                        userOpinion = userOpinions[msg.pp.id] ?: msg.pp.activeUsabilityClass,
+                                        userComment = userComments[msg.pp.id] ?: ""
+                                    )
+                                }
                                 val result = reportService.submitBatchReport(
                                     items = itemsToSubmit,
                                     allowAllSpamInfo = allowAllSpamInfo,
@@ -517,12 +542,12 @@ fun FilteredPayamaksComposable(
                                     is ReportSubmissionResult.Success -> {
                                         Toast.makeText(context, reportSuccessMessage, Toast.LENGTH_LONG).show()
                                         isReportMode = false
-                                        selectedItemIds.clear()
+                                        selectedThreadKeys.clear()
                                     }
                                     is ReportSubmissionResult.SavedLocallyOnly -> {
                                         Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
                                         isReportMode = false
-                                        selectedItemIds.clear()
+                                        selectedThreadKeys.clear()
                                     }
                                     is ReportSubmissionResult.Failure -> {
                                         Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
@@ -566,7 +591,7 @@ fun FilteredPayamaksComposable(
                         navigationIcon = {
                             IconButton(onClick = {
                                 isReportMode = false
-                                selectedItemIds.clear()
+                                selectedThreadKeys.clear()
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
@@ -582,7 +607,7 @@ fun FilteredPayamaksComposable(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = stringResource(R.string.report_mode_selected_count, selectedItemIds.size),
+                                    text = stringResource(R.string.report_mode_selected_count, selectedThreadKeys.size),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -590,24 +615,24 @@ fun FilteredPayamaksComposable(
                         },
                         actions = {
                             IconButton(onClick = {
-                                if (selectedItemIds.size == filteredMessages.size && filteredMessages.isNotEmpty()) {
-                                    selectedItemIds.clear()
+                                if (selectedThreadKeys.size == filteredThreads.size && filteredThreads.isNotEmpty()) {
+                                    selectedThreadKeys.clear()
                                 } else {
-                                    selectedItemIds.clear()
-                                    filteredMessages.forEach { selectedItemIds[it.pp.id] = true }
+                                    selectedThreadKeys.clear()
+                                    filteredThreads.forEach { selectedThreadKeys[it.key] = true }
                                 }
                             }) {
                                 Icon(
-                                    imageVector = if (selectedItemIds.size == filteredMessages.size && filteredMessages.isNotEmpty())
+                                    imageVector = if (selectedThreadKeys.size == filteredThreads.size && filteredThreads.isNotEmpty())
                                         Icons.Default.Deselect else Icons.Default.SelectAll,
                                     contentDescription = stringResource(
-                                        if (selectedItemIds.size == filteredMessages.size && filteredMessages.isNotEmpty())
+                                        if (selectedThreadKeys.size == filteredThreads.size && filteredThreads.isNotEmpty())
                                             R.string.report_mode_deselect_all else R.string.report_mode_select_all
                                     )
                                 )
                             }
                             IconButton(onClick = {
-                                if (selectedItemIds.isEmpty()) {
+                                if (selectedThreadKeys.isEmpty()) {
                                     Toast.makeText(context, reportNoSelectionMessage, Toast.LENGTH_SHORT).show()
                                 } else {
                                     showReportConfirmDialog = true
@@ -714,7 +739,7 @@ fun FilteredPayamaksComposable(
             }
         }
     ) { padding ->
-        if (filteredMessages.isEmpty()) {
+        if (filteredThreads.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -754,44 +779,43 @@ fun FilteredPayamaksComposable(
                 }
             }
         } else {
-            InfiniteList(
-                listItems = filteredMessages,
+            ThreadInfiniteList(
+                threads = filteredThreads,
                 onLoadMore = {
                     loadNextBatch()
                 },
-                onSelected = {},
-                onClicked = { id ->
+                onThreadClicked = { thread ->
                     navController.navigate(
-                        MessageRoute(id)
+                        ThreadConversationRoute(
+                            address = thread.address,
+                            title = thread.origin.displayable()
+                        )
                     )
                 },
-                onDesiredResultChanged = {},
                 paddings = padding,
+                isLoading = isLoadingMore,
                 isReportMode = isReportMode,
-                selectedIds = selectedItemIds.keys,
-                onItemLongClicked = { id ->
+                selectedKeys = selectedThreadKeys.keys,
+                onThreadLongClicked = { thread ->
                     isReportMode = true
-                    selectedItemIds.clear()
-                    selectedItemIds[id] = true
+                    selectedThreadKeys.clear()
+                    selectedThreadKeys[thread.key] = true
                 },
-                onItemSelectToggle = { id, isChecked ->
+                onThreadSelectToggle = { key, isChecked ->
                     if (isChecked) {
-                        selectedItemIds[id] = true
+                        selectedThreadKeys[key] = true
                     } else {
-                        selectedItemIds.remove(id)
+                        selectedThreadKeys.remove(key)
                     }
                 },
                 userOpinions = userOpinions,
                 onUserOpinionChanged = { id, opinion ->
                     userOpinions[id] = opinion
-                    selectedItemIds[id] = true
                 },
                 userComments = userComments,
                 onUserCommentChanged = { id, comment ->
                     userComments[id] = comment
-                    selectedItemIds[id] = true
-                },
-                isLoading = isLoadingMore
+                }
             )
         }
     }

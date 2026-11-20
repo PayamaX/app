@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import no1.payamax.contracts.PayamakUsabilityClass
+import no1.payamax.model.PayamakThread
 import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.InstantProviderService
 import no1.payamax.utils.UserPreferences
@@ -109,6 +110,80 @@ fun InfiniteList(
     }
 }
 
+@Composable
+fun ThreadInfiniteList(
+    threads: List<PayamakThread>,
+    onLoadMore: () -> Unit,
+    onThreadClicked: (PayamakThread) -> Unit,
+    paddings: PaddingValues = PaddingValues(0.dp),
+    isLoading: Boolean = false,
+    isReportMode: Boolean = false,
+    selectedKeys: Set<String> = emptySet(),
+    onThreadLongClicked: ((PayamakThread) -> Unit)? = null,
+    onThreadSelectToggle: ((String, Boolean) -> Unit)? = null,
+    userOpinions: Map<Long, PayamakUsabilityClass> = emptyMap(),
+    onUserOpinionChanged: ((Long, PayamakUsabilityClass) -> Unit)? = null,
+    userComments: Map<Long, String> = emptyMap(),
+    onUserCommentChanged: ((Long, String) -> Unit)? = null,
+) {
+    val listState = rememberLazyListState()
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.padding(paddings),
+    ) {
+        items(
+            items = threads,
+            key = { it.key },
+            contentType = { "thread" }
+        ) { thread ->
+            val msgId = thread.latestMessage.pp.id
+            ThreadComposable(
+                thread = thread,
+                onThreadClicked = onThreadClicked,
+                isReportMode = isReportMode,
+                isSelected = selectedKeys.contains(thread.key),
+                onThreadLongClicked = onThreadLongClicked,
+                onSelectedToggle = { isChecked ->
+                    onThreadSelectToggle?.invoke(thread.key, isChecked)
+                },
+                userOpinion = userOpinions[msgId],
+                onUserOpinionChanged = { opinion ->
+                    onUserOpinionChanged?.invoke(msgId, opinion)
+                },
+                userComment = userComments[msgId] ?: "",
+                onUserCommentChanged = { comment ->
+                    onUserCommentChanged?.invoke(msgId, comment)
+                }
+            )
+        }
+
+        if (isLoading) {
+            item(key = "loading_indicator_footer", contentType = "loading") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(28.dp),
+                        strokeWidth = 2.5.dp
+                    )
+                }
+            }
+        }
+    }
+
+    InfiniteListHandler(
+        listState = listState,
+        buffer = 8,
+        isLoading = isLoading
+    ) {
+        onLoadMore()
+    }
+}
+
 /**
  * Handler to make any lazy column (or lazy row) infinite. Will notify the [onLoadMore]
  * callback once needed
@@ -132,7 +207,8 @@ fun InfiniteListHandler(
             if (totalItemsNumber == 0) return@derivedStateOf false
             val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
 
-            lastVisibleItemIndex >= (totalItemsNumber - buffer)
+            val hasScrolled = listState.firstVisibleItemIndex > 0 || listState.isScrollInProgress
+            hasScrolled && lastVisibleItemIndex >= (totalItemsNumber - buffer)
         }
     }
 

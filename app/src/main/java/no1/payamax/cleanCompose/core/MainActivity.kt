@@ -24,11 +24,13 @@ import no1.payamax.BuildConfig
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.SplashRoute
+import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ThreadConversationRoute
 import no1.payamax.cleanCompose.core.presentation.ui.theme.PayamaxTheme
 import no1.payamax.cleanCompose.featureSplash.presentation.SplashScreen
 import no1.payamax.composables.MessageScreen
 import android.content.Context
 import no1.payamax.composables.MessagesScreen
+import no1.payamax.composables.ThreadConversationScreen
 import no1.payamax.utils.AppLanguage
 import no1.payamax.utils.UserPreferences
 import org.koin.java.KoinJavaComponent.inject
@@ -112,6 +114,16 @@ class MainActivity : ComponentActivity() {
                                 contentResolver,
                                 navController,
                                 route.messagesClass
+                            )
+                        }
+
+                        composable<ThreadConversationRoute> { entry ->
+                            val route = entry.toRoute<ThreadConversationRoute>()
+                            ThreadConversationScreen(
+                                contentResolver,
+                                navController,
+                                route.address,
+                                route.title
                             )
                         }
 
