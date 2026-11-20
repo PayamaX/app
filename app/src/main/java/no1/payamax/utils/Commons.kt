@@ -17,26 +17,34 @@ import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
+
+private val contactCache = java.util.Collections.synchronizedMap(mutableMapOf<String, Contact?>())
 
 fun contact(addressNumber: String, cr: ContentResolver): Contact? {
+    if (contactCache.containsKey(addressNumber)) {
+        return contactCache[addressNumber]
+    }
     val contactsUri = Uri.withAppendedPath(
         ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(addressNumber)
     )
-    cr.query(
-        contactsUri,
-        arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME),
-        null,
-        null,
-        null
-    )?.use {
-        //return Contact(it.count.toLong(), it.count.toString())
-        if (it.moveToFirst()) {
-            val dump = dump(it)
-            Log.i("dump", dump)
-            return Contact(it.getLong(0), it.getString(1))
+    val result: Contact? = try {
+        cr.query(
+            contactsUri,
+            arrayOf(BaseColumns._ID, ContactsContract.PhoneLookup.DISPLAY_NAME),
+            null,
+            null,
+            null
+        )?.use {
+            if (it.moveToFirst()) {
+                Contact(it.getLong(0), it.getString(1))
+            } else null
         }
+    } catch (_: Exception) {
+        null
     }
-    return null
+    contactCache[addressNumber] = result
+    return result
 }
 
 fun dump(it: Cursor): String {

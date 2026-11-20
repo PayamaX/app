@@ -1,0 +1,27 @@
+CREATE TABLE PayamakReportEntity(
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    origin TEXT NOT NULL,
+    body TEXT,
+    sha512 TEXT,
+    moment TEXT NOT NULL,
+    detected_diagnostics TEXT NOT NULL,
+    expected_diagnostics TEXT NOT NULL,
+    reporter_comment TEXT,
+    calced_rank REAL NOT NULL,
+    processors_report TEXT NOT NULL,
+    created_at INTEGER NOT NULL,
+    synced INTEGER NOT NULL DEFAULT 0
+);
+
+list:
+SELECT * FROM PayamakReportEntity ORDER BY created_at DESC;
+
+insert:
+INSERT INTO PayamakReportEntity (origin, body, sha512, moment, detected_diagnostics, expected_diagnostics, reporter_comment, calced_rank, processors_report, created_at, synced)
+VALUES (:origin, :body, :sha512, :moment, :detected_diagnostics, :expected_diagnostics, :reporter_comment, :calced_rank, :processors_report, :created_at, :synced);
+
+lastInsertedId:
+SELECT last_insert_rowid();
+
+markAsSynced:
+UPDATE PayamakReportEntity SET synced = 1 WHERE id = :id;

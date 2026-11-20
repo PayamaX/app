@@ -19,11 +19,11 @@ object InstantUtility {
         return Instant.ofEpochSecond(millis, nanos)
     }
     fun toCompact(instant: Instant): String {
-        return "${instant.epochSecond}.${instant.nano}"
+        return "${instant.epochSecond}.${instant.nano.toString().padStart(9, '0')}"
     }
 }
 
 
 fun Instant.toCompact(): String {
-    return "${epochSecond}.${nano}"
+    return "${epochSecond}.${nano.toString().padStart(9, '0')}"
 }
