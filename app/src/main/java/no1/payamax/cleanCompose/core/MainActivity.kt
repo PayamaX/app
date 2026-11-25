@@ -1,5 +1,7 @@
 package no1.payamax.cleanCompose.core
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.WindowManager
@@ -8,9 +10,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -18,19 +23,22 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import no1.payamax.BuildConfig
+import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ComposeMessageRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.SplashRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ThreadConversationRoute
 import no1.payamax.cleanCompose.core.presentation.ui.theme.PayamaxTheme
 import no1.payamax.cleanCompose.featureSplash.presentation.SplashScreen
+import no1.payamax.composables.ComposeMessageScreen
 import no1.payamax.composables.MessageScreen
-import android.content.Context
 import no1.payamax.composables.MessagesScreen
 import no1.payamax.composables.ThreadConversationScreen
+import no1.payamax.services.SmsNotificationManager
 import no1.payamax.utils.AppLanguage
 import no1.payamax.utils.UserPreferences
 import org.koin.java.KoinJavaComponent.inject
@@ -40,6 +48,7 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
     private val userPreferences by inject<UserPreferences>(UserPreferences::class.java)
+    private var pendingNotificationTarget by mutableStateOf<Pair<String, String>?>(null)
 
     override fun attachBaseContext(newBase: Context) {
         val prefs = newBase.getSharedPreferences("payamax_user_prefs", Context.MODE_PRIVATE)
@@ -65,7 +74,24 @@ class MainActivity : ComponentActivity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
 
+        extractNotificationIntent(intent)
         setupCompose()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        extractNotificationIntent(intent)
+    }
+
+    private fun extractNotificationIntent(intent: Intent?) {
+        val address = intent?.getStringExtra(SmsNotificationManager.EXTRA_NOTIFICATION_ADDRESS)
+        if (!address.isNullOrBlank()) {
+            val title = intent.getStringExtra(SmsNotificationManager.EXTRA_NOTIFICATION_TITLE) ?: address
+            pendingNotificationTarget = address to title
+            intent.removeExtra(SmsNotificationManager.EXTRA_NOTIFICATION_ADDRESS)
+            intent.removeExtra(SmsNotificationManager.EXTRA_NOTIFICATION_TITLE)
+        }
     }
 
     private fun setupCompose() {
@@ -100,6 +126,22 @@ class MainActivity : ComponentActivity() {
             ) {
                 PayamaxTheme(themeMode = themeMode) {
                     val navController = rememberNavController()
+                    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+
+                    LaunchedEffect(pendingNotificationTarget, currentBackStackEntry) {
+                        val target = pendingNotificationTarget ?: return@LaunchedEffect
+                        val currentRoute = currentBackStackEntry?.destination?.route ?: return@LaunchedEffect
+                        if (!currentRoute.contains("SplashRoute")) {
+                            pendingNotificationTarget = null
+                            navController.navigate(
+                                ThreadConversationRoute(
+                                    address = target.first,
+                                    title = target.second
+                                )
+                            )
+                        }
+                    }
+
                     NavHost(
                         navController = navController,
                         startDestination = SplashRoute,
@@ -123,7 +165,15 @@ class MainActivity : ComponentActivity() {
                                 contentResolver,
                                 navController,
                                 route.address,
-                                route.title
+                                route.title,
+                                route.autoFocusInput
+                            )
+                        }
+
+                        composable<ComposeMessageRoute> {
+                            ComposeMessageScreen(
+                                contentResolver = contentResolver,
+                                navController = navController
                             )
                         }
 

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Deselect
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Search
@@ -39,6 +40,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -141,9 +143,47 @@ fun FilteredPayamaksComposable(
     val reportService by inject<PayamakReportContract>(PayamakReportContract::class.java)
     val payamakColumns = PayamakColumns(cursor)
 
+    val userPreferences by inject<no1.payamax.utils.UserPreferences>(no1.payamax.utils.UserPreferences::class.java)
+
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var showDefaultSmsPrompt by remember { mutableStateOf(false) }
+
+    val defaultSmsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (no1.payamax.utils.DefaultSmsHelper.isDefaultSmsApp(context)) {
+            no1.payamax.services.SmsNotificationManager.ensureChannel(context)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val isDefault = no1.payamax.utils.DefaultSmsHelper.isDefaultSmsApp(context)
+        if (isDefault) {
+            no1.payamax.services.SmsNotificationManager.ensureChannel(context)
+        } else if (userPreferences.shouldShowDefaultSmsPrompt()) {
+            showDefaultSmsPrompt = true
+        }
+    }
+
+    androidx.compose.runtime.DisposableEffect(navController.currentBackStackEntry) {
+        for (i in threads.indices) {
+            val thread = threads[i]
+            val oldMsg = thread.latestMessage
+            val updatedUsability = engine.detect(oldMsg.pp.payamak)
+            if (updatedUsability != oldMsg.pp.usability || oldMsg.pp.expectedPayamakUsabilityClass != null) {
+                val updatedMsg = oldMsg.copy(
+                    pp = oldMsg.pp.copy(
+                        usability = updatedUsability,
+                        expectedPayamakUsabilityClass = null
+                    )
+                )
+                threads[i] = thread.copy(latestMessage = updatedMsg)
+            }
+        }
+        onDispose { }
+    }
 
     // Batch report mode state
     var isReportMode by remember { mutableStateOf(false) }
@@ -353,6 +393,98 @@ fun FilteredPayamaksComposable(
         for (id in reportMessageIds) {
             if (id in saved) reportedPayamakIds[id] = true
         }
+    }
+
+    if (showDefaultSmsPrompt) {
+        val currentLayoutDirection = LocalLayoutDirection.current
+        val currentContext = LocalContext.current
+        val currentConfiguration = LocalConfiguration.current
+
+        AlertDialog(
+            onDismissRequest = {
+                showDefaultSmsPrompt = false
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(36.dp)
+                )
+            },
+            title = {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides currentLayoutDirection,
+                    LocalContext provides currentContext,
+                    LocalConfiguration provides currentConfiguration
+                ) {
+                    Text(
+                        text = stringResource(R.string.default_sms_dialog_title),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+            },
+            text = {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides currentLayoutDirection,
+                    LocalContext provides currentContext,
+                    LocalConfiguration provides currentConfiguration
+                ) {
+                    Text(
+                        text = stringResource(R.string.default_sms_dialog_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            },
+            confirmButton = {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides currentLayoutDirection,
+                    LocalContext provides currentContext,
+                    LocalConfiguration provides currentConfiguration
+                ) {
+                    Button(
+                        onClick = {
+                            showDefaultSmsPrompt = false
+                            val intent = no1.payamax.utils.DefaultSmsHelper.createRequestDefaultSmsIntent(context)
+                            if (intent != null) {
+                                try {
+                                    defaultSmsLauncher.launch(intent)
+                                } catch (_: Exception) {
+                                }
+                            }
+                        }
+                    ) {
+                        Text(stringResource(R.string.default_sms_action_set))
+                    }
+                }
+            },
+            dismissButton = {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides currentLayoutDirection,
+                    LocalContext provides currentContext,
+                    LocalConfiguration provides currentConfiguration
+                ) {
+                    Row {
+                        TextButton(
+                            onClick = {
+                                showDefaultSmsPrompt = false
+                                userPreferences.setDismissDefaultSmsPrompt(neverShowAgain = true)
+                            }
+                        ) {
+                            Text(stringResource(R.string.default_sms_action_never))
+                        }
+                        TextButton(
+                            onClick = {
+                                showDefaultSmsPrompt = false
+                            }
+                        ) {
+                            Text(stringResource(R.string.default_sms_action_later))
+                        }
+                    }
+                }
+            }
+        )
     }
 
     if (showPermissionDialog) {
@@ -763,6 +895,24 @@ fun FilteredPayamaksComposable(
                             )
                         )
                     }
+                }
+            }
+        },
+        floatingActionButton = {
+            if (!isReportMode && !isSearchActive) {
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ComposeMessageRoute)
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.padding(bottom = 68.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(R.string.compose_new_message)
+                    )
                 }
             }
         }
