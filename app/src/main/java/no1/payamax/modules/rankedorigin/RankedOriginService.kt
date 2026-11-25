@@ -83,7 +83,7 @@ class RankedOriginService(
             } else {
                 queries.upsert(
                     item.origin!!,
-                    item.rank!!,
+                    item.rank!!.toDouble(),
                     OriginRankSource.PayamaX,
                     item.position!!.toLong(),
                     now,

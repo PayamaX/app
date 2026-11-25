@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no1.payamax.api.apis.PayamakReportsPublicV1ControllerApi
+import no1.payamax.api.models.PayamakReportPostPublicInput
 import no1.payamax.api.models.PayamakReportPublicInput
-import no1.payamax.api.models.PayamakReportPublicItemInput
 import no1.payamax.api.models.PayamakReportRuleProcessResultPublicInput
 import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.db.PayamakReportQueries
@@ -31,7 +31,7 @@ class PayamakReportService(
         if (items.isEmpty()) return ReportSubmissionResult.Success(0)
 
         val insertedIds = mutableListOf<Long>()
-        val apiItems = mutableListOf<PayamakReportPublicItemInput>()
+        val apiItems = mutableListOf<PayamakReportPublicInput>()
         val now = Instant.now().toEpochMilli()
 
         for (item in items) {
@@ -53,20 +53,20 @@ class PayamakReportService(
 
             val moment = Instant.ofEpochMilli(payamak.received).toCompact()
             val detectedDiag = when (detectedClass) {
-                PayamakUsabilityClass.Important -> PayamakReportPublicItemInput.DetectedDiagnostics.Important
-                PayamakUsabilityClass.Usable -> PayamakReportPublicItemInput.DetectedDiagnostics.Useful
-                PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown -> PayamakReportPublicItemInput.DetectedDiagnostics.Spam
+                PayamakUsabilityClass.Important -> PayamakReportPublicInput.DetectedDiagnostics.Important
+                PayamakUsabilityClass.Usable -> PayamakReportPublicInput.DetectedDiagnostics.Useful
+                PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown -> PayamakReportPublicInput.DetectedDiagnostics.Spam
             }
             val expectedDiag = when (userOpinionClass) {
-                PayamakUsabilityClass.Important -> PayamakReportPublicItemInput.ExpectedDiagnostics.Important
-                PayamakUsabilityClass.Usable -> PayamakReportPublicItemInput.ExpectedDiagnostics.Useful
-                PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown -> PayamakReportPublicItemInput.ExpectedDiagnostics.Spam
+                PayamakUsabilityClass.Important -> PayamakReportPublicInput.ExpectedDiagnostics.Important
+                PayamakUsabilityClass.Usable -> PayamakReportPublicInput.ExpectedDiagnostics.Useful
+                PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown -> PayamakReportPublicInput.ExpectedDiagnostics.Spam
             }
 
             val processorReports = item.message.pp.usability.processResults.mapIndexed { index, pr ->
                 PayamakReportRuleProcessResultPublicInput(
                     processorName = pr.name,
-                    processorVersion = "1.0",
+                    processorVersion = 1,
                     generalRank = pr.rate?.toFloat() ?: 0f,
                     userOverrideRank = null,
                     processorProvidedComment = pr.message.ifBlank { pr.name },
@@ -76,7 +76,7 @@ class PayamakReportService(
                 listOf(
                     PayamakReportRuleProcessResultPublicInput(
                         processorName = "GeneralEngine",
-                        processorVersion = "1.0",
+                        processorVersion = 1,
                         generalRank = item.message.pp.usability.rate.probability.toFloat(),
                         userOverrideRank = null,
                         processorProvidedComment = "Engine result",
@@ -120,7 +120,7 @@ class PayamakReportService(
 
             // Prepare for API submission
             apiItems.add(
-                PayamakReportPublicItemInput(
+                PayamakReportPublicInput(
                     origin = originStr,
                     moment = moment,
                     reporterComment = commentStr,
@@ -138,7 +138,7 @@ class PayamakReportService(
         return try {
             withContext(Dispatchers.IO) {
                 val api = PayamakReportsPublicV1ControllerApi()
-                api.postPublicPayamakReport(PayamakReportPublicInput(items = apiItems))
+                api.postPublicPayamakReport(PayamakReportPostPublicInput(items = apiItems))
             }
             for (id in insertedIds) {
                 reportQueries.markAsSynced(id)
