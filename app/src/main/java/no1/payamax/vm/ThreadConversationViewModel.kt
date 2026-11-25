@@ -2,6 +2,7 @@ package no1.payamax.vm
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,16 +26,19 @@ class ThreadConversationViewModel : ViewModel() {
     var isLoading by mutableStateOf(true)
         private set
 
+    var isPageLoading by mutableStateOf(false)
+        private set
+
     var cachedContact by mutableStateOf<Contact?>(null)
         private set
 
     private var loadedAddress: String? = null
     private var currentCursorOffset = 0
-    private val pageSize = 10
+    private val pageSize = 15
     var hasMore by mutableStateOf(true)
         private set
 
-    private var isPageLoading = false
+    private val smsProjection = arrayOf("_id", "date", "address", "body")
 
     fun loadThread(
         contentResolver: ContentResolver,
@@ -68,9 +72,10 @@ class ThreadConversationViewModel : ViewModel() {
                 val selectionArgs: Array<String>
 
                 if (cleanNum.length >= 10) {
-                    selection = "address = ? OR address = ? OR address = ? OR address = ?"
+                    selection = "address = ? OR address = ? OR address = ? OR address = ? OR address = ?"
                     selectionArgs = arrayOf(
                         address,
+                        cleanNum,
                         "0$cleanNum",
                         "+98$cleanNum",
                         "98$cleanNum"
@@ -86,7 +91,7 @@ class ThreadConversationViewModel : ViewModel() {
                 val initialList = mutableListOf<ReviewableProcessedPayamak>()
                 contentResolver.query(
                     uri,
-                    null,
+                    smsProjection,
                     selection,
                     selectionArgs,
                     "date desc"
@@ -102,6 +107,8 @@ class ThreadConversationViewModel : ViewModel() {
                     }
                 }
 
+                Log.d("ThreadConv", "loadThread finished for address='$address', loaded=${initialList.size}")
+
                 withContext(Dispatchers.Main) {
                     cachedContact = contactInfo
                     messages.addAll(initialList)
@@ -111,7 +118,7 @@ class ThreadConversationViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
-                // Ignore query errors
+                Log.e("ThreadConv", "Error loading thread for address='$address'", e)
             } finally {
                 withContext(Dispatchers.Main) {
                     isLoading = false
@@ -139,9 +146,10 @@ class ThreadConversationViewModel : ViewModel() {
                 val selectionArgs: Array<String>
 
                 if (cleanNum.length >= 10) {
-                    selection = "address = ? OR address = ? OR address = ? OR address = ?"
+                    selection = "address = ? OR address = ? OR address = ? OR address = ? OR address = ?"
                     selectionArgs = arrayOf(
                         address,
+                        cleanNum,
                         "0$cleanNum",
                         "+98$cleanNum",
                         "98$cleanNum"
@@ -160,26 +168,23 @@ class ThreadConversationViewModel : ViewModel() {
 
                 contentResolver.query(
                     uri,
-                    null,
+                    smsProjection,
                     selection,
                     selectionArgs,
                     "date desc"
                 )?.use { cursor ->
                     val payamakColumns = PayamakColumns(cursor)
-                    if (cursor.moveToFirst()) {
-                        var skipped = 0
+                    if (cursor.moveToPosition(currentCursorOffset)) {
                         var count = 0
                         do {
-                            if (skipped < currentCursorOffset) {
-                                skipped++
-                                continue
-                            }
                             val msg = processFast(cursor, payamakColumns, engine, cachedContact)
                             pageList.add(msg)
                             count++
                         } while (cursor.moveToNext() && count < pageSize)
                     }
                 }
+
+                Log.d("ThreadConv", "loadNextPage loaded=${pageList.size}, offset=$currentCursorOffset")
 
                 withContext(Dispatchers.Main) {
                     if (pageList.isEmpty()) {
@@ -193,6 +198,7 @@ class ThreadConversationViewModel : ViewModel() {
                     }
                 }
             } catch (e: Exception) {
+                Log.e("ThreadConv", "Error loading next page", e)
                 hasMore = false
             } finally {
                 withContext(Dispatchers.Main) {

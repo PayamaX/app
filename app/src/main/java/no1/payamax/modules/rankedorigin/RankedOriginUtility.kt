@@ -7,6 +7,6 @@ import java.util.UUID
 fun RankedOriginEntity.portable(): RankedOriginPublicPortable = RankedOriginPublicPortable(
     globalId = global_id?.let { runCatching { UUID.fromString(it) }.getOrNull() },
     origin = origin,
-    rank = rank,
+    rank = rank.toFloat(),
     position = position.toInt()
 )

@@ -59,7 +59,7 @@ class RankedOriginService(
         var cursorId: Long? = null
         do {
             val apiItems = withContext(Dispatchers.IO) {
-                RankedOriginsPublicV1ControllerApi().get1(lastSyncedText, cursorInstant, cursorId)
+                RankedOriginsPublicV1ControllerApi().getPublicRankedOriginChanges(lastSyncedText, cursorInstant, cursorId)
             }
             if (apiItems.isEmpty()) {
                 break
@@ -83,7 +83,7 @@ class RankedOriginService(
             } else {
                 queries.upsert(
                     item.origin!!,
-                    item.rank!!,
+                    item.rank!!.toDouble(),
                     OriginRankSource.PayamaX,
                     item.position!!.toLong(),
                     now,

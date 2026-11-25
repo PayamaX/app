@@ -116,4 +116,42 @@
     <string name="section_developer">Developer / Debug</string>
     <string name="http_logging_title">Full HTTP Logging</string>
     <string name="http_logging_subtitle">Log HTTP request and response headers &amp; bodies in Logcat</string>
+
+    <!-- Batch Report Strings -->
+    <string name="report_mode_title">Batch Report</string>
+    <string name="report_mode_selected_count">%1$d selected</string>
+    <string name="report_mode_select_all">Select All</string>
+    <string name="report_mode_deselect_all">Deselect All</string>
+    <string name="report_mode_submit">Submit Report</string>
+    <string name="report_mode_cancel">Exit Report Mode</string>
+    <string name="report_system_detection">System Detection:</string>
+    <string name="report_user_opinion">Your Opinion:</string>
+    <string name="report_comment_label">Your comment</string>
+    <string name="report_comment_placeholder">Enter your comment or feedback for this SMS...</string>
+    <string name="report_dialog_title">Confirm Report Submission</string>
+    <string name="report_dialog_desc">Are you sure you want to submit %1$d selected message(s) to PayamaX? Please confirm privacy preferences:</string>
+    <string name="report_dialog_spam_consent">I allow all information of Spam messages shared with PayamaX</string>
+    <string name="report_dialog_spam_consent_desc">Includes full body and sender to improve spam filtering</string>
+    <string name="report_dialog_usable_consent">I allow partial/full information of usable smses shared with PayamaX</string>
+    <string name="report_dialog_usable_partial">Partial (Hash only - privacy friendly)</string>
+    <string name="report_dialog_usable_full">Full (Include message body)</string>
+    <string name="report_dialog_confirm">Submit</string>
+    <string name="report_dialog_submitting">Saving and submitting to server...</string>
+    <string name="report_success_toast">SMS report saved and submitted successfully</string>
+    <string name="report_saved_offline_toast">Report saved to local database, but server submission failed</string>
+    <string name="report_no_selection_toast">Please select at least one message to report</string>
+
+    <!-- Interactive Feedback Banner & Sheet Strings -->
+    <string name="banner_is_spam_question">Is this sender spam?</string>
+    <string name="banner_action_spam">Spam</string>
+    <string name="banner_action_useful">Useful</string>
+    <string name="banner_dismiss">Dismiss</string>
+    <string name="report_sender_title">Report Sender: %1$s</string>
+    <string name="report_sender_action">Report and give feedback on this sender</string>
+    <string name="report_sheet_desc">Your feedback helps improve PayamaX intelligent engine.</string>
+    <string name="report_target_mode_single">Only selected message</string>
+    <string name="report_target_mode_all">All messages in thread (%1$d)</string>
+    <string name="report_message_indicator">Message %1$d of %2$d</string>
+    <string name="report_prev_message">Previous message</string>
+    <string name="report_next_message">Next message</string>
 </resources>

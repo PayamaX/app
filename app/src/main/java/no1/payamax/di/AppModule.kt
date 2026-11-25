@@ -5,11 +5,14 @@ import app.cash.sqldelight.EnumColumnAdapter
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import androidx.sqlite.db.SupportSQLiteDatabase
 import no1.payamax.contracts.PayamakUsabilityRuleContract
 import no1.payamax.db.PayamaxDatabase
 import no1.payamax.db.RankedOriginEntity
 import no1.payamax.modules.rankedorigin.RankedOriginContract
 import no1.payamax.modules.rankedorigin.RankedOriginService
+import no1.payamax.modules.report.PayamakReportContract
+import no1.payamax.modules.report.PayamakReportService
 import no1.payamax.services.*
 import no1.payamax.utils.UserPreferences
 import no1.payamax.vm.ThreadConversationViewModel
@@ -26,15 +29,44 @@ val appModule = module {
             context = get(),
             name = "payamax.db",
             callback = object : AndroidSqliteDriver.Callback(PayamaxDatabase.Schema.synchronous()) {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    super.onOpen(db)
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS PayamakReportEntity(
+                            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                            origin TEXT NOT NULL,
+                            body TEXT,
+                            sha512 TEXT,
+                            moment TEXT NOT NULL,
+                            detected_diagnostics TEXT NOT NULL,
+                            expected_diagnostics TEXT NOT NULL,
+                            reporter_comment TEXT,
+                            calced_rank REAL NOT NULL,
+                            processors_report TEXT NOT NULL,
+                            created_at INTEGER NOT NULL,
+                            synced INTEGER NOT NULL DEFAULT 0
+                        )
+                        """.trimIndent()
+                    )
+                }
             }
         )
     }
     single { PayamaxDatabase(get(), RankedOriginEntity.Adapter(EnumColumnAdapter())) }
     single { get<PayamaxDatabase>().rankedOriginQueries }
+    single { get<PayamaxDatabase>().payamakReportQueries }
     single<RankedOriginContract> {
         RankedOriginService(
             get(),
             get<Context>().getSharedPreferences("general", Context.MODE_PRIVATE),
+        )
+    }
+    single<PayamakReportContract> {
+        PayamakReportService(
+            get(),
+            get(),
+            get()
         )
     }
     single { RankedOriginProcessor(get(), get()) } bind PayamakUsabilityRuleContract::class
@@ -49,5 +81,5 @@ val appModule = module {
     factoryOf(::ThousandPrefixedOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::TitledOriginUsabilityProcessor) { bind<PayamakUsabilityRuleContract>() }
     factoryOf(::ThreadConversationViewModel)
-    factory { UsabilityProcessorEngine(getAll()) }
+    single { UsabilityProcessorEngine(getAll()) }
 }

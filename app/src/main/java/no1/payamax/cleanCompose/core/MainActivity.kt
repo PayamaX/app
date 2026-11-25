@@ -28,8 +28,10 @@ import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ThreadConversa
 import no1.payamax.cleanCompose.core.presentation.ui.theme.PayamaxTheme
 import no1.payamax.cleanCompose.featureSplash.presentation.SplashScreen
 import no1.payamax.composables.MessageScreen
+import android.content.Context
 import no1.payamax.composables.MessagesScreen
 import no1.payamax.composables.ThreadConversationScreen
+import no1.payamax.utils.AppLanguage
 import no1.payamax.utils.UserPreferences
 import org.koin.java.KoinJavaComponent.inject
 import java.util.Locale
@@ -38,6 +40,23 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
     private val userPreferences by inject<UserPreferences>(UserPreferences::class.java)
+
+    override fun attachBaseContext(newBase: Context) {
+        val prefs = newBase.getSharedPreferences("payamax_user_prefs", Context.MODE_PRIVATE)
+        val langName = prefs.getString("key_app_language", AppLanguage.PERSIAN.name) ?: AppLanguage.PERSIAN.name
+        val lang = try {
+            AppLanguage.valueOf(langName)
+        } catch (e: Exception) {
+            AppLanguage.PERSIAN
+        }
+        val locale = Locale(lang.code)
+        Locale.setDefault(locale)
+        val config = Configuration(newBase.resources.configuration)
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
+        val context = newBase.createConfigurationContext(config)
+        super.attachBaseContext(context)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -58,11 +77,14 @@ class MainActivity : ComponentActivity() {
             val context = LocalContext.current
             val configuration = LocalConfiguration.current
             val locale = remember(appLanguage) { Locale(appLanguage.code) }
-            val localizedContext = remember(context, configuration, locale) {
+            val localizedConfiguration = remember(configuration, locale) {
                 val config = Configuration(configuration)
                 config.setLocale(locale)
                 config.setLayoutDirection(locale)
-                val configContext = context.createConfigurationContext(config)
+                config
+            }
+            val localizedContext = remember(context, localizedConfiguration, locale) {
+                val configContext = context.createConfigurationContext(localizedConfiguration)
                 object : android.content.ContextWrapper(context) {
                     override fun getResources(): android.content.res.Resources = configContext.resources
                 }
@@ -73,6 +95,7 @@ class MainActivity : ComponentActivity() {
 
             CompositionLocalProvider(
                 LocalContext provides localizedContext,
+                LocalConfiguration provides localizedConfiguration,
                 LocalLayoutDirection provides layoutDirection
             ) {
                 PayamaxTheme(themeMode = themeMode) {

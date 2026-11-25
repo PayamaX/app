@@ -18,7 +18,7 @@ import no1.payamax.services.UsabilityProcessorEngine
 import java.time.Instant
 
 object ContactCache {
-    private val cache = HashMap<String, Contact?>()
+    private val cache = java.util.Collections.synchronizedMap(mutableMapOf<String, Contact?>())
 
     fun getContact(addressNumber: String, cr: ContentResolver): Contact? {
         if (addressNumber.isBlank()) return null
@@ -62,7 +62,7 @@ fun contact(addressNumber: String, cr: ContentResolver): Contact? {
                 Contact(it.getLong(0), it.getString(1), photoUri)
             } else null
         }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 }
@@ -109,7 +109,7 @@ fun process(cursor: Cursor, contentResolver: ContentResolver, payamakColumns: Pa
         cursor.getLong(payamakColumns.idIndex),
         cursor.getLong(payamakColumns.dateIndex),
         origin,
-        cursor.getString(payamakColumns.bodyIndex)
+        cursor.getString(payamakColumns.bodyIndex) ?: ""
     )
 
     return ReviewableProcessedPayamak(
@@ -136,7 +136,7 @@ fun processFast(
         cursor.getLong(payamakColumns.idIndex),
         cursor.getLong(payamakColumns.dateIndex),
         origin,
-        cursor.getString(payamakColumns.bodyIndex)
+        cursor.getString(payamakColumns.bodyIndex) ?: ""
     )
 
     return ReviewableProcessedPayamak(
