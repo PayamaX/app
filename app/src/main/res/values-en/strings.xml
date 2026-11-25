@@ -155,4 +155,43 @@
     <string name="report_message_indicator">Message %1$d of %2$d</string>
     <string name="report_prev_message">Previous message</string>
     <string name="report_next_message">Next message</string>
+
+    <!-- Conversation & Compose Strings -->
+    <string name="compose_new_message">New Message</string>
+    <string name="compose_message_placeholder">Text message&#8230;</string>
+    <string name="compose_send">Send</string>
+    <string name="compose_to_label">To</string>
+    <string name="compose_to_placeholder">Type a name or phone number&#8230;</string>
+    <string name="compose_start_chat_with">Send to %1$s</string>
+    <string name="compose_contacts_header">Contacts</string>
+    <string name="compose_no_contacts">No matching contacts</string>
+    <string name="compose_invalid_number">Please enter a valid phone number</string>
+    <string name="compose_empty_conversation">No messages yet. Type a message to start the conversation!</string>
+    <string name="sms_sending">Sending&#8230;</string>
+    <string name="sms_sent">Sent</string>
+    <string name="sms_failed">Failed — tap to retry</string>
+    <string name="sms_send_permission_required">SEND_SMS permission is required to send text messages</string>
+    <string name="sms_send_failed_toast">Failed to send SMS</string>
+
+    <!-- Default SMS App Suggestion Strings -->
+    <string name="default_sms_dialog_title">Set PayamaX as Default SMS App</string>
+    <string name="default_sms_dialog_desc">Set PayamaX as your default SMS handler for smooth message delivery, direct replying, and unified spam filtering.</string>
+    <string name="default_sms_action_set">Set as Default</string>
+    <string name="default_sms_action_later">Maybe Later</string>
+    <string name="default_sms_action_never">Don\'t Ask Again</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_channel_sms_name">Incoming SMS</string>
+    <string name="notification_channel_sms_desc">Alerts for important, useful, and unknown SMS (spam messages are silenced)</string>
+    <string name="notification_new_message_hidden">New message</string>
+    <string name="notification_permission_denied">Notifications are disabled. Please enable them to get alerts for incoming SMS.</string>
+    <string name="notification_permission_comment">Notification permission is required to alert you when important and useful SMS messages arrive.</string>
+    <string name="notification_permission_command">Allow Notifications</string>
+    <string name="notification_permission_open_settings">Open Notification Settings</string>
+    <string name="notification_permission_later">Not Now</string>
+
+    <!-- Conversation Overflow Menu Strings -->
+    <string name="conversation_menu_more">More options</string>
+    <string name="conversation_change_category_title">Change sender category</string>
+    <string name="conversation_category_updated_toast">Sender category changed to %1$s</string>
 </resources>
