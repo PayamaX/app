@@ -4,10 +4,8 @@ import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import no1.payamax.R
 import no1.payamax.contracts.Payamak
 import no1.payamax.contracts.PayamakUsabilityRuleContract
@@ -22,7 +20,24 @@ class RankedOriginProcessor(private val rankedOriginProvider: RankedOriginContra
         get() = context.getString(R.string.rankedorigin)
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val origins = rankedOriginProvider.itemsFlow().stateIn(scope, SharingStarted.Eagerly, emptyList())
+    private val origins = MutableStateFlow<List<RankedOriginEntity>>(emptyList())
+
+    init {
+        scope.launch {
+            rankedOriginProvider.itemsFlow().collect { list ->
+                origins.value = list
+            }
+        }
+    }
+
+    /**
+     * Synchronously reloads the in-memory ranked origins cache from SQLite.
+     * Ensures background receivers (cold start) and immediate post-upsert UI re-detection
+     * always evaluate against the latest user overrides.
+     */
+    suspend fun ensureLoaded() {
+        origins.value = rankedOriginProvider.cachedEntries()
+    }
 
     fun hasUserOverride(payamak: Payamak): Boolean {
         val related = findRelatedOrigins(payamak)
@@ -46,7 +61,9 @@ class RankedOriginProcessor(private val rankedOriginProvider: RankedOriginContra
         if (related.isEmpty())
             return null
 
-        val userOrigin = related.find { it.source == OriginRankSource.User }
+        val userOrigin = related
+            .filter { it.source == OriginRankSource.User }
+            .maxByOrNull { it.last_synced }
         if (userOrigin != null) {
             return UsabilityRate(userOrigin.rank)
         }

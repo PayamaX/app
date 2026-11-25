@@ -86,10 +86,19 @@ class UserPreferences(context: Context) {
         _httpLoggingEnabled.value = enabled
     }
 
+    fun shouldShowDefaultSmsPrompt(): Boolean {
+        return prefs.getBoolean(KEY_SHOW_DEFAULT_SMS_PROMPT, true)
+    }
+
+    fun setDismissDefaultSmsPrompt(neverShowAgain: Boolean = true) {
+        prefs.edit().putBoolean(KEY_SHOW_DEFAULT_SMS_PROMPT, !neverShowAgain).apply()
+    }
+
     companion object {
         private const val KEY_THEME_MODE = "key_theme_mode"
         private const val KEY_CALENDAR_TYPE = "key_calendar_type"
         private const val KEY_APP_LANGUAGE = "key_app_language"
         private const val KEY_HTTP_LOGGING = "key_http_logging"
+        private const val KEY_SHOW_DEFAULT_SMS_PROMPT = "key_show_default_sms_prompt"
     }
 }
