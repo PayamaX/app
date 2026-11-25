@@ -12,7 +12,14 @@ sealed class AppRoute {
     data class MessagesRoute(val messagesClass: List<PayamakUsabilityClass>) : AppRoute()
 
     @Serializable
-    data class ThreadConversationRoute(val address: String, val title: String) : AppRoute()
+    data class ThreadConversationRoute(
+        val address: String,
+        val title: String,
+        val autoFocusInput: Boolean = false
+    ) : AppRoute()
+
+    @Serializable
+    object ComposeMessageRoute : AppRoute()
 
     @Serializable
     data class MessageRoute(val payamakId: Long) : AppRoute()

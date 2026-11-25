@@ -37,8 +37,8 @@ fun MessageScreen(contentResolver: ContentResolver, navController: NavHostContro
                 .verticalScroll(rememberScrollState())
         ) {
             EnsurePermissions {
-                val inboxUri = "content://sms/inbox"
-                val uri = Uri.parse(inboxUri)
+                val smsUri = "content://sms"
+                val uri = Uri.parse(smsUri)
                 (contentResolver.query(uri, null, "_id = $payamakId", null, "date desc")
                     ?: throw RuntimeException("")).use { cursor ->
                     if (cursor.moveToFirst()) {
