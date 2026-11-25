@@ -5,7 +5,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.ContactsContract
-import android.util.Log
 import androidx.core.database.getStringOrNull
 import no1.payamax.contracts.Contact
 import no1.payamax.contracts.InstantProvider
@@ -17,7 +16,6 @@ import no1.payamax.model.ReviewableProcessedPayamak
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
 import java.time.Instant
-import java.util.concurrent.ConcurrentHashMap
 
 object ContactCache {
     private val cache = java.util.Collections.synchronizedMap(mutableMapOf<String, Contact?>())

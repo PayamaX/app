@@ -49,6 +49,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -128,8 +129,27 @@ fun ThreadConversationScreen(
         selectedItemIds.clear()
     }
 
-    LaunchedEffect(address, title) {
-        viewModel.loadThread(contentResolver, address, title, engine)
+    DisposableEffect(navController.currentBackStackEntry) {
+        for (i in viewModel.messages.indices) {
+            val oldMsg = viewModel.messages[i]
+            val updatedUsability = engine.detect(oldMsg.pp.payamak)
+            if (updatedUsability != oldMsg.pp.usability || oldMsg.pp.expectedPayamakUsabilityClass != null) {
+                val newMsg = oldMsg.copy(
+                    pp = oldMsg.pp.copy(
+                        usability = updatedUsability,
+                        expectedPayamakUsabilityClass = null
+                    )
+                )
+                viewModel.refreshMessage(newMsg)
+            }
+        }
+        onDispose { }
+    }
+
+    EnsurePermissions {
+        LaunchedEffect(address, title) {
+            viewModel.loadThread(contentResolver, address, title, engine)
+        }
     }
 
     val cachedContact = viewModel.cachedContact

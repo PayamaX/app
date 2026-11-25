@@ -139,13 +139,34 @@ fun ThreadComposable(
                     Spacer(modifier = Modifier.width(spacing.small + 4.dp))
 
                     Column {
-                        Text(
-                            text = thread.origin.displayable(),
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = thread.origin.displayable(),
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+
+                            // Message Count Badge
+                            if (thread.messageCount > 1) {
+                                Surface(
+                                    shape = RoundedCornerShape(999.dp),
+                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.message_count_format, thread.messageCount).toPersianDigits(),
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            }
+                        }
 
                         val numberFormatted = thread.origin.number?.displayable()?.toPersianDigits()
                         if (numberFormatted != null && numberFormatted != thread.origin.displayable()) {
@@ -188,7 +209,6 @@ fun ThreadComposable(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-
             // Report section when item is selected in report mode
             if (isReportMode && isSelected) {
                 HorizontalDivider(
