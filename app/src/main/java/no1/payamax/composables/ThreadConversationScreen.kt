@@ -75,9 +75,11 @@ import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
 import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.PayamakUsabilityClass
+import no1.payamax.modules.report.applySavedPayamakReports
 import no1.payamax.modules.report.PayamakReportContract
 import no1.payamax.modules.report.PayamakReportSubmissionItem
 import no1.payamax.modules.report.ReportSubmissionResult
+import no1.payamax.modules.report.describeReportFailure
 import no1.payamax.modules.report.UsableInfoSharingOption
 import no1.payamax.services.InstantProviderService
 import no1.payamax.services.UsabilityProcessorEngine
@@ -150,6 +152,17 @@ fun ThreadConversationScreen(
         LaunchedEffect(address, title) {
             viewModel.loadThread(contentResolver, address, title, engine)
         }
+    }
+
+    val reportMessageIds = viewModel.messages.map { it.pp.id }
+    LaunchedEffect(reportMessageIds) {
+        if (reportMessageIds.isEmpty()) return@LaunchedEffect
+        applySavedPayamakReports(
+            saved = reportService.savedReportsByPayamakId(),
+            payamakIds = reportMessageIds,
+            userComments = userComments,
+            userOpinions = userOpinions,
+        )
     }
 
     val cachedContact = viewModel.cachedContact
@@ -339,12 +352,20 @@ fun ThreadConversationScreen(
                                         selectedItemIds.clear()
                                     }
                                     is ReportSubmissionResult.SavedLocallyOnly -> {
-                                        Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            "$reportSavedOfflineMessage\n${result.throwable.describeReportFailure()}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                         isReportMode = false
                                         selectedItemIds.clear()
                                     }
                                     is ReportSubmissionResult.Failure -> {
-                                        Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            result.throwable.describeReportFailure(),
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
                                 }
                             }

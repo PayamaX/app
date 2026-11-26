@@ -27,3 +27,6 @@
 -dontwarn org.slf4j.impl.StaticLoggerBinder
 -dontwarn org.slf4j.impl.StaticMDCBinder
 -dontwarn org.slf4j.impl.StaticMarkerBinder
+
+# Navigation resolves route types with Class.forName(serialName). R8 must not rename them.
+-keepnames @kotlinx.serialization.Serializable class no1.payamax.** { *; }

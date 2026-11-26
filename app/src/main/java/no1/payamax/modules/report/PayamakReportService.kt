@@ -1,9 +1,15 @@
 package no1.payamax.modules.report
 
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import no1.payamax.BuildConfig
 import no1.payamax.api.apis.PayamakReportsPublicV1ControllerApi
+import no1.payamax.api.infrastructure.ClientError
+import no1.payamax.api.infrastructure.ClientException
+import no1.payamax.api.infrastructure.ServerError
+import no1.payamax.api.infrastructure.ServerException
 import no1.payamax.api.models.PayamakReportPostPublicInput
 import no1.payamax.api.models.PayamakReportPublicInput
 import no1.payamax.api.models.PayamakReportRuleProcessResultPublicInput
@@ -22,6 +28,21 @@ class PayamakReportService(
     private val engine: UsabilityProcessorEngine,
     private val gson: Gson = Gson()
 ) : PayamakReportContract {
+
+    override suspend fun savedReportsByPayamakId(): Map<Long, SavedPayamakReport> = withContext(Dispatchers.IO) {
+        val saved = LinkedHashMap<Long, SavedPayamakReport>()
+        for (row in reportQueries.list().executeAsList()) {
+            val payamakId = row.payamak_id
+            if (payamakId == 0L || payamakId in saved) continue
+            val opinion = row.expected_diagnostics.toUsabilityClass() ?: continue
+            saved[payamakId] = SavedPayamakReport(
+                payamakId = payamakId,
+                userOpinion = opinion,
+                userComment = row.reporter_comment.orEmpty()
+            )
+        }
+        saved
+    }
 
     override suspend fun submitBatchReport(
         items: List<PayamakReportSubmissionItem>,
@@ -91,6 +112,7 @@ class PayamakReportService(
 
             // 1. Store in local database
             reportQueries.insert(
+                payamakId = item.message.pp.id,
                 origin = originStr,
                 body = bodyToSend,
                 sha512 = sha512Hash,
@@ -137,7 +159,7 @@ class PayamakReportService(
         // 2. Call API endpoint
         return try {
             withContext(Dispatchers.IO) {
-                val api = PayamakReportsPublicV1ControllerApi()
+                val api = PayamakReportsPublicV1ControllerApi(BuildConfig.PAX_API_URL)
                 api.postPublicPayamakReport(PayamakReportPostPublicInput(items = apiItems))
             }
             for (id in insertedIds) {
@@ -145,8 +167,22 @@ class PayamakReportService(
             }
             ReportSubmissionResult.Success(items.size)
         } catch (e: Exception) {
+            val detail = e.describeReportFailure()
+            // android.util.Log is a stub in local JVM tests and throws when called.
+            runCatching { Log.e(TAG, "Global persist failed after local save: $detail", e) }
             ReportSubmissionResult.SavedLocallyOnly(items.size, e)
         }
+    }
+
+    private companion object {
+        const val TAG = "PayamakReport"
+    }
+
+    private fun String.toUsabilityClass(): PayamakUsabilityClass? = when (this) {
+        PayamakReportPublicInput.ExpectedDiagnostics.Important.value -> PayamakUsabilityClass.Important
+        PayamakReportPublicInput.ExpectedDiagnostics.Useful.value -> PayamakUsabilityClass.Usable
+        PayamakReportPublicInput.ExpectedDiagnostics.Spam.value -> PayamakUsabilityClass.Spam
+        else -> null
     }
 
     private fun calculateSha512(input: String): String {
@@ -154,4 +190,20 @@ class PayamakReportService(
         val hashBytes = digest.digest(input.toByteArray(Charsets.UTF_8))
         return hashBytes.joinToString("") { "%02x".format(it) }
     }
+}
+
+internal fun Throwable.describeReportFailure(): String {
+    val apiResponse = when (this) {
+        is ClientException -> this.response
+        is ServerException -> this.response
+        else -> null
+    }
+    val body = when (apiResponse) {
+        is ClientError<*> -> apiResponse.body
+        is ServerError<*> -> apiResponse.body
+        else -> null
+    }
+    val headline = message?.takeIf { it.isNotBlank() } ?: javaClass.simpleName
+    val bodyText = body?.toString()?.takeIf { it.isNotBlank() } ?: return headline
+    return "$headline body=$bodyText"
 }

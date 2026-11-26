@@ -1,8 +1,17 @@
+import com.android.build.api.dsl.ApkSigningConfig
+import com.android.build.gradle.internal.tasks.FinalizeBundleTask
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
+import java.security.KeyStore
+import java.security.MessageDigest
+import java.security.cert.X509Certificate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 plugins {
     alias(libs.plugins.android.application)
@@ -10,6 +19,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.openapi.generator)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 sqldelight {
@@ -21,6 +32,16 @@ sqldelight {
     }
 }
 
+fun javaStringLiteral(value: String): String {
+    val escaped = value.replace("\\", "\\\\").replace("\"", "\\\"")
+    return "\"" + escaped + "\""
+}
+
+fun requiredEnvironment(name: String): String {
+    return providers.environmentVariable(name).orNull?.trim()?.takeIf { it.isNotEmpty() }
+        ?: throw GradleException("$name environment variable is not set")
+}
+
 android {
     namespace = "no1.payamax"
     compileSdk = 37
@@ -29,13 +50,16 @@ android {
         applicationId = "no1.payamax"
         minSdk = 26
         targetSdk = 37
-        versionCode = 14
-        versionName = "14"
+        versionCode = 16
+        versionName = "16"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "PAX_API_URL", javaStringLiteral(requiredEnvironment("PAX_API_URL")))
+        buildConfigField("String", "PAX_AUTH_REALM_URL", javaStringLiteral(requiredEnvironment("PAX_AUTH_REALM_URL")))
     }
 
     buildTypes {
@@ -50,6 +74,9 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("debug")
+			ndk {
+				debugSymbolLevel = "FULL"
+			}
         }
     }
     compileOptions {
@@ -67,12 +94,95 @@ android {
     }
 }
 
+val signedArtifactStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmm", Locale.US))
+val signedArtifactSeparator = "\uFF3F"
+
+fun certificateSha1(storeFile: File, storePassword: String, keyAlias: String, storeType: String?): String {
+    val types = buildList {
+        if (!storeType.isNullOrBlank()) add(storeType)
+        add("PKCS12")
+        add("JKS")
+    }.distinct()
+    var loadFailure: Exception? = null
+    for (type in types) {
+        try {
+            val keystore = KeyStore.getInstance(type)
+            storeFile.inputStream().use { keystore.load(it, storePassword.toCharArray()) }
+            val aliases = buildList {
+                val enumeration = keystore.aliases()
+                while (enumeration.hasMoreElements()) add(enumeration.nextElement())
+            }
+            val alias = aliases.firstOrNull { it.equals(keyAlias, ignoreCase = true) }
+                ?: throw GradleException("Alias '$keyAlias' was not found in ${storeFile.path}")
+            val certificate = keystore.getCertificate(alias) as X509Certificate
+            return MessageDigest.getInstance("SHA-1").digest(certificate.encoded)
+                .joinToString(separator = "_") { "%02X".format(it) }
+        } catch (error: GradleException) {
+            throw error
+        } catch (error: Exception) {
+            loadFailure = error
+        }
+    }
+    throw GradleException("Could not read the SHA-1 of '$keyAlias' from $storeFile", loadFailure)
+}
+
+fun signingCertificateSha1(buildTypeName: String): String {
+    val injectedStore = providers.gradleProperty("android.injected.signing.store.file").orNull
+    val injectedStorePassword = providers.gradleProperty("android.injected.signing.store.password").orNull
+    val injectedAlias = providers.gradleProperty("android.injected.signing.key.alias").orNull
+    if (
+        !injectedStore.isNullOrBlank() &&
+        !injectedStorePassword.isNullOrBlank() &&
+        !injectedAlias.isNullOrBlank() &&
+        !providers.gradleProperty("android.injected.signing.key.password").orNull.isNullOrBlank()
+    ) {
+        return certificateSha1(
+            storeFile = File(injectedStore),
+            storePassword = injectedStorePassword,
+            keyAlias = injectedAlias,
+            storeType = providers.gradleProperty("android.injected.signing.store.type").orNull,
+        )
+    }
+
+    val buildType = android.buildTypes.getByName(buildTypeName)
+    val signingConfig: ApkSigningConfig = buildType.signingConfig
+        ?: if (buildType.isDebuggable) android.signingConfigs.getByName("debug") else null
+        ?: throw GradleException("Build type '$buildTypeName' has no signing config")
+    val storeFile = signingConfig.storeFile
+        ?: throw GradleException("Signing config '${signingConfig.name}' has no store file")
+    val storePassword = signingConfig.storePassword
+        ?: throw GradleException("Signing config '${signingConfig.name}' has no store password")
+    val keyAlias = signingConfig.keyAlias
+        ?: throw GradleException("Signing config '${signingConfig.name}' has no key alias")
+    return certificateSha1(storeFile, storePassword, keyAlias, signingConfig.storeType)
+}
+
+androidComponents {
+    onVariants { variant ->
+        val signingSha1 = signingCertificateSha1(variant.buildType ?: variant.name)
+        val artifactBaseName = variant.applicationId.zip(variant.outputs.first().versionCode) { applicationId, versionCode ->
+            listOf(applicationId, signedArtifactStamp, versionCode.toString(), signingSha1)
+                .joinToString(separator = signedArtifactSeparator)
+        }
+        variant.outputs.forEach { output ->
+            output.outputFileName.set(artifactBaseName.map { "$it.apk" })
+        }
+
+        val signBundleTask = "sign${variant.name.replaceFirstChar { it.titlecase(Locale.US) }}Bundle"
+        afterEvaluate {
+            tasks.named(signBundleTask, FinalizeBundleTask::class.java).configure {
+                val plannedBundle = finalBundleFile.asFile.get()
+                finalBundleFile.set(plannedBundle.parentFile.resolve("${artifactBaseName.get()}.aab"))
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(libs.org.xerial.sqlite.jdbc) // Use the latest version
 
     implementation(libs.androidx.foundation)
     implementation(libs.accompanist.permissions)
-    //!removed google analytics!implementation("com.google.firebase:firebase-analytics:17.4.1")
 
     //noinspection GradleDependency
     implementation(libs.androidx.core.ktx)
@@ -119,6 +229,9 @@ dependencies {
     implementation(libs.koin.android)
 
     implementation(libs.androidx.work.runtime.ktx)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
 }
 
 

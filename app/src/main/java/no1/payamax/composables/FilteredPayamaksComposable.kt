@@ -82,9 +82,11 @@ import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.hasValue
 import no1.payamax.model.PayamakThread
 import no1.payamax.model.ReviewableProcessedPayamak
+import no1.payamax.modules.report.applySavedPayamakReports
 import no1.payamax.modules.report.PayamakReportContract
 import no1.payamax.modules.report.PayamakReportSubmissionItem
 import no1.payamax.modules.report.ReportSubmissionResult
+import no1.payamax.modules.report.describeReportFailure
 import no1.payamax.modules.report.UsableInfoSharingOption
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
@@ -337,6 +339,17 @@ fun FilteredPayamaksComposable(
         }
     }
 
+    val reportMessageIds = threads.map { it.latestMessage.pp.id }
+    LaunchedEffect(reportMessageIds) {
+        if (reportMessageIds.isEmpty()) return@LaunchedEffect
+        applySavedPayamakReports(
+            saved = reportService.savedReportsByPayamakId(),
+            payamakIds = reportMessageIds,
+            userComments = userComments,
+            userOpinions = userOpinions,
+        )
+    }
+
     if (showPermissionDialog) {
         AlertDialog(
             onDismissRequest = { showPermissionDialog = false },
@@ -542,12 +555,20 @@ fun FilteredPayamaksComposable(
                                         selectedThreadKeys.clear()
                                     }
                                     is ReportSubmissionResult.SavedLocallyOnly -> {
-                                        Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            "$reportSavedOfflineMessage\n${result.throwable.describeReportFailure()}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                         isReportMode = false
                                         selectedThreadKeys.clear()
                                     }
                                     is ReportSubmissionResult.Failure -> {
-                                        Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            result.throwable.describeReportFailure(),
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
                                 }
                             }

@@ -35,6 +35,7 @@ val appModule = module {
                         """
                         CREATE TABLE IF NOT EXISTS PayamakReportEntity(
                             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                            payamak_id INTEGER NOT NULL DEFAULT 0,
                             origin TEXT NOT NULL,
                             body TEXT,
                             sha512 TEXT,
@@ -49,6 +50,18 @@ val appModule = module {
                         )
                         """.trimIndent()
                     )
+                    val columns = db.query("PRAGMA table_info(PayamakReportEntity)")
+                    val hasPayamakId = try {
+                        generateSequence { if (columns.moveToNext()) columns else null }
+                            .any { columns.getString(1) == "payamak_id" }
+                    } finally {
+                        columns.close()
+                    }
+                    if (!hasPayamakId) {
+                        db.execSQL(
+                            "ALTER TABLE PayamakReportEntity ADD COLUMN payamak_id INTEGER NOT NULL DEFAULT 0"
+                        )
+                    }
                 }
             }
         )
