@@ -194,4 +194,20 @@
     <string name="conversation_menu_more">گزینه‌های بیشتر</string>
     <string name="conversation_change_category_title">تغییر دسته‌بندی فرستنده</string>
     <string name="conversation_category_updated_toast">دسته‌بندی فرستنده به «%1$s» تغییر یافت</string>
+
+    <!-- Spam Category Delete Menu & Dialog Strings -->
+    <string name="spam_menu_select_messages">انتخاب پیامک‌ها</string>
+    <string name="spam_menu_delete_all">حذف همه</string>
+    <string name="delete_mode_title">حذف پیامک‌ها</string>
+    <string name="delete_mode_selected_count">%1$d مورد انتخاب شد</string>
+    <string name="delete_mode_action">حذف</string>
+    <string name="delete_no_selection_toast">لطفاً حداقل یک مورد را برای حذف انتخاب کنید</string>
+    <string name="delete_confirm_dialog_title">تأیید حذف پیامک‌ها</string>
+    <string name="delete_selected_confirm_desc">آیا از حذف %1$d مورد انتخاب‌شده مطمئن هستید؟ این عمل قابل بازگشت نیست.</string>
+    <string name="delete_all_confirm_desc">آیا از حذف تمام پیامک‌های اسپم مطمئن هستید؟ این عمل قابل بازگشت نیست.</string>
+    <string name="action_yes">بله</string>
+    <string name="action_no">خیر</string>
+    <string name="delete_success_toast">پیامک‌ها با موفقیت حذف شدند</string>
+    <string name="delete_failed_toast">خطا در حذف پیامک‌ها</string>
+    <string name="delete_requires_default_sms_toast">برای حذف پیامک‌ها در اندروید، پیامکس باید به عنوان برنامه پیش‌فرض پیامک انتخاب شود</string>
 </resources>

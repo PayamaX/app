@@ -48,6 +48,7 @@ fun ThreadComposable(
     thread: PayamakThread,
     onThreadClicked: (PayamakThread) -> Unit,
     isReportMode: Boolean = false,
+    isSelectionMode: Boolean = false,
     isSelected: Boolean = false,
     onThreadLongClicked: ((PayamakThread) -> Unit)? = null,
     onSelectedToggle: ((Boolean) -> Unit)? = null,
@@ -57,10 +58,16 @@ fun ThreadComposable(
     onUserCommentChanged: ((String) -> Unit)? = null,
     isReported: Boolean = false,
 ) {
+    val inSelectionMode = isReportMode || isSelectionMode
     val usabilityClass = if (isReportMode && userOpinion != null) userOpinion else thread.latestMessage.pp.activeUsabilityClass
     val (_, _, strokeColor) = ColorSchemeExtension.getUsabilityColors(usabilityClass)
     val spacing = MaterialTheme.spacing
     val photoUri = thread.origin.contact?.photoUri
+    val activeBorderColor = if (isSelectionMode && !isReportMode) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
 
     Card(
         modifier = Modifier
@@ -68,7 +75,7 @@ fun ThreadComposable(
             .padding(horizontal = spacing.medium, vertical = spacing.extraSmall + 2.dp)
             .combinedClickable(
                 onClick = {
-                    if (isReportMode) {
+                    if (inSelectionMode) {
                         onSelectedToggle?.invoke(!isSelected)
                     } else {
                         onThreadClicked(thread)
@@ -80,13 +87,13 @@ fun ThreadComposable(
             ),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isReportMode && isSelected)
+            containerColor = if (inSelectionMode && isSelected)
                 MaterialTheme.colorScheme.surfaceVariant
             else
                 MaterialTheme.colorScheme.surfaceContainerHigh
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        border = if (isReportMode && isSelected) BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else null
+        border = if (inSelectionMode && isSelected) BorderStroke(1.5.dp, activeBorderColor) else null
     ) {
         Column(
             modifier = Modifier
@@ -102,7 +109,7 @@ fun ThreadComposable(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f, fill = false)
                 ) {
-                    if (isReportMode) {
+                    if (inSelectionMode) {
                         Checkbox(
                             checked = isSelected,
                             onCheckedChange = { onSelectedToggle?.invoke(it) },

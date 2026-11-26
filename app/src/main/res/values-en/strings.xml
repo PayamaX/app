@@ -194,4 +194,20 @@
     <string name="conversation_menu_more">More options</string>
     <string name="conversation_change_category_title">Change sender category</string>
     <string name="conversation_category_updated_toast">Sender category changed to %1$s</string>
+
+    <!-- Spam Category Delete Menu & Dialog Strings -->
+    <string name="spam_menu_select_messages">Select messages</string>
+    <string name="spam_menu_delete_all">Delete all</string>
+    <string name="delete_mode_title">Delete Messages</string>
+    <string name="delete_mode_selected_count">%1$d selected</string>
+    <string name="delete_mode_action">Delete</string>
+    <string name="delete_no_selection_toast">Please select at least one item to delete</string>
+    <string name="delete_confirm_dialog_title">Confirm Deletion</string>
+    <string name="delete_selected_confirm_desc">Are you sure you want to delete %1$d selected item(s)? This action cannot be undone.</string>
+    <string name="delete_all_confirm_desc">Are you sure you want to delete all spam messages? This action cannot be undone.</string>
+    <string name="action_yes">Yes</string>
+    <string name="action_no">No</string>
+    <string name="delete_success_toast">Messages deleted successfully</string>
+    <string name="delete_failed_toast">Failed to delete messages</string>
+    <string name="delete_requires_default_sms_toast">PayamaX must be set as the default SMS app to delete messages</string>
 </resources>

@@ -24,19 +24,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -94,6 +101,7 @@ import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
 import no1.payamax.utils.ExcelExporter
 import no1.payamax.utils.OriginExportData
+import no1.payamax.utils.SmsDeleteHelper
 import no1.payamax.utils.process
 import org.koin.java.KoinJavaComponent.inject
 
@@ -131,6 +139,11 @@ fun FilteredPayamaksComposable(
     val reportSuccessMessage = stringResource(R.string.report_success_toast)
     val reportSavedOfflineMessage = stringResource(R.string.report_saved_offline_toast)
     val reportNoSelectionMessage = stringResource(R.string.report_no_selection_toast)
+    val deleteNoSelectionMessage = stringResource(R.string.delete_no_selection_toast)
+    val deleteSuccessMessage = stringResource(R.string.delete_success_toast)
+    val deleteFailedMessage = stringResource(R.string.delete_failed_toast)
+    val deleteRequiresDefaultSmsMessage = stringResource(R.string.delete_requires_default_sms_toast)
+    val emptyMessagesMessage = stringResource(R.string.empty_messages)
 
     val threads = remember { mutableStateListOf<PayamakThread>() }
     val seenThreadKeys = remember { mutableSetOf<String>() }
@@ -149,6 +162,15 @@ fun FilteredPayamaksComposable(
     var isSearchActive by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
     var showDefaultSmsPrompt by remember { mutableStateOf(false) }
+
+    // Spam delete menu & selection state
+    var showSpamMenu by remember { mutableStateOf(false) }
+    var isDeleteMode by remember { mutableStateOf(false) }
+    val selectedDeleteThreadKeys = remember { mutableStateMapOf<String, Boolean>() }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var pendingDeleteAll by remember { mutableStateOf(false) }
+    var isDeleting by remember { mutableStateOf(false) }
+    var pendingDeleteAfterDefaultSms by remember { mutableStateOf<Boolean?>(null) }
 
     val defaultSmsLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -197,10 +219,15 @@ fun FilteredPayamaksComposable(
     var usableSharingOption by remember { mutableStateOf(UsableInfoSharingOption.PARTIAL) }
     var isSubmittingReport by remember { mutableStateOf(false) }
 
-    // Intercept back button when in report mode
-    BackHandler(enabled = isReportMode) {
-        isReportMode = false
-        selectedThreadKeys.clear()
+    // Intercept back button when in report or delete mode
+    BackHandler(enabled = isReportMode || isDeleteMode) {
+        if (isDeleteMode) {
+            isDeleteMode = false
+            selectedDeleteThreadKeys.clear()
+        } else {
+            isReportMode = false
+            selectedThreadKeys.clear()
+        }
     }
 
     // Tab categories
@@ -738,12 +765,248 @@ fun FilteredPayamaksComposable(
         )
     }
 
+    fun executeConfirmedDeletion(deleteAll: Boolean) {
+        isDeleting = true
+        scope.launch {
+            val result = if (deleteAll) {
+                SmsDeleteHelper.deleteAllThreadsInCategory(
+                    contentResolver = contentResolver,
+                    loadedThreads = threads.toList(),
+                    targetTypes = listOf(PayamakUsabilityClass.Spam, PayamakUsabilityClass.Unknown),
+                    searchQuery = searchQuery,
+                    engine = engine
+                )
+            } else {
+                val selectedList = threads.filter { selectedDeleteThreadKeys.containsKey(it.key) }
+                SmsDeleteHelper.deleteSelectedThreads(
+                    contentResolver = contentResolver,
+                    threadsToDelete = selectedList
+                )
+            }
+
+            isDeleting = false
+            showDeleteConfirmDialog = false
+
+            if (result.deletedSmsCount > 0) {
+                seenThreadKeys.addAll(result.deletedThreadKeys)
+                seenRawAddresses.addAll(result.deletedRawAddresses)
+                threads.removeAll { result.deletedThreadKeys.contains(it.key) }
+                isDeleteMode = false
+                selectedDeleteThreadKeys.clear()
+                Toast.makeText(context, deleteSuccessMessage, Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, deleteFailedMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    val deleteDefaultSmsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        val deleteAllPending = pendingDeleteAfterDefaultSms
+        pendingDeleteAfterDefaultSms = null
+        if (no1.payamax.utils.DefaultSmsHelper.isDefaultSmsApp(context)) {
+            no1.payamax.services.SmsNotificationManager.ensureChannel(context)
+            if (deleteAllPending != null) {
+                executeConfirmedDeletion(deleteAllPending)
+            }
+        } else {
+            Toast.makeText(context, deleteRequiresDefaultSmsMessage, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    if (showDeleteConfirmDialog) {
+        val currentLayoutDirection = LocalLayoutDirection.current
+        val currentContext = LocalContext.current
+        val currentConfiguration = LocalConfiguration.current
+
+        AlertDialog(
+            onDismissRequest = {
+                if (!isDeleting) showDeleteConfirmDialog = false
+            },
+            icon = {
+                Icon(
+                    imageVector = if (pendingDeleteAll) Icons.Default.DeleteSweep else Icons.Default.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
+            title = {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides currentLayoutDirection,
+                    LocalContext provides currentContext,
+                    LocalConfiguration provides currentConfiguration
+                ) {
+                    Text(
+                        text = stringResource(R.string.delete_confirm_dialog_title),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    )
+                }
+            },
+            text = {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides currentLayoutDirection,
+                    LocalContext provides currentContext,
+                    LocalConfiguration provides currentConfiguration
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(spacing.small)
+                    ) {
+                        Text(
+                            text = if (pendingDeleteAll) {
+                                stringResource(R.string.delete_all_confirm_desc)
+                            } else {
+                                stringResource(R.string.delete_selected_confirm_desc, selectedDeleteThreadKeys.size)
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        if (isDeleting) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = spacing.extraSmall),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(22.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides currentLayoutDirection,
+                    LocalContext provides currentContext,
+                    LocalConfiguration provides currentConfiguration
+                ) {
+                    Button(
+                        onClick = {
+                            if (no1.payamax.utils.DefaultSmsHelper.isDefaultSmsApp(context)) {
+                                executeConfirmedDeletion(pendingDeleteAll)
+                            } else {
+                                showDeleteConfirmDialog = false
+                                val intent = no1.payamax.utils.DefaultSmsHelper.createRequestDefaultSmsIntent(context)
+                                if (intent != null) {
+                                    pendingDeleteAfterDefaultSms = pendingDeleteAll
+                                    try {
+                                        deleteDefaultSmsLauncher.launch(intent)
+                                    } catch (_: Exception) {
+                                        pendingDeleteAfterDefaultSms = null
+                                        Toast.makeText(context, deleteRequiresDefaultSmsMessage, Toast.LENGTH_LONG).show()
+                                    }
+                                } else {
+                                    Toast.makeText(context, deleteRequiresDefaultSmsMessage, Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        },
+                        enabled = !isDeleting,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        )
+                    ) {
+                        Text(stringResource(R.string.action_yes))
+                    }
+                }
+            },
+            dismissButton = {
+                CompositionLocalProvider(
+                    LocalLayoutDirection provides currentLayoutDirection,
+                    LocalContext provides currentContext,
+                    LocalConfiguration provides currentConfiguration
+                ) {
+                    TextButton(
+                        onClick = { showDeleteConfirmDialog = false },
+                        enabled = !isDeleting
+                    ) {
+                        Text(stringResource(R.string.action_no))
+                    }
+                }
+            }
+        )
+    }
+
     PayamaxScaffold(
-        title = if (isReportMode) stringResource(R.string.report_mode_title) else stringResource(R.string.app_title_full),
+        title = when {
+            isDeleteMode -> stringResource(R.string.delete_mode_title)
+            isReportMode -> stringResource(R.string.report_mode_title)
+            else -> stringResource(R.string.app_title_full)
+        },
         modifier = modifier,
         topBarHeader = {
             Column {
-                if (isReportMode) {
+                if (isDeleteMode) {
+                    TopAppBar(
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                        ),
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                isDeleteMode = false
+                                selectedDeleteThreadKeys.clear()
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.nav_back)
+                                )
+                            }
+                        },
+                        title = {
+                            Column {
+                                Text(
+                                    text = stringResource(R.string.delete_mode_title),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Text(
+                                    text = stringResource(R.string.delete_mode_selected_count, selectedDeleteThreadKeys.size),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        actions = {
+                            val allFilteredSelected = selectedDeleteThreadKeys.size == filteredThreads.size && filteredThreads.isNotEmpty()
+                            IconButton(onClick = {
+                                if (allFilteredSelected) {
+                                    selectedDeleteThreadKeys.clear()
+                                } else {
+                                    selectedDeleteThreadKeys.clear()
+                                    filteredThreads.forEach { selectedDeleteThreadKeys[it.key] = true }
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = if (allFilteredSelected) Icons.Default.Deselect else Icons.Default.SelectAll,
+                                    contentDescription = stringResource(
+                                        if (allFilteredSelected) R.string.report_mode_deselect_all else R.string.report_mode_select_all
+                                    )
+                                )
+                            }
+                            IconButton(onClick = {
+                                if (selectedDeleteThreadKeys.isEmpty()) {
+                                    Toast.makeText(context, deleteNoSelectionMessage, Toast.LENGTH_SHORT).show()
+                                } else {
+                                    pendingDeleteAll = false
+                                    showDeleteConfirmDialog = true
+                                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.delete_mode_action),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    )
+                } else if (isReportMode) {
                     TopAppBar(
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
@@ -834,6 +1097,70 @@ fun FilteredPayamaksComposable(
                                     contentDescription = stringResource(R.string.nav_search)
                                 )
                             }
+                            if (selectedCategoryIndex == 2) {
+                                Box {
+                                    IconButton(onClick = { showSpamMenu = true }) {
+                                        Icon(
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = stringResource(R.string.conversation_menu_more)
+                                        )
+                                    }
+                                    DropdownMenu(
+                                        expanded = showSpamMenu,
+                                        onDismissRequest = { showSpamMenu = false }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = stringResource(R.string.spam_menu_select_messages),
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                            },
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Checklist,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            },
+                                            onClick = {
+                                                showSpamMenu = false
+                                                if (filteredThreads.isEmpty()) {
+                                                    Toast.makeText(context, emptyMessagesMessage, Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    isDeleteMode = true
+                                                    selectedDeleteThreadKeys.clear()
+                                                }
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = stringResource(R.string.spam_menu_delete_all),
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MaterialTheme.colorScheme.error
+                                                )
+                                            },
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.DeleteSweep,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.error
+                                                )
+                                            },
+                                            onClick = {
+                                                showSpamMenu = false
+                                                if (filteredThreads.isEmpty() && !hasMoreToLoad) {
+                                                    Toast.makeText(context, emptyMessagesMessage, Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    pendingDeleteAll = true
+                                                    showDeleteConfirmDialog = true
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
                         }
                     )
 
@@ -899,7 +1226,7 @@ fun FilteredPayamaksComposable(
             }
         },
         floatingActionButton = {
-            if (!isReportMode && !isSearchActive) {
+            if (!isReportMode && !isDeleteMode && !isSearchActive) {
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ComposeMessageRoute)
@@ -973,17 +1300,35 @@ fun FilteredPayamaksComposable(
                 paddings = padding,
                 isLoading = isLoadingMore,
                 isReportMode = isReportMode,
-                selectedKeys = selectedThreadKeys.keys,
+                isSelectionMode = isDeleteMode,
+                selectedKeys = if (isDeleteMode) selectedDeleteThreadKeys.keys else selectedThreadKeys.keys,
                 onThreadLongClicked = { thread ->
-                    isReportMode = true
-                    selectedThreadKeys.clear()
-                    selectedThreadKeys[thread.key] = true
+                    if (isDeleteMode) {
+                        val currentlySelected = selectedDeleteThreadKeys.containsKey(thread.key)
+                        if (currentlySelected) {
+                            selectedDeleteThreadKeys.remove(thread.key)
+                        } else {
+                            selectedDeleteThreadKeys[thread.key] = true
+                        }
+                    } else {
+                        isReportMode = true
+                        selectedThreadKeys.clear()
+                        selectedThreadKeys[thread.key] = true
+                    }
                 },
                 onThreadSelectToggle = { key, isChecked ->
-                    if (isChecked) {
-                        selectedThreadKeys[key] = true
+                    if (isDeleteMode) {
+                        if (isChecked) {
+                            selectedDeleteThreadKeys[key] = true
+                        } else {
+                            selectedDeleteThreadKeys.remove(key)
+                        }
                     } else {
-                        selectedThreadKeys.remove(key)
+                        if (isChecked) {
+                            selectedThreadKeys[key] = true
+                        } else {
+                            selectedThreadKeys.remove(key)
+                        }
                     }
                 },
                 userOpinions = userOpinions,
