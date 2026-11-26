@@ -13,16 +13,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,9 +58,9 @@ fun ConversationBubbleComposable(
     val (_, _, strokeColor) = ColorSchemeExtension.getUsabilityColors(usabilityClass)
 
     val bubbleShape = if (isOutgoing) {
-        RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomStart = 18.dp, bottomEnd = 4.dp)
+        AbsoluteRoundedCornerShape(topLeft = 18.dp, topRight = 18.dp, bottomLeft = 18.dp, bottomRight = 4.dp)
     } else {
-        RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomStart = 4.dp, bottomEnd = 18.dp)
+        AbsoluteRoundedCornerShape(topLeft = 18.dp, topRight = 18.dp, bottomLeft = 4.dp, bottomRight = 18.dp)
     }
 
     val containerColor = when {
@@ -74,7 +75,7 @@ fun ConversationBubbleComposable(
         MaterialTheme.colorScheme.onSurface
     }
 
-    val bubbleAlignment = if (isOutgoing) Alignment.End else Alignment.Start
+    val bubbleAlignment = if (isOutgoing) AbsoluteAlignment.Right else AbsoluteAlignment.Left
 
     Column(
         modifier = modifier
@@ -181,7 +182,7 @@ fun ConversationBubbleComposable(
             Surface(
                 onClick = onRetryClick,
                 color = Color.Transparent,
-                modifier = Modifier.padding(top = 2.dp, end = 4.dp)
+                modifier = Modifier.padding(top = 2.dp, start = 4.dp, end = 4.dp)
             ) {
                 Text(
                     text = stringResource(R.string.sms_failed),
