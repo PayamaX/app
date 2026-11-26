@@ -87,6 +87,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -163,7 +164,16 @@ fun ThreadConversationScreen(
     var usableSharingOption by remember { mutableStateOf(UsableInfoSharingOption.PARTIAL) }
     var isSubmittingReport by remember { mutableStateOf(false) }
 
-    var isBannerDismissed by remember { mutableStateOf(false) }
+    val bannerKey = remember(address) {
+        val cleaned = SmsAddressUtils.cleanAddress(address).trim().lowercase()
+        val digits = cleaned.filter { it.isDigit() }
+        if (digits.length >= 10) digits.takeLast(10) else cleaned
+    }
+    var isBannerDismissed by remember(bannerKey) {
+        mutableStateOf(userPreferences.isFeedbackBannerDismissed(bannerKey))
+    }
+    var isOverrideChecked by remember(address) { mutableStateOf(false) }
+    var hasExistingUserOverride by remember(address) { mutableStateOf(false) }
 
     // Compose input state
     var inputText by remember { mutableStateOf("") }
@@ -287,6 +297,71 @@ fun ThreadConversationScreen(
     val firstOrigin = viewModel.messages.firstOrNull()?.pp?.payamak?.origin
     val titleText = cachedContact?.name ?: (if (title.isNotBlank()) title else firstOrigin?.displayable() ?: address)
     val photoUri = cachedContact?.photoUri ?: firstOrigin?.contact?.photoUri
+
+    val singleMessage = if (!viewModel.isLoading && !viewModel.hasMore && viewModel.messages.size == 1) {
+        viewModel.messages.firstOrNull()
+    } else {
+        null
+    }
+
+    LaunchedEffect(address, singleMessage?.pp?.id) {
+        val msg = singleMessage
+        if (msg != null) {
+            rankedOriginProcessor.ensureLoaded()
+            hasExistingUserOverride = rankedOriginProcessor.hasUserOverride(msg.pp.payamak)
+            isOverrideChecked = true
+        }
+    }
+
+    fun dismissBannerPermanently() {
+        isBannerDismissed = true
+        userPreferences.dismissFeedbackBanner(bannerKey)
+    }
+
+    fun reclassifySender(clazz: PayamakUsabilityClass, categoryLabel: String) {
+        val rank = when (clazz) {
+            PayamakUsabilityClass.Important -> 1.0
+            PayamakUsabilityClass.Usable -> 0.8
+            PayamakUsabilityClass.Unknown -> 0.5
+            PayamakUsabilityClass.Spam -> 0.0
+        }
+        val targetOrigin = firstOrigin ?: run {
+            val cleaned = SmsAddressUtils.cleanAddress(address)
+            val cellNum = cleaned.toLongOrNull()?.cellNumber()
+            Origin(
+                number = cellNum,
+                title = if (cellNum == null) address else null,
+                contact = cachedContact
+            )
+        }
+
+        overriddenSenderCategory = clazz
+        hasExistingUserOverride = true
+        dismissBannerPermanently()
+
+        scope.launch {
+            rankedOriginRepo.upsert(targetOrigin, rank, OriginRankSource.User)
+            rankedOriginProcessor.ensureLoaded()
+            for (i in viewModel.messages.indices) {
+                val oldMsg = viewModel.messages[i]
+                if (!oldMsg.pp.payamak.isOutgoing) {
+                    val updatedUsability = engine.detect(oldMsg.pp.payamak)
+                    val newMsg = oldMsg.copy(
+                        pp = oldMsg.pp.copy(
+                            usability = updatedUsability,
+                            expectedPayamakUsabilityClass = null
+                        )
+                    )
+                    viewModel.refreshMessage(newMsg)
+                }
+            }
+            Toast.makeText(
+                context,
+                String.format(categoryUpdatedFormat, categoryLabel),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
     // Confirmation dialog for batch report mode
     if (showReportConfirmDialog) {
@@ -518,11 +593,8 @@ fun ThreadConversationScreen(
 
     PayamaxScaffold(
         title = if (isReportMode) stringResource(R.string.report_mode_title) else titleText,
-        navigationIcon = if (isReportMode) null else Icons.AutoMirrored.Filled.ArrowBack,
-        navigationIconContentDescription = if (isReportMode) null else stringResource(R.string.nav_back),
-        onNavigationIconClick = if (isReportMode) null else { { navController.navigateUp() } },
-        topBarHeader = if (isReportMode) {
-            {
+        topBarHeader = {
+            if (isReportMode) {
                 TopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
@@ -585,158 +657,170 @@ fun ThreadConversationScreen(
                         }
                     }
                 )
-            }
-        } else null,
-        actions = {
-            if (!isReportMode) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(end = spacing.extraSmall)
-                ) {
-                    // Flag icon to report this sender
-                    IconButton(onClick = {
-                        isReportMode = true
-                        selectedItemIds.clear()
-                        val firstMsg = viewModel.messages.firstOrNull()
-                        if (firstMsg != null) {
-                            selectedItemIds[firstMsg.pp.id] = true
+            } else {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.nav_back)
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = stringResource(R.string.report_sender_action),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-
-                    if (!photoUri.isNullOrEmpty()) {
-                        AsyncImage(
-                            model = photoUri,
-                            contentDescription = titleText,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(34.dp)
-                                .clip(CircleShape)
-                        )
-                    } else {
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(34.dp)
+                    },
+                    title = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp),
-                                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            if (!photoUri.isNullOrEmpty()) {
+                                AsyncImage(
+                                    model = photoUri,
+                                    contentDescription = titleText,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(CircleShape)
                                 )
+                            } else {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    modifier = Modifier.size(38.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp),
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(spacing.small + 2.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = titleText,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                if (cachedContact != null && address.isNotBlank() && address != titleText) {
+                                    Text(
+                                        text = address,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
                             }
                         }
-                    }
+                    },
+                    actions = {
+                        // Three-dot overflow menu: Report to backend + Reclassify sender
+                        Box {
+                            val activeSenderCategory = overriddenSenderCategory
+                                ?: viewModel.messages.firstOrNull { !it.pp.payamak.isOutgoing }?.pp?.activeUsabilityClass
+                                ?: viewModel.messages.firstOrNull()?.pp?.activeUsabilityClass
 
-                    // Three-dot overflow menu to reclassify this sender (Important / Usable / Unknown / Spam)
-                    Box {
-                        val activeSenderCategory = overriddenSenderCategory
-                            ?: viewModel.messages.firstOrNull { !it.pp.payamak.isOutgoing }?.pp?.activeUsabilityClass
-                            ?: viewModel.messages.firstOrNull()?.pp?.activeUsabilityClass
+                            IconButton(onClick = { showMoreMenu = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = stringResource(R.string.conversation_menu_more)
+                                )
+                            }
 
-                        IconButton(onClick = { showMoreMenu = true }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = stringResource(R.string.conversation_menu_more)
-                            )
-                        }
-
-                        DropdownMenu(
-                            expanded = showMoreMenu,
-                            onDismissRequest = { showMoreMenu = false }
-                        ) {
-                            Text(
-                                text = stringResource(R.string.conversation_change_category_title),
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-
-                            for (clazz in PayamakUsabilityClass.entries) {
-                                val (_, _, strokeColor) = ColorSchemeExtension.getUsabilityColors(clazz)
-                                val isCurrent = activeSenderCategory == clazz
-                                val categoryLabel = getUsabilityPersianTitle(clazz)
-
+                            DropdownMenu(
+                                expanded = showMoreMenu,
+                                onDismissRequest = { showMoreMenu = false }
+                            ) {
+                                // Report sender/messages to backend
                                 DropdownMenuItem(
                                     text = {
                                         Text(
-                                            text = categoryLabel,
-                                            fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            text = stringResource(R.string.report_sender_action),
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurface
                                         )
                                     },
                                     leadingIcon = {
-                                        Surface(
-                                            shape = CircleShape,
-                                            color = strokeColor,
-                                            modifier = Modifier.size(12.dp)
-                                        ) {}
+                                        Icon(
+                                            imageVector = Icons.Default.Warning,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
                                     },
-                                    trailingIcon = if (isCurrent) {
-                                        {
-                                            Icon(
-                                                imageVector = Icons.Default.Check,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                        }
-                                    } else null,
                                     onClick = {
                                         showMoreMenu = false
-                                        val rank = when (clazz) {
-                                            PayamakUsabilityClass.Important -> 1.0
-                                            PayamakUsabilityClass.Usable -> 0.8
-                                            PayamakUsabilityClass.Unknown -> 0.5
-                                            PayamakUsabilityClass.Spam -> 0.0
-                                        }
-                                        val targetOrigin = firstOrigin ?: run {
-                                            val cleaned = SmsAddressUtils.cleanAddress(address)
-                                            val cellNum = cleaned.toLongOrNull()?.cellNumber()
-                                            Origin(
-                                                number = cellNum,
-                                                title = if (cellNum == null) address else null,
-                                                contact = cachedContact
-                                            )
-                                        }
-
-                                        overriddenSenderCategory = clazz
-                                        scope.launch {
-                                            rankedOriginRepo.upsert(targetOrigin, rank, OriginRankSource.User)
-                                            rankedOriginProcessor.ensureLoaded()
-                                            for (i in viewModel.messages.indices) {
-                                                val oldMsg = viewModel.messages[i]
-                                                if (!oldMsg.pp.payamak.isOutgoing) {
-                                                    val updatedUsability = engine.detect(oldMsg.pp.payamak)
-                                                    val newMsg = oldMsg.copy(
-                                                        pp = oldMsg.pp.copy(
-                                                            usability = updatedUsability,
-                                                            expectedPayamakUsabilityClass = null
-                                                        )
-                                                    )
-                                                    viewModel.refreshMessage(newMsg)
-                                                }
-                                            }
-                                            Toast.makeText(
-                                                context,
-                                                String.format(categoryUpdatedFormat, categoryLabel),
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                        isReportMode = true
+                                        selectedItemIds.clear()
+                                        val firstMsg = viewModel.messages.firstOrNull()
+                                        if (firstMsg != null) {
+                                            selectedItemIds[firstMsg.pp.id] = true
                                         }
                                     }
                                 )
+
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                                Text(
+                                    text = stringResource(R.string.conversation_change_category_title),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+
+                                for (clazz in PayamakUsabilityClass.entries) {
+                                    val (_, _, strokeColor) = ColorSchemeExtension.getUsabilityColors(clazz)
+                                    val isCurrent = activeSenderCategory == clazz
+                                    val categoryLabel = getUsabilityPersianTitle(clazz)
+
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                text = categoryLabel,
+                                                fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                                                color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                        },
+                                        leadingIcon = {
+                                            Surface(
+                                                shape = CircleShape,
+                                                color = strokeColor,
+                                                modifier = Modifier.size(12.dp)
+                                            ) {}
+                                        },
+                                        trailingIcon = if (isCurrent) {
+                                            {
+                                                Icon(
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(18.dp)
+                                                )
+                                            }
+                                        } else null,
+                                        onClick = {
+                                            showMoreMenu = false
+                                            reclassifySender(clazz, categoryLabel)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
-                }
+                )
             }
         },
         bottomBar = {
@@ -1003,9 +1087,23 @@ fun ThreadConversationScreen(
                     }
                 }
 
-                // Interactive feedback banner for unknown/promotional senders (displayed at top of chat)
-                if (cachedContact == null && !isBannerDismissed && viewModel.messages.isNotEmpty() && !isReportMode) {
+                // Interactive feedback banner: shown only once on the very first incoming SMS
+                // from an unknown/unclassified sender (never shown if > 1 message or already decided)
+                val shouldShowFeedbackBanner =
+                    cachedContact == null &&
+                    !isBannerDismissed &&
+                    !isReportMode &&
+                    overriddenSenderCategory == null &&
+                    singleMessage != null &&
+                    !singleMessage.pp.payamak.isOutgoing &&
+                    isOverrideChecked &&
+                    !hasExistingUserOverride
+
+                if (shouldShowFeedbackBanner) {
                     item(key = "sender_feedback_banner") {
+                        val spamCategoryLabel = getUsabilityPersianTitle(PayamakUsabilityClass.Spam)
+                        val usableCategoryLabel = getUsabilityPersianTitle(PayamakUsabilityClass.Usable)
+
                         Surface(
                             shape = RoundedCornerShape(16.dp),
                             color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -1038,7 +1136,7 @@ fun ThreadConversationScreen(
                                         )
                                     }
                                     IconButton(
-                                        onClick = { isBannerDismissed = true },
+                                        onClick = { dismissBannerPermanently() },
                                         modifier = Modifier.size(28.dp)
                                     ) {
                                         Icon(
@@ -1058,12 +1156,7 @@ fun ThreadConversationScreen(
                                 ) {
                                     Button(
                                         onClick = {
-                                            isReportMode = true
-                                            selectedItemIds.clear()
-                                            viewModel.messages.forEach { m ->
-                                                selectedItemIds[m.pp.id] = true
-                                                userOpinions[m.pp.id] = PayamakUsabilityClass.Spam
-                                            }
+                                            reclassifySender(PayamakUsabilityClass.Spam, spamCategoryLabel)
                                         },
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -1080,12 +1173,7 @@ fun ThreadConversationScreen(
 
                                     FilledTonalButton(
                                         onClick = {
-                                            isReportMode = true
-                                            selectedItemIds.clear()
-                                            viewModel.messages.forEach { m ->
-                                                selectedItemIds[m.pp.id] = true
-                                                userOpinions[m.pp.id] = PayamakUsabilityClass.Usable
-                                            }
+                                            reclassifySender(PayamakUsabilityClass.Usable, usableCategoryLabel)
                                         },
                                         colors = ButtonDefaults.filledTonalButtonColors(
                                             containerColor = MaterialTheme.colorScheme.primaryContainer,
