@@ -37,7 +37,7 @@ fun javaStringLiteral(value: String): String {
     return "\"" + escaped + "\""
 }
 
-fun requiredEnvironment(name: String): String {
+fun envar(name: String): String {
     return providers.environmentVariable(name).orNull?.trim()?.takeIf { it.isNotEmpty() }
         ?: throw GradleException("$name environment variable is not set")
 }
@@ -58,8 +58,8 @@ android {
             useSupportLibrary = true
         }
 
-        buildConfigField("String", "PAX_API_URL", javaStringLiteral(requiredEnvironment("PAX_API_URL")))
-        buildConfigField("String", "PAX_AUTH_REALM_URL", javaStringLiteral(requiredEnvironment("PAX_AUTH_REALM_URL")))
+        buildConfigField("String", "PAX_API_URL", javaStringLiteral(envar("PAX_API_URL")))
+        buildConfigField("String", "PAX_AUTH_REALM_URL", javaStringLiteral(envar("PAX_AUTH_REALM_URL")))
     }
 
     buildTypes {
@@ -67,6 +67,8 @@ android {
             applicationIdSuffix = ".debug"
         }
         release {
+            buildConfigField("String", "PAX_API_URL", "https://api.pax.no1.ir")
+            buildConfigField("String", "PAX_AUTH_REALM_URL", "https://auth.pax.no1.ir/realms/pax")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
