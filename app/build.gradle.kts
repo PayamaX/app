@@ -50,8 +50,8 @@ android {
         applicationId = "no1.payamax"
         minSdk = 26
         targetSdk = 37
-        versionCode = 16
-        versionName = "16"
+        versionCode = 18
+        versionName = "$versionCode"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -67,8 +67,8 @@ android {
             applicationIdSuffix = ".debug"
         }
         release {
-            buildConfigField("String", "PAX_API_URL", "https://api.pax.no1.ir")
-            buildConfigField("String", "PAX_AUTH_REALM_URL", "https://auth.pax.no1.ir/realms/pax")
+            buildConfigField("String", "PAX_API_URL", """"https://api.pax.no1.ir:1443"""")
+            buildConfigField("String", "PAX_AUTH_REALM_URL", """"https://auth.pax.no1.ir:1443/realms/pax"""")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
