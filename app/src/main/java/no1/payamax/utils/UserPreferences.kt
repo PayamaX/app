@@ -109,6 +109,14 @@ class UserPreferences(context: Context) {
         }
     }
 
+    fun hasCompletedOnboarding(): Boolean {
+        return prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
+    }
+
+    fun setOnboardingCompleted(completed: Boolean = true) {
+        prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETED, completed).apply()
+    }
+
     companion object {
         private const val KEY_THEME_MODE = "key_theme_mode"
         private const val KEY_CALENDAR_TYPE = "key_calendar_type"
@@ -116,5 +124,6 @@ class UserPreferences(context: Context) {
         private const val KEY_HTTP_LOGGING = "key_http_logging"
         private const val KEY_SHOW_DEFAULT_SMS_PROMPT = "key_show_default_sms_prompt"
         private const val KEY_DISMISSED_FEEDBACK_BANNERS = "key_dismissed_feedback_banners"
+        private const val KEY_ONBOARDING_COMPLETED = "key_onboarding_completed"
     }
 }

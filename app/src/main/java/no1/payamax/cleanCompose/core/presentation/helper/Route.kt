@@ -9,6 +9,9 @@ sealed class AppRoute {
     object SplashRoute : AppRoute()
 
     @Serializable
+    object OnboardingRoute : AppRoute()
+
+    @Serializable
     data class MessagesRoute(val messagesClass: List<PayamakUsabilityClass>) : AppRoute()
 
     @Serializable

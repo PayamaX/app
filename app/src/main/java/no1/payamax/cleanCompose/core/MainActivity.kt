@@ -26,10 +26,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import no1.payamax.BuildConfig
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ComposeMessageRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
+import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.OnboardingRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.SplashRoute
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.ThreadConversationRoute
 import no1.payamax.cleanCompose.core.presentation.ui.theme.PayamaxTheme
@@ -37,6 +41,7 @@ import no1.payamax.cleanCompose.featureSplash.presentation.SplashScreen
 import no1.payamax.composables.ComposeMessageScreen
 import no1.payamax.composables.MessageScreen
 import no1.payamax.composables.MessagesScreen
+import no1.payamax.composables.OnboardingScreen
 import no1.payamax.composables.ThreadConversationScreen
 import no1.payamax.services.SmsNotificationManager
 import no1.payamax.utils.AppLanguage
@@ -131,7 +136,7 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(pendingNotificationTarget, currentBackStackEntry) {
                         val target = pendingNotificationTarget ?: return@LaunchedEffect
                         val currentRoute = currentBackStackEntry?.destination?.route ?: return@LaunchedEffect
-                        if (!currentRoute.contains("SplashRoute")) {
+                        if (!currentRoute.contains("SplashRoute") && !currentRoute.contains("OnboardingRoute")) {
                             pendingNotificationTarget = null
                             navController.navigate(
                                 ThreadConversationRoute(
@@ -150,7 +155,16 @@ class MainActivity : ComponentActivity() {
                             SplashScreen(navController = navController)
                         }
 
-                        composable<MessagesRoute> { entry ->
+                        composable<OnboardingRoute>(
+                            enterTransition = { fadeIn(animationSpec = tween(420)) },
+                            exitTransition = { fadeOut(animationSpec = tween(320)) }
+                        ) {
+                            OnboardingScreen(navController = navController)
+                        }
+
+                        composable<MessagesRoute>(
+                            enterTransition = { fadeIn(animationSpec = tween(360)) }
+                        ) { entry ->
                             val route = entry.toRoute<MessagesRoute>()
                             MessagesScreen(
                                 contentResolver,

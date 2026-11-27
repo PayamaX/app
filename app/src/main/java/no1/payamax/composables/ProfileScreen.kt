@@ -52,7 +52,10 @@ import no1.payamax.utils.UserPreferences
 import org.koin.java.KoinJavaComponent.inject
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    onReplayOnboarding: (() -> Unit)? = null
+) {
     val userPreferences by inject<UserPreferences>(UserPreferences::class.java)
     val currentThemeMode by userPreferences.themeMode.collectAsState()
     val currentCalendarType by userPreferences.calendarType.collectAsState()
@@ -179,17 +182,30 @@ fun ProfileScreen(modifier: Modifier = Modifier) {
                 ),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                ProfileItem(
-                    title = stringResource(R.string.http_logging_title),
-                    icon = Icons.Outlined.BugReport,
-                    showChevron = false,
-                    trailingContent = {
-                        Switch(
-                            checked = currentHttpLogging,
-                            onCheckedChange = { userPreferences.setHttpLoggingEnabled(it) }
+                Column {
+                    ProfileItem(
+                        title = stringResource(R.string.http_logging_title),
+                        icon = Icons.Outlined.BugReport,
+                        showChevron = false,
+                        trailingContent = {
+                            Switch(
+                                checked = currentHttpLogging,
+                                onCheckedChange = { userPreferences.setHttpLoggingEnabled(it) }
+                            )
+                        }
+                    )
+                    if (onReplayOnboarding != null) {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                        ProfileItem(
+                            title = stringResource(R.string.replay_onboarding_title),
+                            icon = Icons.Outlined.Info,
+                            onClick = {
+                                userPreferences.setOnboardingCompleted(false)
+                                onReplayOnboarding()
+                            }
                         )
                     }
-                )
+                }
             }
 
             // Section 2: About App Info

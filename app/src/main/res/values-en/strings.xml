@@ -210,4 +210,51 @@
     <string name="delete_success_toast">Messages deleted successfully</string>
     <string name="delete_failed_toast">Failed to delete messages</string>
     <string name="delete_requires_default_sms_toast">PayamaX must be set as the default SMS app to delete messages</string>
+
+    <!-- Onboarding Pager Strings -->
+    <string name="onboarding_step_indicator">Step %1$d of %2$d</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_enter_app">Enter PayamaX</string>
+    <string name="onboarding_open_app_settings">Open Permission Settings</string>
+    <string name="onboarding_skip_step">Not Now</string>
+
+    <string name="onboarding_welcome_badge">Smart SMS Experience</string>
+    <string name="onboarding_welcome_title">Welcome to PayamaX</string>
+    <string name="onboarding_welcome_desc">PayamaX is an intelligent SMS assistant that automatically separates your OTPs, banking alerts, and personal chats from promotional spam.</string>
+    <string name="onboarding_feature_smart_title">Smart Classification</string>
+    <string name="onboarding_feature_smart_desc">Automatically separates important &amp; useful texts from spam</string>
+    <string name="onboarding_feature_silent_title">Silent Spam Protection</string>
+    <string name="onboarding_feature_silent_desc">Alerts &amp; vibration only for important messages—zero spam noise</string>
+    <string name="onboarding_feature_privacy_title">100% On-Device Privacy</string>
+    <string name="onboarding_feature_privacy_desc">Fast local analysis right on your phone with full privacy</string>
+
+    <string name="onboarding_contacts_title">Recognize Your Contacts</string>
+    <string name="onboarding_contacts_desc">Contacts access ensures messages from your friends and family always appear with their name and photo under Important messages—never misclassified as spam.</string>
+    <string name="onboarding_contacts_privacy_note">Your contacts stay strictly on your device</string>
+    <string name="onboarding_contacts_granted">Contacts access granted</string>
+    <string name="onboarding_contacts_action">Allow Contacts Access</string>
+
+    <string name="onboarding_sms_notif_title">SMS &amp; Smart Notifications</string>
+    <string name="onboarding_sms_notif_desc">Grant SMS and Notification permissions so PayamaX can organize your inbox, send replies in chat, and alert you instantly when important messages arrive:</string>
+    <string name="onboarding_perm_sms_title">Read, Receive &amp; Send SMS</string>
+    <string name="onboarding_perm_sms_desc">Organize inbox threads and reply directly in conversations</string>
+    <string name="onboarding_perm_notif_title">Important Message Alerts</string>
+    <string name="onboarding_perm_notif_desc">Instant notifications for OTP codes and personal texts</string>
+    <string name="onboarding_perm_status_granted">Granted</string>
+    <string name="onboarding_perm_status_required">Required</string>
+    <string name="onboarding_sms_notif_action">Allow SMS &amp; Notifications</string>
+    <string name="onboarding_sms_only_action">Allow SMS Access</string>
+    <string name="onboarding_notif_only_action">Enable Notifications</string>
+
+    <string name="onboarding_default_title">Set as Default SMS App</string>
+    <string name="onboarding_default_desc">Finally, set PayamaX as your default SMS app to unlock the complete messaging experience:</string>
+    <string name="onboarding_default_benefit_1">Direct SMS delivery with automatic silent spam filtering</string>
+    <string name="onboarding_default_benefit_2">Modern two-way chat conversations and direct replying</string>
+    <string name="onboarding_default_benefit_3">One-tap bulk cleanup and deletion of spam messages</string>
+    <string name="onboarding_default_granted">PayamaX is your default SMS app</string>
+    <string name="onboarding_default_action">Set as Default SMS App</string>
+    <string name="onboarding_default_skip">Maybe Later, Enter App</string>
+    <string name="replay_onboarding_title">Replay Onboarding Tour</string>
 </resources>

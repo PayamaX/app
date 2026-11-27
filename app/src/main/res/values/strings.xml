@@ -210,4 +210,51 @@
     <string name="delete_success_toast">پیامک‌ها با موفقیت حذف شدند</string>
     <string name="delete_failed_toast">خطا در حذف پیامک‌ها</string>
     <string name="delete_requires_default_sms_toast">برای حذف پیامک‌ها در اندروید، پیامکس باید به عنوان برنامه پیش‌فرض پیامک انتخاب شود</string>
+
+    <!-- Onboarding Pager Strings -->
+    <string name="onboarding_step_indicator">گام %1$d از %2$d</string>
+    <string name="onboarding_skip">رد شدن</string>
+    <string name="onboarding_next">مرحله بعد</string>
+    <string name="onboarding_get_started">شروع کنیم</string>
+    <string name="onboarding_enter_app">ورود به پیامکس</string>
+    <string name="onboarding_open_app_settings">باز کردن تنظیمات مجوزها</string>
+    <string name="onboarding_skip_step">فعلاً رد شدن</string>
+
+    <string name="onboarding_welcome_badge">نسل جدید مدیریت پیامک</string>
+    <string name="onboarding_welcome_title">به پیامکس خوش آمدید</string>
+    <string name="onboarding_welcome_desc">پیامکس یک دستیار هوشمند است که پیامک‌های مهم بانکی، کدهای تأیید و گفت‌وگوهای شخصی شما را از انبوه پیام‌های تبلیغاتی جدا می‌کند.</string>
+    <string name="onboarding_feature_smart_title">تفکیک هوشمند پیامک‌ها</string>
+    <string name="onboarding_feature_smart_desc">جداسازی خودکار پیام‌های مهم و کاربردی از هرزنامه‌ها</string>
+    <string name="onboarding_feature_silent_title">سکوت در برابر اسپم</string>
+    <string name="onboarding_feature_silent_desc">اعلان و ویبره فقط برای پیام‌های مهم؛ بدون مزاحمت تبلیغات</string>
+    <string name="onboarding_feature_privacy_title">پردازش کاملاً محلی و امن</string>
+    <string name="onboarding_feature_privacy_desc">تحلیل پیام‌ها روی دستگاه شما با حفظ کامل حریم خصوصی</string>
+
+    <string name="onboarding_contacts_title">شناسایی مخاطبین شما</string>
+    <string name="onboarding_contacts_desc">با دسترسی به دفترچه تلفن، پیامک‌های دوستان، خانواده و مخاطبین ذخیره‌شده همیشه با نام و عکس خودشان در بخش پیام‌های مهم قرار می‌گیرند و هرگز اسپم تشخیص داده نمی‌شوند.</string>
+    <string name="onboarding_contacts_privacy_note">فهرست مخاطبین شما فقط روی گوشی پردازش می‌شود</string>
+    <string name="onboarding_contacts_granted">دسترسی به مخاطبین فعال شد</string>
+    <string name="onboarding_contacts_action">اعطای دسترسی مخاطبین</string>
+
+    <string name="onboarding_sms_notif_title">دسترسی پیامک‌ها و اعلان هوشمند</string>
+    <string name="onboarding_sms_notif_desc">برای نمایش و دسته‌بندی صندوق پیامک‌ها، ارسال پاسخ در محیط چت و اطلاع‌رسانی به‌موقع پیام‌های مهم، مجوزهای زیر مورد نیاز است:</string>
+    <string name="onboarding_perm_sms_title">خواندن، دریافت و ارسال پیامک</string>
+    <string name="onboarding_perm_sms_desc">دسته‌بندی صندوق ورودی و امکان پاسخ‌دهی مستقیم</string>
+    <string name="onboarding_perm_notif_title">نمایش اعلان پیام‌های مهم</string>
+    <string name="onboarding_perm_notif_desc">اطلاع‌رسانی آنی کدهای تأیید و پیامک‌های کاربردی</string>
+    <string name="onboarding_perm_status_granted">فعال</string>
+    <string name="onboarding_perm_status_required">نیازمند تأیید</string>
+    <string name="onboarding_sms_notif_action">اعطای مجوزهای پیامک و اعلان</string>
+    <string name="onboarding_sms_only_action">اعطای دسترسی پیامک</string>
+    <string name="onboarding_notif_only_action">فعال‌سازی اعلان‌ها</string>
+
+    <string name="onboarding_default_title">انتخاب به عنوان برنامه پیش‌فرض</string>
+    <string name="onboarding_default_desc">در گام پایانی، پیامکس را به عنوان برنامه اصلی پیامک دستگاه تنظیم کنید تا مدیریت کامل پیامک‌ها فعال شود:</string>
+    <string name="onboarding_default_benefit_1">دریافت مستقیم پیامک‌ها و فیلتر خودکار اعلان‌های اسپم</string>
+    <string name="onboarding_default_benefit_2">گفت‌وگوی دوطرفه مدرن به همراه ارسال پیامک</string>
+    <string name="onboarding_default_benefit_3">امکان پاک‌سازی و حذف یکجای پیامک‌های تبلیغاتی</string>
+    <string name="onboarding_default_granted">پیامکس برنامه پیش‌فرض پیامک است</string>
+    <string name="onboarding_default_action">تنظیم به عنوان برنامه پیش‌فرض</string>
+    <string name="onboarding_default_skip">فعلاً نه، ورود به برنامه</string>
+    <string name="replay_onboarding_title">مشاهده مجدد راهنمای شروع برنامه</string>
 </resources>
