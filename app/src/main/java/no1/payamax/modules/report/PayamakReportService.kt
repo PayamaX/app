@@ -156,14 +156,18 @@ class PayamakReportService(
             )
         }
 
-        // 2. Call API endpoint
+        // 2. Call API endpoint. Each call accepts at most 100 items.
         return try {
             withContext(Dispatchers.IO) {
                 val api = PayamakReportsPublicV1ControllerApi(BuildConfig.PAX_API_URL)
-                api.postPublicPayamakReport(PayamakReportPostPublicInput(items = apiItems))
-            }
-            for (id in insertedIds) {
-                reportQueries.markAsSynced(id)
+                val itemChunks = apiItems.chunked(MAX_ITEMS_PER_REPORT_CALL)
+                val idChunks = insertedIds.chunked(MAX_ITEMS_PER_REPORT_CALL)
+                for ((itemChunk, idChunk) in itemChunks.zip(idChunks)) {
+                    api.postPublicPayamakReport(PayamakReportPostPublicInput(items = itemChunk))
+                    for (id in idChunk) {
+                        reportQueries.markAsSynced(id)
+                    }
+                }
             }
             ReportSubmissionResult.Success(items.size)
         } catch (e: Exception) {
@@ -176,6 +180,7 @@ class PayamakReportService(
 
     private companion object {
         const val TAG = "PayamakReport"
+        const val MAX_ITEMS_PER_REPORT_CALL = 100
     }
 
     private fun String.toUsabilityClass(): PayamakUsabilityClass? = when (this) {

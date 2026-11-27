@@ -50,7 +50,7 @@ android {
         applicationId = "no1.payamax"
         minSdk = 26
         targetSdk = 37
-        versionCode = 18
+        versionCode = 19
         versionName = "$versionCode"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

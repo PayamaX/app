@@ -140,6 +140,7 @@
     <string name="report_success_toast">گزارش پیامک‌ها با موفقیت ذخیره و ارسال شد</string>
     <string name="report_saved_offline_toast">گزارش در پایگاه داده محلی ذخیره شد، اما ارسال به سرور با خطا مواجه شد</string>
     <string name="report_no_selection_toast">لطفاً حداقل یک پیامک را برای گزارش انتخاب کنید</string>
+    <string name="report_already_reported">گزارش شده</string>
 
     <!-- Interactive Feedback Banner & Sheet Strings -->
     <string name="banner_is_spam_question">آیا پیام‌های این فرستنده اسپم هستند؟</string>

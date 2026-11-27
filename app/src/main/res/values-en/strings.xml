@@ -140,6 +140,7 @@
     <string name="report_success_toast">SMS report saved and submitted successfully</string>
     <string name="report_saved_offline_toast">Report saved to local database, but server submission failed</string>
     <string name="report_no_selection_toast">Please select at least one message to report</string>
+    <string name="report_already_reported">Already reported</string>
 
     <!-- Interactive Feedback Banner & Sheet Strings -->
     <string name="banner_is_spam_question">Is this sender spam?</string>

@@ -150,6 +150,7 @@ fun FilteredPayamaksComposable(
     val selectedThreadKeys = remember { mutableStateMapOf<String, Boolean>() }
     val userOpinions = remember { mutableStateMapOf<Long, PayamakUsabilityClass>() }
     val userComments = remember { mutableStateMapOf<Long, String>() }
+    val reportedPayamakIds = remember { mutableStateMapOf<Long, Boolean>() }
 
     var showReportConfirmDialog by remember { mutableStateOf(false) }
     var allowAllSpamInfo by remember { mutableStateOf(true) }
@@ -342,12 +343,16 @@ fun FilteredPayamaksComposable(
     val reportMessageIds = threads.map { it.latestMessage.pp.id }
     LaunchedEffect(reportMessageIds) {
         if (reportMessageIds.isEmpty()) return@LaunchedEffect
+        val saved = reportService.savedReportsByPayamakId()
         applySavedPayamakReports(
-            saved = reportService.savedReportsByPayamakId(),
+            saved = saved,
             payamakIds = reportMessageIds,
             userComments = userComments,
             userOpinions = userOpinions,
         )
+        for (id in reportMessageIds) {
+            if (id in saved) reportedPayamakIds[id] = true
+        }
     }
 
     if (showPermissionDialog) {
@@ -548,6 +553,11 @@ fun FilteredPayamaksComposable(
                                 )
                                 isSubmittingReport = false
                                 showReportConfirmDialog = false
+                                if (result is ReportSubmissionResult.Success || result is ReportSubmissionResult.SavedLocallyOnly) {
+                                    for (item in itemsToSubmit) {
+                                        reportedPayamakIds[item.message.pp.id] = true
+                                    }
+                                }
                                 when (result) {
                                     is ReportSubmissionResult.Success -> {
                                         Toast.makeText(context, reportSuccessMessage, Toast.LENGTH_LONG).show()
@@ -833,7 +843,8 @@ fun FilteredPayamaksComposable(
                 userComments = userComments,
                 onUserCommentChanged = { id, comment ->
                     userComments[id] = comment
-                }
+                },
+                reportedPayamakIds = reportedPayamakIds.keys
             )
         }
     }
