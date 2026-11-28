@@ -23,6 +23,9 @@ work = "2.12.0"
 xerialSqliteJdbc = "3.54.1.0"
 openapiGenerator = "7.27.0"
 coilCompose = "2.7.0"
+googleServices = "4.6.0"
+firebaseCrashlyticsGradle = "3.0.8"
+firebaseBom = "35.2.0"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -61,6 +64,8 @@ sqldelight-sqlite-driver = {group = "app.cash.sqldelight", name = "sqlite-driver
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidVersion" }
@@ -68,3 +73,5 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 sqldelight-plugin = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 openapi-generator = { id = "org.openapi.generator", version.ref = "openapiGenerator" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradle" }

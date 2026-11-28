@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import no1.payamax.BuildConfig
 import no1.payamax.api.apis.RankedOriginsPublicV1ControllerApi
 import no1.payamax.api.models.RankedOriginPublicPortable
 import no1.payamax.config.PaxConfig
@@ -59,7 +60,7 @@ class RankedOriginService(
         var cursorId: Long? = null
         do {
             val apiItems = withContext(Dispatchers.IO) {
-                RankedOriginsPublicV1ControllerApi().getPublicRankedOriginChanges(lastSyncedText, cursorInstant, cursorId)
+                RankedOriginsPublicV1ControllerApi(BuildConfig.PAX_API_URL).getPublicRankedOriginChanges(lastSyncedText, cursorInstant, cursorId)
             }
             if (apiItems.isEmpty()) {
                 break

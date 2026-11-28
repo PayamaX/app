@@ -94,6 +94,11 @@ class PayamakReportServiceTest {
         assertTrue(record.sha512!!.length == 128)
         assertEquals("Useful", record.expected_diagnostics)
         assertEquals("A useful message", record.reporter_comment)
+        assertEquals(1L, record.payamak_id)
+
+        val saved = service.savedReportsByPayamakId()
+        assertEquals("A useful message", saved[1L]?.userComment)
+        assertEquals(PayamakUsabilityClass.Usable, saved[1L]?.userOpinion)
     }
 
     @Test
@@ -139,5 +144,46 @@ class PayamakReportServiceTest {
         assertEquals("Buy lottery tickets now!", record.body)
         assertNotNull(record.sha512)
         assertEquals("Spam", record.expected_diagnostics)
+        assertEquals(2L, record.payamak_id)
+    }
+
+    @Test
+    fun `latest report for a payamak is the one reloaded`() = runBlocking {
+        val service = PayamakReportService(
+            reportQueries = database.payamakReportQueries,
+            rankedOriginContract = rankedOriginContract,
+            engine = engine
+        )
+        val payamak = Payamak(
+            id = 5L,
+            received = 1732111222000L,
+            origin = Origin(null, "Sender", null),
+            body = "Hello"
+        )
+        val usability = Usability(
+            clazz = PayamakUsabilityClass.Spam,
+            rate = UsabilityRate(0.2),
+            processResults = emptyList()
+        )
+        val message = ReviewableProcessedPayamak(
+            pp = ProcessedPayamakModel(5L, payamak, usability),
+            selected = true
+        )
+
+        service.submitBatchReport(
+            items = listOf(PayamakReportSubmissionItem(message, PayamakUsabilityClass.Spam, "first")),
+            allowAllSpamInfo = false,
+            usableInfoSharingOption = UsableInfoSharingOption.PARTIAL
+        )
+        service.submitBatchReport(
+            items = listOf(PayamakReportSubmissionItem(message, PayamakUsabilityClass.Important, "second")),
+            allowAllSpamInfo = false,
+            usableInfoSharingOption = UsableInfoSharingOption.PARTIAL
+        )
+
+        val saved = service.savedReportsByPayamakId()
+        assertEquals(1, saved.size)
+        assertEquals("second", saved[5L]?.userComment)
+        assertEquals(PayamakUsabilityClass.Important, saved[5L]?.userOpinion)
     }
 }

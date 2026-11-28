@@ -82,9 +82,11 @@ import no1.payamax.contracts.PayamakUsabilityClass
 import no1.payamax.hasValue
 import no1.payamax.model.PayamakThread
 import no1.payamax.model.ReviewableProcessedPayamak
+import no1.payamax.modules.report.applySavedPayamakReports
 import no1.payamax.modules.report.PayamakReportContract
 import no1.payamax.modules.report.PayamakReportSubmissionItem
 import no1.payamax.modules.report.ReportSubmissionResult
+import no1.payamax.modules.report.describeReportFailure
 import no1.payamax.modules.report.UsableInfoSharingOption
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
@@ -148,6 +150,7 @@ fun FilteredPayamaksComposable(
     val selectedThreadKeys = remember { mutableStateMapOf<String, Boolean>() }
     val userOpinions = remember { mutableStateMapOf<Long, PayamakUsabilityClass>() }
     val userComments = remember { mutableStateMapOf<Long, String>() }
+    val reportedPayamakIds = remember { mutableStateMapOf<Long, Boolean>() }
 
     var showReportConfirmDialog by remember { mutableStateOf(false) }
     var allowAllSpamInfo by remember { mutableStateOf(true) }
@@ -334,6 +337,21 @@ fun FilteredPayamaksComposable(
     LaunchedEffect(selectedCategoryIndex, threads.size) {
         if (filteredThreads.size < 10 && hasMoreToLoad && !isLoadingMore) {
             loadNextBatch()
+        }
+    }
+
+    val reportMessageIds = threads.map { it.latestMessage.pp.id }
+    LaunchedEffect(reportMessageIds) {
+        if (reportMessageIds.isEmpty()) return@LaunchedEffect
+        val saved = reportService.savedReportsByPayamakId()
+        applySavedPayamakReports(
+            saved = saved,
+            payamakIds = reportMessageIds,
+            userComments = userComments,
+            userOpinions = userOpinions,
+        )
+        for (id in reportMessageIds) {
+            if (id in saved) reportedPayamakIds[id] = true
         }
     }
 
@@ -535,6 +553,11 @@ fun FilteredPayamaksComposable(
                                 )
                                 isSubmittingReport = false
                                 showReportConfirmDialog = false
+                                if (result is ReportSubmissionResult.Success || result is ReportSubmissionResult.SavedLocallyOnly) {
+                                    for (item in itemsToSubmit) {
+                                        reportedPayamakIds[item.message.pp.id] = true
+                                    }
+                                }
                                 when (result) {
                                     is ReportSubmissionResult.Success -> {
                                         Toast.makeText(context, reportSuccessMessage, Toast.LENGTH_LONG).show()
@@ -542,12 +565,20 @@ fun FilteredPayamaksComposable(
                                         selectedThreadKeys.clear()
                                     }
                                     is ReportSubmissionResult.SavedLocallyOnly -> {
-                                        Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            "$reportSavedOfflineMessage\n${result.throwable.describeReportFailure()}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                         isReportMode = false
                                         selectedThreadKeys.clear()
                                     }
                                     is ReportSubmissionResult.Failure -> {
-                                        Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            result.throwable.describeReportFailure(),
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
                                 }
                             }
@@ -812,7 +843,8 @@ fun FilteredPayamaksComposable(
                 userComments = userComments,
                 onUserCommentChanged = { id, comment ->
                     userComments[id] = comment
-                }
+                },
+                reportedPayamakIds = reportedPayamakIds.keys
             )
         }
     }

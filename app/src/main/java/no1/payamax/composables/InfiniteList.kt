@@ -44,6 +44,7 @@ fun InfiniteList(
     onUserOpinionChanged: ((Long, PayamakUsabilityClass) -> Unit)? = null,
     userComments: Map<Long, String> = emptyMap(),
     onUserCommentChanged: ((Long, String) -> Unit)? = null,
+    reportedPayamakIds: Set<Long> = emptySet(),
     isLoading: Boolean = false,
 ) {
     val listState = rememberLazyListState()
@@ -80,7 +81,8 @@ fun InfiniteList(
                 onUserCommentChanged = { newComment ->
                     onUserCommentChanged?.invoke(msgId, newComment)
                 },
-                calendarType = calendarType
+                calendarType = calendarType,
+                isReported = reportedPayamakIds.contains(msgId)
             )
         }
 
@@ -125,6 +127,7 @@ fun ThreadInfiniteList(
     onUserOpinionChanged: ((Long, PayamakUsabilityClass) -> Unit)? = null,
     userComments: Map<Long, String> = emptyMap(),
     onUserCommentChanged: ((Long, String) -> Unit)? = null,
+    reportedPayamakIds: Set<Long> = emptySet(),
 ) {
     val listState = rememberLazyListState()
 
@@ -154,7 +157,8 @@ fun ThreadInfiniteList(
                 userComment = userComments[msgId] ?: "",
                 onUserCommentChanged = { comment ->
                     onUserCommentChanged?.invoke(msgId, comment)
-                }
+                },
+                isReported = reportedPayamakIds.contains(msgId)
             )
         }
 

@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,9 +64,10 @@ fun MessageComposable(
     userComment: String = "",
     onUserCommentChanged: ((String) -> Unit)? = null,
     calendarType: CalendarType = CalendarType.PERSIAN,
+    isReported: Boolean = false,
 ) {
     val usabilityClass = if (isReportMode && userOpinion != null) userOpinion else msgValue.pp.activeUsabilityClass
-    val (bgColor, textColor, strokeColor) = ColorSchemeExtension.getUsabilityColors(usabilityClass)
+    val (_, _, strokeColor) = ColorSchemeExtension.getUsabilityColors(usabilityClass)
     val spacing = MaterialTheme.spacing
 
     Card(
@@ -150,18 +154,14 @@ fun MessageComposable(
 
                 Spacer(modifier = Modifier.width(spacing.small))
 
-                // Usability Pill Badge
-                Surface(
-                    shape = RoundedCornerShape(999.dp),
-                    color = bgColor,
-                    border = BorderStroke(1.dp, strokeColor.copy(alpha = 0.5f))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(spacing.extraSmall)
                 ) {
-                    Text(
-                        text = getUsabilityPersianTitle(usabilityClass),
-                        modifier = Modifier.padding(horizontal = spacing.small + 2.dp, vertical = spacing.extraSmall),
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = textColor
-                    )
+                    if (isReported) {
+                        ReportedPayamakIcon()
+                    }
+                    UsabilityPill(usabilityClass = usabilityClass)
                 }
             }
 
@@ -331,6 +331,34 @@ fun PersianDateTimeChips(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ReportedPayamakIcon() {
+    Icon(
+        imageVector = Icons.Outlined.Flag,
+        contentDescription = stringResource(R.string.report_already_reported),
+        modifier = Modifier.size(18.dp),
+        tint = MaterialTheme.colorScheme.primary
+    )
+}
+
+@Composable
+fun UsabilityPill(usabilityClass: PayamakUsabilityClass) {
+    val (bgColor, textColor, strokeColor) = ColorSchemeExtension.getUsabilityColors(usabilityClass)
+    val spacing = MaterialTheme.spacing
+    Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = bgColor,
+        border = BorderStroke(1.dp, strokeColor.copy(alpha = 0.5f))
+    ) {
+        Text(
+            text = getUsabilityPersianTitle(usabilityClass),
+            modifier = Modifier.padding(horizontal = spacing.small + 2.dp, vertical = spacing.extraSmall),
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = textColor
+        )
     }
 }
 

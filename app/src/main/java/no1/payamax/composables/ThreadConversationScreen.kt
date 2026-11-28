@@ -75,9 +75,11 @@ import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessageRoute
 import no1.payamax.cleanCompose.core.presentation.ui.theme.spacing
 import no1.payamax.contracts.PayamakUsabilityClass
+import no1.payamax.modules.report.applySavedPayamakReports
 import no1.payamax.modules.report.PayamakReportContract
 import no1.payamax.modules.report.PayamakReportSubmissionItem
 import no1.payamax.modules.report.ReportSubmissionResult
+import no1.payamax.modules.report.describeReportFailure
 import no1.payamax.modules.report.UsableInfoSharingOption
 import no1.payamax.services.InstantProviderService
 import no1.payamax.services.UsabilityProcessorEngine
@@ -116,6 +118,7 @@ fun ThreadConversationScreen(
     val selectedItemIds = remember { mutableStateMapOf<Long, Boolean>() }
     val userOpinions = remember { mutableStateMapOf<Long, PayamakUsabilityClass>() }
     val userComments = remember { mutableStateMapOf<Long, String>() }
+    val reportedPayamakIds = remember { mutableStateMapOf<Long, Boolean>() }
 
     var showReportConfirmDialog by remember { mutableStateOf(false) }
     var allowAllSpamInfo by remember { mutableStateOf(true) }
@@ -149,6 +152,21 @@ fun ThreadConversationScreen(
     EnsurePermissions {
         LaunchedEffect(address, title) {
             viewModel.loadThread(contentResolver, address, title, engine)
+        }
+    }
+
+    val reportMessageIds = viewModel.messages.map { it.pp.id }
+    LaunchedEffect(reportMessageIds) {
+        if (reportMessageIds.isEmpty()) return@LaunchedEffect
+        val saved = reportService.savedReportsByPayamakId()
+        applySavedPayamakReports(
+            saved = saved,
+            payamakIds = reportMessageIds,
+            userComments = userComments,
+            userOpinions = userOpinions,
+        )
+        for (id in reportMessageIds) {
+            if (id in saved) reportedPayamakIds[id] = true
         }
     }
 
@@ -332,6 +350,11 @@ fun ThreadConversationScreen(
                                 )
                                 isSubmittingReport = false
                                 showReportConfirmDialog = false
+                                if (result is ReportSubmissionResult.Success || result is ReportSubmissionResult.SavedLocallyOnly) {
+                                    for (item in itemsToSubmit) {
+                                        reportedPayamakIds[item.message.pp.id] = true
+                                    }
+                                }
                                 when (result) {
                                     is ReportSubmissionResult.Success -> {
                                         Toast.makeText(context, reportSuccessMessage, Toast.LENGTH_LONG).show()
@@ -339,12 +362,20 @@ fun ThreadConversationScreen(
                                         selectedItemIds.clear()
                                     }
                                     is ReportSubmissionResult.SavedLocallyOnly -> {
-                                        Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            "$reportSavedOfflineMessage\n${result.throwable.describeReportFailure()}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                         isReportMode = false
                                         selectedItemIds.clear()
                                     }
                                     is ReportSubmissionResult.Failure -> {
-                                        Toast.makeText(context, reportSavedOfflineMessage, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(
+                                            context,
+                                            result.throwable.describeReportFailure(),
+                                            Toast.LENGTH_LONG
+                                        ).show()
                                     }
                                 }
                             }
@@ -714,7 +745,8 @@ fun ThreadConversationScreen(
                         onUserCommentChanged = { comment ->
                             userComments[msgId] = comment
                         },
-                        calendarType = calendarType
+                        calendarType = calendarType,
+                        isReported = reportedPayamakIds.containsKey(msgId)
                     )
                 }
 

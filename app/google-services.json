@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "700716559144",
+    "project_id": "no1pax",
+    "storage_bucket": "no1pax.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700716559144:android:9aa99cfd89c7a4cfa0fe1d",
+        "android_client_info": {
+          "package_name": "no1.payamax"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGhQhEmAc4s08yCSqsnZYh7HXw5Nm4s84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700716559144:android:acb609a56f2849c4a0fe1d",
+        "android_client_info": {
+          "package_name": "no1.payamax.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGhQhEmAc4s08yCSqsnZYh7HXw5Nm4s84"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
