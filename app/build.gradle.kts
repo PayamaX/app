@@ -99,6 +99,37 @@ android {
 val signedArtifactStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmm", Locale.US))
 val signedArtifactSeparator = "\uFF3F"
 
+fun ensureDebugKeystore(storeFile: File, storePassword: String, keyAlias: String, keyPassword: String) {
+    if (storeFile.isFile) return
+    storeFile.parentFile?.mkdirs()
+    val keytoolName = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) "keytool.exe" else "keytool"
+    val keytool = File(System.getProperty("java.home"), "bin/$keytoolName")
+    val execution = providers.exec {
+        commandLine(
+            keytool.absolutePath,
+            "-genkeypair",
+            "-keystore", storeFile.absolutePath,
+            "-storetype", "PKCS12",
+            "-storepass", storePassword,
+            "-alias", keyAlias,
+            "-keypass", keyPassword,
+            "-keyalg", "RSA",
+            "-keysize", "2048",
+            "-validity", "10000",
+            "-dname", "CN=Android Debug,O=Android,C=US",
+        )
+        isIgnoreExitValue = true
+    }
+    val completed = execution.result.get()
+    if (completed.exitValue != 0 || !storeFile.isFile) {
+        val output = execution.standardOutput.asText.get() + execution.standardError.asText.get()
+        throw GradleException(
+            "Could not create debug keystore at ${storeFile.path} (exit ${completed.exitValue}): $output",
+        )
+    }
+    logger.lifecycle("Created debug keystore at ${storeFile.path}")
+}
+
 fun certificateSha1(storeFile: File, storePassword: String, keyAlias: String, storeType: String?): String {
     val types = buildList {
         if (!storeType.isNullOrBlank()) add(storeType)
@@ -156,6 +187,10 @@ fun signingCertificateSha1(buildTypeName: String): String {
         ?: throw GradleException("Signing config '${signingConfig.name}' has no store password")
     val keyAlias = signingConfig.keyAlias
         ?: throw GradleException("Signing config '${signingConfig.name}' has no key alias")
+    val keyPassword = signingConfig.keyPassword ?: storePassword
+    if (!storeFile.isFile && signingConfig.name == "debug") {
+        ensureDebugKeystore(storeFile, storePassword, keyAlias, keyPassword)
+    }
     return certificateSha1(storeFile, storePassword, keyAlias, signingConfig.storeType)
 }
 
