@@ -109,7 +109,12 @@ fun MainTabScreen(
 
             1 -> {
                 ProfileScreen(
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding),
+                    onReplayOnboarding = {
+                        navController.navigate(
+                            no1.payamax.cleanCompose.core.presentation.helper.AppRoute.OnboardingRoute
+                        )
+                    }
                 )
             }
         }

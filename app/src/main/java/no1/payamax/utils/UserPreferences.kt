@@ -86,10 +86,44 @@ class UserPreferences(context: Context) {
         _httpLoggingEnabled.value = enabled
     }
 
+    fun shouldShowDefaultSmsPrompt(): Boolean {
+        return prefs.getBoolean(KEY_SHOW_DEFAULT_SMS_PROMPT, true)
+    }
+
+    fun setDismissDefaultSmsPrompt(neverShowAgain: Boolean = true) {
+        prefs.edit().putBoolean(KEY_SHOW_DEFAULT_SMS_PROMPT, !neverShowAgain).apply()
+    }
+
+    fun isFeedbackBannerDismissed(senderKey: String): Boolean {
+        if (senderKey.isBlank()) return true
+        val dismissed = prefs.getStringSet(KEY_DISMISSED_FEEDBACK_BANNERS, emptySet()) ?: emptySet()
+        return dismissed.contains(senderKey)
+    }
+
+    fun dismissFeedbackBanner(senderKey: String) {
+        if (senderKey.isBlank()) return
+        val updated = prefs.getStringSet(KEY_DISMISSED_FEEDBACK_BANNERS, emptySet())?.toMutableSet()
+            ?: mutableSetOf()
+        if (updated.add(senderKey)) {
+            prefs.edit().putStringSet(KEY_DISMISSED_FEEDBACK_BANNERS, updated).apply()
+        }
+    }
+
+    fun hasCompletedOnboarding(): Boolean {
+        return prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
+    }
+
+    fun setOnboardingCompleted(completed: Boolean = true) {
+        prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETED, completed).apply()
+    }
+
     companion object {
         private const val KEY_THEME_MODE = "key_theme_mode"
         private const val KEY_CALENDAR_TYPE = "key_calendar_type"
         private const val KEY_APP_LANGUAGE = "key_app_language"
         private const val KEY_HTTP_LOGGING = "key_http_logging"
+        private const val KEY_SHOW_DEFAULT_SMS_PROMPT = "key_show_default_sms_prompt"
+        private const val KEY_DISMISSED_FEEDBACK_BANNERS = "key_dismissed_feedback_banners"
+        private const val KEY_ONBOARDING_COMPLETED = "key_onboarding_completed"
     }
 }

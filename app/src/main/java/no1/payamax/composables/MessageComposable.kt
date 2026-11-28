@@ -65,6 +65,7 @@ fun MessageComposable(
     onUserCommentChanged: ((String) -> Unit)? = null,
     calendarType: CalendarType = CalendarType.PERSIAN,
     isReported: Boolean = false,
+    maxBodyLines: Int = 3,
 ) {
     val usabilityClass = if (isReportMode && userOpinion != null) userOpinion else msgValue.pp.activeUsabilityClass
     val (_, _, strokeColor) = ColorSchemeExtension.getUsabilityColors(usabilityClass)
@@ -171,8 +172,8 @@ fun MessageComposable(
                 text = msgValue.pp.payamak.body,
                 style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = if (isReportMode && isSelected) Int.MAX_VALUE else 3,
-                overflow = if (isReportMode && isSelected) TextOverflow.Clip else TextOverflow.Ellipsis
+                maxLines = if (isReportMode && isSelected) Int.MAX_VALUE else maxBodyLines,
+                overflow = if ((isReportMode && isSelected) || maxBodyLines == Int.MAX_VALUE) TextOverflow.Clip else TextOverflow.Ellipsis
             )
 
             if (isReportMode && isSelected) {

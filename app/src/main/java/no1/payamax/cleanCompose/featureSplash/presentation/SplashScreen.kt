@@ -37,10 +37,14 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 import no1.payamax.R
 import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.MessagesRoute
+import no1.payamax.cleanCompose.core.presentation.helper.AppRoute.OnboardingRoute
 import no1.payamax.contracts.PayamakUsabilityClass
+import no1.payamax.utils.UserPreferences
+import org.koin.java.KoinJavaComponent
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
+    val userPreferences = remember { KoinJavaComponent.get<UserPreferences>(UserPreferences::class.java) }
     val scale = remember { Animatable(0.2f) }
     val alpha = remember { Animatable(0f) }
 
@@ -57,15 +61,21 @@ fun SplashScreen(navController: NavHostController) {
             )
         )
         delay(400L)
-        navController.navigate(
-            MessagesRoute(
-                listOf(
-                    PayamakUsabilityClass.Important,
-                    PayamakUsabilityClass.Usable
+        if (!userPreferences.hasCompletedOnboarding()) {
+            navController.navigate(OnboardingRoute) {
+                popUpTo(0) { inclusive = true }
+            }
+        } else {
+            navController.navigate(
+                MessagesRoute(
+                    listOf(
+                        PayamakUsabilityClass.Important,
+                        PayamakUsabilityClass.Usable
+                    )
                 )
-            )
-        ) {
-            popUpTo(0) { inclusive = true }
+            ) {
+                popUpTo(0) { inclusive = true }
+            }
         }
     }
 

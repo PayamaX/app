@@ -23,6 +23,8 @@ class PayamaxApp : Application() {
 
         ApiClient.builder.addInterceptor(DynamicHttpLoggingInterceptor(userPreferences))
 
+        no1.payamax.services.SmsNotificationManager.ensureChannel(this)
+
         SyncWorker.schedule(this)
     }
 }

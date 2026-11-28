@@ -29,6 +29,7 @@ fun PayamaxScaffold(
     onNavigationIconClick: (() -> Unit)? = null,
     actions: @Composable (RowScope.() -> Unit) = {},
     bottomBar: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
     topBarHeader: (@Composable () -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
@@ -66,6 +67,7 @@ fun PayamaxScaffold(
             }
         },
         bottomBar = bottomBar,
+        floatingActionButton = floatingActionButton,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
         content(paddingValues)

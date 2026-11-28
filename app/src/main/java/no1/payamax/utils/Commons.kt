@@ -105,11 +105,17 @@ fun process(cursor: Cursor, contentResolver: ContentResolver, payamakColumns: Pa
     val addressTitle = if (address == null) addressValue else null
     val contactInfo = if (addressValue.isNotBlank()) ContactCache.getContact(addressValue, contentResolver) else null
     val origin = Origin(address, addressTitle, contactInfo)
+    val smsType = if (payamakColumns.typeIndex >= 0) {
+        cursor.getInt(payamakColumns.typeIndex)
+    } else {
+        Payamak.MESSAGE_TYPE_INBOX
+    }
     val payamak = Payamak(
         cursor.getLong(payamakColumns.idIndex),
         cursor.getLong(payamakColumns.dateIndex),
         origin,
-        cursor.getString(payamakColumns.bodyIndex) ?: ""
+        cursor.getString(payamakColumns.bodyIndex) ?: "",
+        smsType
     )
 
     return ReviewableProcessedPayamak(
@@ -132,12 +138,25 @@ fun processFast(
     val address = addressValue.toLongOrNull()?.cellNumber()
     val addressTitle = if (address == null) addressValue else null
     val origin = Origin(address, addressTitle, cachedContact)
+    val smsType = if (payamakColumns.typeIndex >= 0) {
+        cursor.getInt(payamakColumns.typeIndex)
+    } else {
+        Payamak.MESSAGE_TYPE_INBOX
+    }
     val payamak = Payamak(
         cursor.getLong(payamakColumns.idIndex),
         cursor.getLong(payamakColumns.dateIndex),
         origin,
-        cursor.getString(payamakColumns.bodyIndex) ?: ""
+        cursor.getString(payamakColumns.bodyIndex) ?: "",
+        smsType
     )
+
+    val sendStatus = when (smsType) {
+        Payamak.MESSAGE_TYPE_SENT -> no1.payamax.model.SmsSendStatus.SENT
+        Payamak.MESSAGE_TYPE_OUTBOX, Payamak.MESSAGE_TYPE_QUEUED -> no1.payamax.model.SmsSendStatus.SENDING
+        Payamak.MESSAGE_TYPE_FAILED -> no1.payamax.model.SmsSendStatus.FAILED
+        else -> no1.payamax.model.SmsSendStatus.NONE
+    }
 
     return ReviewableProcessedPayamak(
         ProcessedPayamakModel(
@@ -145,6 +164,7 @@ fun processFast(
             payamak,
             engine.detect(payamak)
         ),
-        false
+        false,
+        sendStatus
     )
 }

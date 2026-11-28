@@ -12,6 +12,7 @@ import java.security.cert.X509Certificate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -37,9 +38,21 @@ fun javaStringLiteral(value: String): String {
     return "\"" + escaped + "\""
 }
 
-fun envar(name: String): String {
+val defaultPaxApiUrl = "https://api.pax.no1.ir:1443"
+val defaultPaxAuthRealmUrl = "https://auth.pax.no1.ir:1443/realms/pax"
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.isFile) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun envar(name: String, default: String): String {
     return providers.environmentVariable(name).orNull?.trim()?.takeIf { it.isNotEmpty() }
-        ?: throw GradleException("$name environment variable is not set")
+        ?: providers.gradleProperty(name).orNull?.trim()?.takeIf { it.isNotEmpty() }
+        ?: localProperties.getProperty(name)?.trim()?.takeIf { it.isNotEmpty() }
+        ?: default
 }
 
 android {
@@ -58,8 +71,8 @@ android {
             useSupportLibrary = true
         }
 
-        buildConfigField("String", "PAX_API_URL", javaStringLiteral(envar("PAX_API_URL")))
-        buildConfigField("String", "PAX_AUTH_REALM_URL", javaStringLiteral(envar("PAX_AUTH_REALM_URL")))
+        buildConfigField("String", "PAX_API_URL", javaStringLiteral(envar("PAX_API_URL", defaultPaxApiUrl)))
+        buildConfigField("String", "PAX_AUTH_REALM_URL", javaStringLiteral(envar("PAX_AUTH_REALM_URL", defaultPaxAuthRealmUrl)))
     }
 
     buildTypes {
@@ -282,10 +295,11 @@ val apiGet = tasks.register("apiGet") {
     outputs.upToDateWhen { false }
 
     val apiUrl = providers.environmentVariable("PAX_API_URL")
+        .orElse(providers.gradleProperty("PAX_API_URL"))
+        .orElse(defaultPaxApiUrl)
     val specFile = apiSpec
     doLast {
-        val base = apiUrl.orNull?.trim()?.trimEnd('/')
-            ?: throw GradleException("PAX_API_URL environment variable is not set")
+        val base = apiUrl.get().trim().trimEnd('/')
         val specUrl = "$base/v3/api-docs/public"
         val destination = specFile.asFile
         destination.parentFile.mkdirs()

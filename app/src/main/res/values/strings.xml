@@ -130,9 +130,9 @@
     <string name="report_comment_placeholder">نظر یا توضیحات خود را درباره این پیامک بنویسید...</string>
     <string name="report_dialog_title">تأیید ارسال گزارش پیامک‌ها</string>
     <string name="report_dialog_desc">آیا از ارسال گزارش %1$d پیامک انتخابی به سرور پیامکص اطمینان دارید؟ لطفاً دسترسی‌های حریم خصوصی را مشخص کنید:</string>
-    <string name="report_dialog_spam_consent">من اجازه می‌دهم تمامی اطلاعات پیام‌های اسپم با پیامکس به اشتراک گذاشته شود</string>
+    <string name="report_dialog_spam_consent">من اجازه می‌دهم تمامی اطلاعات پیام‌های اسپم با پیامکص به اشتراک گذاشته شود</string>
     <string name="report_dialog_spam_consent_desc">شامل متن کامل و فرستنده پیامک برای ارتقای تشخیص هرزنامه‌ها</string>
-    <string name="report_dialog_usable_consent">من اجازه می‌دهم اطلاعات جزئی/کامل پیام‌های مفید با پیامکس به اشتراک گذاشته شود</string>
+    <string name="report_dialog_usable_consent">من اجازه می‌دهم اطلاعات جزئی/کامل پیام‌های مفید با پیامکص به اشتراک گذاشته شود</string>
     <string name="report_dialog_usable_partial">جزئی (فقط هش متن - حفظ حریم خصوصی)</string>
     <string name="report_dialog_usable_full">کامل (شامل متن پیامک)</string>
     <string name="report_dialog_confirm">ارسال گزارش</string>
@@ -155,4 +155,107 @@
     <string name="report_message_indicator">پیامک %1$d از %2$d</string>
     <string name="report_prev_message">پیامک قبلی</string>
     <string name="report_next_message">پیامک بعدی</string>
+
+    <!-- Conversation & Compose Strings -->
+    <string name="compose_new_message">پیام جدید</string>
+    <string name="compose_message_placeholder">پیامک بنویسید...</string>
+    <string name="compose_send">ارسال</string>
+    <string name="compose_to_label">گیرنده</string>
+    <string name="compose_to_placeholder">نام مخاطب یا شماره تلفن را وارد کنید...</string>
+    <string name="compose_start_chat_with">ارسال پیام به %1$s</string>
+    <string name="compose_contacts_header">مخاطبین</string>
+    <string name="compose_no_contacts">مخاطبی یافت نشد</string>
+    <string name="compose_invalid_number">شماره تلفن معتبر وارد کنید</string>
+    <string name="compose_empty_conversation">هنوز پیامی در این گفتگو وجود ندارد. اولین پیام خود را بنویسید!</string>
+    <string name="sms_sending">در حال ارسال...</string>
+    <string name="sms_sent">ارسال شد</string>
+    <string name="sms_failed">ارسال ناموفق — برای تلاش مجدد لمس کنید</string>
+    <string name="sms_send_permission_required">برای ارسال پیامک، مجوز ارسال SMS لازم است</string>
+    <string name="sms_send_failed_toast">خطا در ارسال پیامک</string>
+
+    <!-- Default SMS App Suggestion Strings -->
+    <string name="default_sms_dialog_title">انتخاب پیامکص به عنوان برنامه پیامک اصلی</string>
+    <string name="default_sms_dialog_desc">برای تجربه بهتر، ارسال و دریافت روان پیام‌ها و جلوگیری از ارسال اعلان‌های تکراری، پیامکص را به عنوان برنامه پیش‌فرض پیامک دستگاه انتخاب کنید.</string>
+    <string name="default_sms_action_set">تنظیم به عنوان پیش‌فرض</string>
+    <string name="default_sms_action_later">بعداً</string>
+    <string name="default_sms_action_never">دیگر نشان نده</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_channel_sms_name">پیامک‌های ورودی</string>
+    <string name="notification_channel_sms_desc">اعلان پیامک‌های مهم، کاربردی و نامشخص (پیامک‌های اسپم بدون اعلان هستند)</string>
+    <string name="notification_new_message_hidden">پیامک جدید</string>
+    <string name="notification_permission_denied">مجوز نمایش اعلان‌ها غیرفعال است. برای دریافت اعلان پیامک‌های جدید آن را فعال کنید.</string>
+    <string name="notification_permission_comment">برای نمایش اعلان پیامک‌های مهم و کاربردی به محض دریافت، مجوز ارسال اعلان (نوتیفیکیشن) لازم است.</string>
+    <string name="notification_permission_command">فعال‌سازی اعلان‌ها</string>
+    <string name="notification_permission_open_settings">باز کردن تنظیمات اعلان</string>
+    <string name="notification_permission_later">فعلاً نه</string>
+
+    <!-- Conversation Overflow Menu Strings -->
+    <string name="conversation_menu_more">گزینه‌های بیشتر</string>
+    <string name="conversation_change_category_title">تغییر دسته‌بندی فرستنده</string>
+    <string name="conversation_category_updated_toast">دسته‌بندی فرستنده به «%1$s» تغییر یافت</string>
+
+    <!-- Spam Category Delete Menu & Dialog Strings -->
+    <string name="spam_menu_select_messages">انتخاب پیامک‌ها</string>
+    <string name="spam_menu_report_to_server">گزارش اسپم‌ها به سرور</string>
+    <string name="spam_menu_delete_all">حذف همه</string>
+    <string name="delete_mode_title">حذف پیامک‌ها</string>
+    <string name="delete_mode_selected_count">%1$d مورد انتخاب شد</string>
+    <string name="delete_mode_action">حذف</string>
+    <string name="delete_no_selection_toast">لطفاً حداقل یک مورد را برای حذف انتخاب کنید</string>
+    <string name="delete_confirm_dialog_title">تأیید حذف پیامک‌ها</string>
+    <string name="delete_selected_confirm_desc">آیا از حذف %1$d مورد انتخاب‌شده مطمئن هستید؟ این عمل قابل بازگشت نیست.</string>
+    <string name="delete_all_confirm_desc">آیا از حذف تمام پیامک‌های اسپم مطمئن هستید؟ این عمل قابل بازگشت نیست.</string>
+    <string name="action_yes">بله</string>
+    <string name="action_no">خیر</string>
+    <string name="delete_success_toast">پیامک‌ها با موفقیت حذف شدند</string>
+    <string name="delete_failed_toast">خطا در حذف پیامک‌ها</string>
+    <string name="delete_requires_default_sms_toast">برای حذف پیامک‌ها در اندروید، پیامکص باید به عنوان برنامه پیش‌فرض پیامک انتخاب شود</string>
+
+    <!-- Onboarding Pager Strings -->
+    <string name="onboarding_step_indicator">گام %1$d از %2$d</string>
+    <string name="onboarding_skip">رد شدن</string>
+    <string name="onboarding_next">مرحله بعد</string>
+    <string name="onboarding_get_started">شروع کنیم</string>
+    <string name="onboarding_enter_app">ورود به پیامکص</string>
+    <string name="onboarding_open_app_settings">باز کردن تنظیمات مجوزها</string>
+    <string name="onboarding_skip_step">فعلاً رد شدن</string>
+
+    <string name="onboarding_welcome_badge">نسل جدید مدیریت پیامک</string>
+    <string name="onboarding_welcome_title">به پیامکص خوش آمدید</string>
+    <string name="onboarding_welcome_desc">پیامکص یک دستیار هوشمند است که پیامک‌های مهم بانکی، کدهای تأیید و گفت‌وگوهای شخصی شما را از انبوه پیام‌های تبلیغاتی جدا می‌کند.</string>
+    <string name="onboarding_feature_smart_title">تفکیک هوشمند پیامک‌ها</string>
+    <string name="onboarding_feature_smart_desc">جداسازی خودکار پیام‌های مهم و کاربردی از هرزنامه‌ها</string>
+    <string name="onboarding_feature_silent_title">سکوت در برابر اسپم</string>
+    <string name="onboarding_feature_silent_desc">اعلان و ویبره فقط برای پیام‌های مهم؛ بدون مزاحمت تبلیغات</string>
+    <string name="onboarding_feature_privacy_title">پردازش کاملاً محلی و امن</string>
+    <string name="onboarding_feature_privacy_desc">تحلیل پیام‌ها روی دستگاه شما با حفظ کامل حریم خصوصی</string>
+
+    <string name="onboarding_contacts_title">شناسایی مخاطبین شما</string>
+    <string name="onboarding_contacts_desc">با دسترسی به دفترچه تلفن، پیامک‌های دوستان، خانواده و مخاطبین ذخیره‌شده همیشه با نام و عکس خودشان در بخش پیام‌های مهم قرار می‌گیرند و هرگز اسپم تشخیص داده نمی‌شوند.</string>
+    <string name="onboarding_contacts_privacy_note">فهرست مخاطبین شما فقط روی گوشی پردازش می‌شود</string>
+    <string name="onboarding_contacts_granted">دسترسی به مخاطبین فعال شد</string>
+    <string name="onboarding_contacts_action">اعطای دسترسی مخاطبین</string>
+
+    <string name="onboarding_sms_notif_title">دسترسی پیامک‌ها و اعلان هوشمند</string>
+    <string name="onboarding_sms_notif_desc">برای نمایش و دسته‌بندی صندوق پیامک‌ها، ارسال پاسخ در محیط چت و اطلاع‌رسانی به‌موقع پیام‌های مهم، مجوزهای زیر مورد نیاز است:</string>
+    <string name="onboarding_perm_sms_title">خواندن، دریافت و ارسال پیامک</string>
+    <string name="onboarding_perm_sms_desc">دسته‌بندی صندوق ورودی و امکان پاسخ‌دهی مستقیم</string>
+    <string name="onboarding_perm_notif_title">نمایش اعلان پیام‌های مهم</string>
+    <string name="onboarding_perm_notif_desc">اطلاع‌رسانی آنی کدهای تأیید و پیامک‌های کاربردی</string>
+    <string name="onboarding_perm_status_granted">فعال</string>
+    <string name="onboarding_perm_status_required">نیازمند تأیید</string>
+    <string name="onboarding_sms_notif_action">اعطای مجوزهای پیامک و اعلان</string>
+    <string name="onboarding_sms_only_action">اعطای دسترسی پیامک</string>
+    <string name="onboarding_notif_only_action">فعال‌سازی اعلان‌ها</string>
+
+    <string name="onboarding_default_title">انتخاب به عنوان برنامه پیش‌فرض</string>
+    <string name="onboarding_default_desc">در گام پایانی، پیامکص را به عنوان برنامه اصلی پیامک دستگاه تنظیم کنید تا مدیریت کامل پیامک‌ها فعال شود:</string>
+    <string name="onboarding_default_benefit_1">دریافت مستقیم پیامک‌ها و فیلتر خودکار اعلان‌های اسپم</string>
+    <string name="onboarding_default_benefit_2">گفت‌وگوی دوطرفه مدرن به همراه ارسال پیامک</string>
+    <string name="onboarding_default_benefit_3">امکان پاک‌سازی و حذف یکجای پیامک‌های تبلیغاتی</string>
+    <string name="onboarding_default_granted">پیامکص برنامه پیش‌فرض پیامک است</string>
+    <string name="onboarding_default_action">تنظیم به عنوان برنامه پیش‌فرض</string>
+    <string name="onboarding_default_skip">فعلاً نه، ورود به برنامه</string>
+    <string name="replay_onboarding_title">مشاهده مجدد راهنمای شروع برنامه</string>
 </resources>

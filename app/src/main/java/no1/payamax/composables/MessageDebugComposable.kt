@@ -258,6 +258,9 @@ fun MessageDebugComposable(
 
                                 scope.launch {
                                     repo.upsert(msgValue.pp.payamak.origin, rank, OriginRankSource.User)
+                                    org.koin.java.KoinJavaComponent.get<no1.payamax.services.RankedOriginProcessor>(
+                                        no1.payamax.services.RankedOriginProcessor::class.java
+                                    ).ensureLoaded()
                                     msgValue.pp.usability = engine.detect(msgValue.pp.payamak)
 
                                     onDesiredResultChanged()

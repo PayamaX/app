@@ -120,6 +120,7 @@ fun ThreadInfiniteList(
     paddings: PaddingValues = PaddingValues(0.dp),
     isLoading: Boolean = false,
     isReportMode: Boolean = false,
+    isSelectionMode: Boolean = false,
     selectedKeys: Set<String> = emptySet(),
     onThreadLongClicked: ((PayamakThread) -> Unit)? = null,
     onThreadSelectToggle: ((String, Boolean) -> Unit)? = null,
@@ -145,6 +146,7 @@ fun ThreadInfiniteList(
                 thread = thread,
                 onThreadClicked = onThreadClicked,
                 isReportMode = isReportMode,
+                isSelectionMode = isSelectionMode,
                 isSelected = selectedKeys.contains(thread.key),
                 onThreadLongClicked = onThreadLongClicked,
                 onSelectedToggle = { isChecked ->

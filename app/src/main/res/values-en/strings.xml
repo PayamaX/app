@@ -155,4 +155,107 @@
     <string name="report_message_indicator">Message %1$d of %2$d</string>
     <string name="report_prev_message">Previous message</string>
     <string name="report_next_message">Next message</string>
+
+    <!-- Conversation & Compose Strings -->
+    <string name="compose_new_message">New Message</string>
+    <string name="compose_message_placeholder">Text message&#8230;</string>
+    <string name="compose_send">Send</string>
+    <string name="compose_to_label">To</string>
+    <string name="compose_to_placeholder">Type a name or phone number&#8230;</string>
+    <string name="compose_start_chat_with">Send to %1$s</string>
+    <string name="compose_contacts_header">Contacts</string>
+    <string name="compose_no_contacts">No matching contacts</string>
+    <string name="compose_invalid_number">Please enter a valid phone number</string>
+    <string name="compose_empty_conversation">No messages yet. Type a message to start the conversation!</string>
+    <string name="sms_sending">Sending&#8230;</string>
+    <string name="sms_sent">Sent</string>
+    <string name="sms_failed">Failed — tap to retry</string>
+    <string name="sms_send_permission_required">SEND_SMS permission is required to send text messages</string>
+    <string name="sms_send_failed_toast">Failed to send SMS</string>
+
+    <!-- Default SMS App Suggestion Strings -->
+    <string name="default_sms_dialog_title">Set PayamaX as Default SMS App</string>
+    <string name="default_sms_dialog_desc">Set PayamaX as your default SMS handler for smooth message delivery, direct replying, and unified spam filtering.</string>
+    <string name="default_sms_action_set">Set as Default</string>
+    <string name="default_sms_action_later">Maybe Later</string>
+    <string name="default_sms_action_never">Don\'t Ask Again</string>
+
+    <!-- Notification Strings -->
+    <string name="notification_channel_sms_name">Incoming SMS</string>
+    <string name="notification_channel_sms_desc">Alerts for important, useful, and unknown SMS (spam messages are silenced)</string>
+    <string name="notification_new_message_hidden">New message</string>
+    <string name="notification_permission_denied">Notifications are disabled. Please enable them to get alerts for incoming SMS.</string>
+    <string name="notification_permission_comment">Notification permission is required to alert you when important and useful SMS messages arrive.</string>
+    <string name="notification_permission_command">Allow Notifications</string>
+    <string name="notification_permission_open_settings">Open Notification Settings</string>
+    <string name="notification_permission_later">Not Now</string>
+
+    <!-- Conversation Overflow Menu Strings -->
+    <string name="conversation_menu_more">More options</string>
+    <string name="conversation_change_category_title">Change sender category</string>
+    <string name="conversation_category_updated_toast">Sender category changed to %1$s</string>
+
+    <!-- Spam Category Delete Menu & Dialog Strings -->
+    <string name="spam_menu_select_messages">Select messages</string>
+    <string name="spam_menu_report_to_server">Report spam to server</string>
+    <string name="spam_menu_delete_all">Delete all</string>
+    <string name="delete_mode_title">Delete Messages</string>
+    <string name="delete_mode_selected_count">%1$d selected</string>
+    <string name="delete_mode_action">Delete</string>
+    <string name="delete_no_selection_toast">Please select at least one item to delete</string>
+    <string name="delete_confirm_dialog_title">Confirm Deletion</string>
+    <string name="delete_selected_confirm_desc">Are you sure you want to delete %1$d selected item(s)? This action cannot be undone.</string>
+    <string name="delete_all_confirm_desc">Are you sure you want to delete all spam messages? This action cannot be undone.</string>
+    <string name="action_yes">Yes</string>
+    <string name="action_no">No</string>
+    <string name="delete_success_toast">Messages deleted successfully</string>
+    <string name="delete_failed_toast">Failed to delete messages</string>
+    <string name="delete_requires_default_sms_toast">PayamaX must be set as the default SMS app to delete messages</string>
+
+    <!-- Onboarding Pager Strings -->
+    <string name="onboarding_step_indicator">Step %1$d of %2$d</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_enter_app">Enter PayamaX</string>
+    <string name="onboarding_open_app_settings">Open Permission Settings</string>
+    <string name="onboarding_skip_step">Not Now</string>
+
+    <string name="onboarding_welcome_badge">Smart SMS Experience</string>
+    <string name="onboarding_welcome_title">Welcome to PayamaX</string>
+    <string name="onboarding_welcome_desc">PayamaX is an intelligent SMS assistant that automatically separates your OTPs, banking alerts, and personal chats from promotional spam.</string>
+    <string name="onboarding_feature_smart_title">Smart Classification</string>
+    <string name="onboarding_feature_smart_desc">Automatically separates important &amp; useful texts from spam</string>
+    <string name="onboarding_feature_silent_title">Silent Spam Protection</string>
+    <string name="onboarding_feature_silent_desc">Alerts &amp; vibration only for important messages—zero spam noise</string>
+    <string name="onboarding_feature_privacy_title">100% On-Device Privacy</string>
+    <string name="onboarding_feature_privacy_desc">Fast local analysis right on your phone with full privacy</string>
+
+    <string name="onboarding_contacts_title">Recognize Your Contacts</string>
+    <string name="onboarding_contacts_desc">Contacts access ensures messages from your friends and family always appear with their name and photo under Important messages—never misclassified as spam.</string>
+    <string name="onboarding_contacts_privacy_note">Your contacts stay strictly on your device</string>
+    <string name="onboarding_contacts_granted">Contacts access granted</string>
+    <string name="onboarding_contacts_action">Allow Contacts Access</string>
+
+    <string name="onboarding_sms_notif_title">SMS &amp; Smart Notifications</string>
+    <string name="onboarding_sms_notif_desc">Grant SMS and Notification permissions so PayamaX can organize your inbox, send replies in chat, and alert you instantly when important messages arrive:</string>
+    <string name="onboarding_perm_sms_title">Read, Receive &amp; Send SMS</string>
+    <string name="onboarding_perm_sms_desc">Organize inbox threads and reply directly in conversations</string>
+    <string name="onboarding_perm_notif_title">Important Message Alerts</string>
+    <string name="onboarding_perm_notif_desc">Instant notifications for OTP codes and personal texts</string>
+    <string name="onboarding_perm_status_granted">Granted</string>
+    <string name="onboarding_perm_status_required">Required</string>
+    <string name="onboarding_sms_notif_action">Allow SMS &amp; Notifications</string>
+    <string name="onboarding_sms_only_action">Allow SMS Access</string>
+    <string name="onboarding_notif_only_action">Enable Notifications</string>
+
+    <string name="onboarding_default_title">Set as Default SMS App</string>
+    <string name="onboarding_default_desc">Finally, set PayamaX as your default SMS app to unlock the complete messaging experience:</string>
+    <string name="onboarding_default_benefit_1">Direct SMS delivery with automatic silent spam filtering</string>
+    <string name="onboarding_default_benefit_2">Modern two-way chat conversations and direct replying</string>
+    <string name="onboarding_default_benefit_3">One-tap bulk cleanup and deletion of spam messages</string>
+    <string name="onboarding_default_granted">PayamaX is your default SMS app</string>
+    <string name="onboarding_default_action">Set as Default SMS App</string>
+    <string name="onboarding_default_skip">Maybe Later, Enter App</string>
+    <string name="replay_onboarding_title">Replay Onboarding Tour</string>
 </resources>
