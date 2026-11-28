@@ -197,6 +197,7 @@
 
     <!-- Spam Category Delete Menu & Dialog Strings -->
     <string name="spam_menu_select_messages">انتخاب پیامک‌ها</string>
+    <string name="spam_menu_report_to_server">گزارش اسپم‌ها به سرور</string>
     <string name="spam_menu_delete_all">حذف همه</string>
     <string name="delete_mode_title">حذف پیامک‌ها</string>
     <string name="delete_mode_selected_count">%1$d مورد انتخاب شد</string>

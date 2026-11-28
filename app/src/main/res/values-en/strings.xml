@@ -197,6 +197,7 @@
 
     <!-- Spam Category Delete Menu & Dialog Strings -->
     <string name="spam_menu_select_messages">Select messages</string>
+    <string name="spam_menu_report_to_server">Report spam to server</string>
     <string name="spam_menu_delete_all">Delete all</string>
     <string name="delete_mode_title">Delete Messages</string>
     <string name="delete_mode_selected_count">%1$d selected</string>

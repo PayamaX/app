@@ -1,10 +1,7 @@
 package no1.payamax.composables
 
-import android.Manifest
 import android.content.ContentResolver
-import android.content.pm.PackageManager
 import android.database.Cursor
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -32,7 +29,7 @@ import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Deselect
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SelectAll
@@ -79,7 +76,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -99,8 +95,6 @@ import no1.payamax.modules.report.describeReportFailure
 import no1.payamax.modules.report.UsableInfoSharingOption
 import no1.payamax.services.PayamakColumns
 import no1.payamax.services.UsabilityProcessorEngine
-import no1.payamax.utils.ExcelExporter
-import no1.payamax.utils.OriginExportData
 import no1.payamax.utils.SmsDeleteHelper
 import no1.payamax.utils.process
 import org.koin.java.KoinJavaComponent.inject
@@ -133,9 +127,6 @@ fun FilteredPayamaksComposable(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val exportEmptyMessage = stringResource(R.string.export_empty)
-    val exportSuccessMessage = stringResource(R.string.export_success)
-    val exportFailedMessage = stringResource(R.string.export_failed)
     val reportSuccessMessage = stringResource(R.string.report_success_toast)
     val reportSavedOfflineMessage = stringResource(R.string.report_saved_offline_toast)
     val reportNoSelectionMessage = stringResource(R.string.report_no_selection_toast)
@@ -160,7 +151,6 @@ fun FilteredPayamaksComposable(
 
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
-    var showPermissionDialog by remember { mutableStateOf(false) }
     var showDefaultSmsPrompt by remember { mutableStateOf(false) }
 
     // Spam delete menu & selection state
@@ -262,69 +252,6 @@ fun FilteredPayamaksComposable(
                                 thread.origin.displayable().contains(searchQuery, ignoreCase = true) ||
                                 thread.address.contains(searchQuery, ignoreCase = true) ||
                                 thread.latestMessage.pp.payamak.body.contains(searchQuery, ignoreCase = true))
-            }
-        }
-    }
-
-    fun performExport() {
-        val categoryName = if (selectedCategoryIndex == 1) "Useful" else "Spam"
-        val categoryLabel = if (selectedCategoryIndex == 1) "پیام‌های مفید" else "اسپم و تبلیغاتی"
-
-        val exportList = threads
-            .filter { activeTypes.contains(it.latestMessage.pp.activeUsabilityClass) }
-            .filter {
-                if (selectedCategoryIndex == 1) {
-                    it.origin.contact == null || !it.origin.contact.hasValue
-                } else true
-            }
-            .distinctBy {
-                it.origin.number?.displayable() ?: it.origin.displayable()
-            }
-            .map {
-                val origin = it.origin
-                OriginExportData(
-                    title = origin.title ?: origin.displayable(),
-                    number = origin.number?.displayable() ?: "",
-                    category = categoryLabel
-                )
-            }
-
-        if (exportList.isEmpty()) {
-            Toast.makeText(context, exportEmptyMessage, Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val result = ExcelExporter.exportOriginsToCsv(context, categoryName, exportList)
-        result.onSuccess {
-            Toast.makeText(context, exportSuccessMessage, Toast.LENGTH_LONG).show()
-        }.onFailure {
-            Toast.makeText(context, exportFailedMessage, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    val storagePermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            performExport()
-        } else {
-            Toast.makeText(context, exportFailedMessage, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    fun onExportClicked() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            performExport()
-        } else {
-            val hasPermission = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-
-            if (hasPermission) {
-                performExport()
-            } else {
-                showPermissionDialog = true
             }
         }
     }
@@ -509,29 +436,6 @@ fun FilteredPayamaksComposable(
                             Text(stringResource(R.string.default_sms_action_later))
                         }
                     }
-                }
-            }
-        )
-    }
-
-    if (showPermissionDialog) {
-        AlertDialog(
-            onDismissRequest = { showPermissionDialog = false },
-            title = { Text(stringResource(R.string.export_permission_dialog_title)) },
-            text = { Text(stringResource(R.string.export_permission_dialog_desc)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showPermissionDialog = false
-                        storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    }
-                ) {
-                    Text(stringResource(R.string.export_permission_grant))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showPermissionDialog = false }) {
-                    Text(stringResource(R.string.export_cancel))
                 }
             }
         )
@@ -1082,15 +986,6 @@ fun FilteredPayamaksComposable(
                             )
                         },
                         actions = {
-                            if (selectedCategoryIndex == 1 || selectedCategoryIndex == 2) {
-                                IconButton(onClick = { onExportClicked() }) {
-                                    Icon(
-                                        imageVector = Icons.Default.FileDownload,
-                                        contentDescription = stringResource(R.string.export_excel),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
                             IconButton(onClick = { isSearchActive = !isSearchActive }) {
                                 Icon(
                                     imageVector = if (isSearchActive) Icons.Default.Clear else Icons.Default.Search,
@@ -1130,6 +1025,32 @@ fun FilteredPayamaksComposable(
                                                 } else {
                                                     isDeleteMode = true
                                                     selectedDeleteThreadKeys.clear()
+                                                }
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    text = stringResource(R.string.spam_menu_report_to_server),
+                                                    fontWeight = FontWeight.Medium
+                                                )
+                                            },
+                                            leadingIcon = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Flag,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                            },
+                                            onClick = {
+                                                showSpamMenu = false
+                                                if (filteredThreads.isEmpty()) {
+                                                    Toast.makeText(context, emptyMessagesMessage, Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    isDeleteMode = false
+                                                    selectedDeleteThreadKeys.clear()
+                                                    isReportMode = true
+                                                    selectedThreadKeys.clear()
                                                 }
                                             }
                                         )
